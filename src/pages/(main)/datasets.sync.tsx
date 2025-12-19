@@ -1,6 +1,7 @@
 import { m } from 'motion/react'
 import { useState } from 'react'
 
+import { LoadingCircle } from '~/components/ui/loading'
 import {
   Table,
   TableBody,
@@ -10,39 +11,10 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Spring } from '~/lib/spring'
+import type { Dataset } from '~/modules/datasets'
 import type { SortDir, SortKey, ViewMode } from '~/modules/datasets/components'
 import { DatasetsToolbar } from '~/modules/datasets/components'
-
-type Dataset = {
-  id: string
-  name: string
-  description: string
-  media: string
-  createdAt: string
-  createdBy: string
-  updatedAt: string
-}
-
-const mockDatasets: Dataset[] = [
-  {
-    id: '5a5c40b9-4b33-42eb-b2d0-e4921360bf36',
-    name: 'cashew-images-v1',
-    description: 'Cashew image dataset (v1)',
-    media: 'image',
-    createdAt: '2025-12-18T16:58:25.572391Z',
-    createdBy: 'aabfa0d6-b3be-4bf5-9d28-cc4956643625',
-    updatedAt: '2025-12-18T16:58:25.572391Z',
-  },
-  {
-    id: 'ad946ffb-7280-408b-b7e4-8f94e65fb015',
-    name: 'Cashew Dataset #1',
-    description: 'Cashew Dataset #1',
-    media: 'image',
-    createdAt: '2025-12-18T18:34:58.765709Z',
-    createdBy: 'aabfa0d6-b3be-4bf5-9d28-cc4956643625',
-    updatedAt: '2025-12-18T18:34:58.765709Z',
-  },
-]
+import { useDatasets } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -73,8 +45,7 @@ function relativeTime(dateString: string): string {
 }
 
 export const Component = () => {
-  // TODO: replace with actual datasets
-  const datasets = mockDatasets
+  const { data: datasets = [], isLoading, error } = useDatasets()
   const [view, setView] = useState<ViewMode>('table')
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
@@ -131,7 +102,20 @@ export const Component = () => {
             />
 
             <div className="rounded-2xl border border-border bg-background p-6">
-              {view === 'table' ? (
+              {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <LoadingCircle size="large" />
+                </div>
+              ) : error ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="text-lg font-semibold text-text mb-2">
+                    Failed to load datasets
+                  </div>
+                  <div className="text-sm text-text-secondary">
+                    {error.message}
+                  </div>
+                </div>
+              ) : view === 'table' ? (
                 <Table variant="hover">
                   <TableHeader>
                     <TableRow>
@@ -153,7 +137,7 @@ export const Component = () => {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      sortedDatasets.map((dataset) => (
+                      sortedDatasets.map((dataset: Dataset) => (
                         <TableRow key={dataset.id} variant="clickable">
                           <TableCell className="font-medium text-text">
                             {dataset.name}
@@ -163,7 +147,7 @@ export const Component = () => {
                           </TableCell>
                           <TableCell>
                             <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
-                              {dataset.media}
+                              {dataset.mediaType}
                             </span>
                           </TableCell>
                           <TableCell
