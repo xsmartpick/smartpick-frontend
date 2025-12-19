@@ -21,6 +21,17 @@ export interface GetDatasetsResponse {
   total?: number
 }
 
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public statusText?: string,
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
 export async function getDatasets(): Promise<Dataset[]> {
   const response = await fetch(`${API_BASE_URL}/v1/datasets`, {
     method: 'GET',
@@ -31,7 +42,11 @@ export async function getDatasets(): Promise<Dataset[]> {
 
   if (!response.ok) {
     const errorText = await response.text()
-    throw new Error(`Failed to fetch datasets: ${response.status} ${errorText}`)
+    throw new ApiError(
+      `Failed to fetch datasets: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
   }
 
   const data = await response.json()
