@@ -1,6 +1,5 @@
 import * as React from 'react'
 
-
 export interface SectionTitleProps {
   icon?: React.ReactNode
   title: string

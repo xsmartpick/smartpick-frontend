@@ -1,6 +1,7 @@
 import { m } from 'motion/react'
 import { useState } from 'react'
 
+import { EmptyState, ErrorState, LoadingState } from '~/components/common'
 import {
   Table,
   TableBody,
@@ -10,39 +11,10 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Spring } from '~/lib/spring'
+import type { Dataset } from '~/modules/datasets'
 import type { SortDir, SortKey, ViewMode } from '~/modules/datasets/components'
 import { DatasetsToolbar } from '~/modules/datasets/components'
-
-type Dataset = {
-  id: string
-  name: string
-  description: string
-  media: string
-  createdAt: string
-  createdBy: string
-  updatedAt: string
-}
-
-const mockDatasets: Dataset[] = [
-  {
-    id: '5a5c40b9-4b33-42eb-b2d0-e4921360bf36',
-    name: 'cashew-images-v1',
-    description: 'Cashew image dataset (v1)',
-    media: 'image',
-    createdAt: '2025-12-18T16:58:25.572391Z',
-    createdBy: 'aabfa0d6-b3be-4bf5-9d28-cc4956643625',
-    updatedAt: '2025-12-18T16:58:25.572391Z',
-  },
-  {
-    id: 'ad946ffb-7280-408b-b7e4-8f94e65fb015',
-    name: 'Cashew Dataset #1',
-    description: 'Cashew Dataset #1',
-    media: 'image',
-    createdAt: '2025-12-18T18:34:58.765709Z',
-    createdBy: 'aabfa0d6-b3be-4bf5-9d28-cc4956643625',
-    updatedAt: '2025-12-18T18:34:58.765709Z',
-  },
-]
+import { useDatasets } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -73,8 +45,7 @@ function relativeTime(dateString: string): string {
 }
 
 export const Component = () => {
-  // TODO: replace with actual datasets
-  const datasets = mockDatasets
+  const { data: datasets = [], isLoading, error, refetch } = useDatasets()
   const [view, setView] = useState<ViewMode>('table')
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
@@ -131,7 +102,19 @@ export const Component = () => {
             />
 
             <div className="rounded-2xl border border-border bg-background p-6">
-              {view === 'table' ? (
+              {isLoading ? (
+                <LoadingState message="Loading datasets..." />
+              ) : error ? (
+                <ErrorState
+                  title="Failed to load datasets"
+                  onRetry={() => refetch()}
+                />
+              ) : sortedDatasets.length === 0 ? (
+                <EmptyState
+                  title="No datasets found"
+                  message="Get started by creating your first dataset."
+                />
+              ) : view === 'table' ? (
                 <Table variant="hover">
                   <TableHeader>
                     <TableRow>
@@ -143,82 +126,65 @@ export const Component = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedDatasets.length === 0 ? (
-                      <TableRow>
+                    {sortedDatasets.map((dataset: Dataset) => (
+                      <TableRow key={dataset.id} variant="clickable">
+                        <TableCell className="font-medium text-text">
+                          {dataset.name}
+                        </TableCell>
+                        <TableCell className="text-text-secondary">
+                          {dataset.description || '—'}
+                        </TableCell>
+                        <TableCell>
+                          <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
+                            {dataset.mediaType}
+                          </span>
+                        </TableCell>
                         <TableCell
-                          colSpan={5}
-                          className="text-center text-text-tertiary py-8"
+                          className="text-text-secondary"
+                          title={formatDate(dataset.createdAt)}
                         >
-                          No datasets found
+                          {relativeTime(dataset.createdAt)}
+                        </TableCell>
+                        <TableCell
+                          className="text-text-secondary"
+                          title={formatDate(dataset.updatedAt)}
+                        >
+                          {relativeTime(dataset.updatedAt)}
                         </TableCell>
                       </TableRow>
-                    ) : (
-                      sortedDatasets.map((dataset) => (
-                        <TableRow key={dataset.id} variant="clickable">
-                          <TableCell className="font-medium text-text">
-                            {dataset.name}
-                          </TableCell>
-                          <TableCell className="text-text-secondary">
-                            {dataset.description || '—'}
-                          </TableCell>
-                          <TableCell>
-                            <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
-                              {dataset.media}
-                            </span>
-                          </TableCell>
-                          <TableCell
-                            className="text-text-secondary"
-                            title={formatDate(dataset.createdAt)}
-                          >
-                            {relativeTime(dataset.createdAt)}
-                          </TableCell>
-                          <TableCell
-                            className="text-text-secondary"
-                            title={formatDate(dataset.updatedAt)}
-                          >
-                            {relativeTime(dataset.updatedAt)}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
+                    ))}
                   </TableBody>
                 </Table>
               ) : (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {sortedDatasets.length === 0 ? (
-                    <div className="col-span-2 text-center text-text-tertiary py-8">
-                      No datasets found
-                    </div>
-                  ) : (
-                    sortedDatasets.map((dataset) => (
-                      <div
-                        key={dataset.id}
-                        className="rounded-2xl border border-border bg-background p-4 hover:shadow-md transition-shadow"
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="min-w-0 flex-1">
-                            <h3 className="font-semibold text-text truncate">
-                              {dataset.name}
-                            </h3>
-                            <p className="text-sm text-text-secondary mt-1 line-clamp-2">
-                              {dataset.description || '—'}
-                            </p>
-                          </div>
-                          <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text shrink-0">
-                            {dataset.media}
-                          </span>
+                  {sortedDatasets.map((dataset) => (
+                    <div
+                      key={dataset.id}
+                      className="rounded-2xl border border-border bg-background p-4 hover:shadow-md transition-shadow"
+                    >
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-text truncate">
+                            {dataset.name}
+                          </h3>
+                          <p className="text-sm text-text-secondary mt-1 line-clamp-2">
+                            {dataset.description || '—'}
+                          </p>
                         </div>
-                        <div className="flex items-center justify-between text-xs text-text-tertiary">
-                          <span title={formatDate(dataset.createdAt)}>
-                            Created: {relativeTime(dataset.createdAt)}
-                          </span>
-                          <span title={formatDate(dataset.updatedAt)}>
-                            Updated: {relativeTime(dataset.updatedAt)}
-                          </span>
-                        </div>
+                        <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text shrink-0">
+                          {dataset.mediaType}
+                        </span>
                       </div>
-                    ))
-                  )}
+                      <div className="flex items-center justify-between text-xs text-text-tertiary">
+                        <span title={formatDate(dataset.createdAt)}>
+                          Created: {relativeTime(dataset.createdAt)}
+                        </span>
+                        <span title={formatDate(dataset.updatedAt)}>
+                          Updated: {relativeTime(dataset.updatedAt)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
