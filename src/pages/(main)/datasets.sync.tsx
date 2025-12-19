@@ -25,7 +25,7 @@ import {
   CreateDatasetModal,
   DatasetsToolbar,
 } from '~/modules/datasets/components'
-import { useDatasets } from '~/modules/datasets/hooks'
+import { useCreateDataset, useDatasets } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -57,11 +57,11 @@ function relativeTime(dateString: string): string {
 
 export const Component = () => {
   const { data: datasets = [], isLoading, error, refetch } = useDatasets()
+  const createDatasetMutation = useCreateDataset()
   const [view, setView] = useState<ViewMode>('table')
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [optimisticDatasets, setOptimisticDatasets] = useState<Dataset[]>([])
 
   // Keyboard shortcut: N to create new dataset
   useEffect(() => {
@@ -86,10 +86,7 @@ export const Component = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  // Merge API datasets with optimistic updates
-  const allDatasets = [...datasets, ...optimisticDatasets]
-
-  const sortedDatasets = [...allDatasets].sort((a, b) => {
+  const sortedDatasets = [...datasets].sort((a, b) => {
     let aValue: string | number
     let bValue: string | number
 
@@ -113,26 +110,27 @@ export const Component = () => {
   })
 
   const handleCreateDataset = (formData: CreateDatasetFormData) => {
-    const newDataset: Dataset = {
-      id: `temp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-      name: formData.name,
-      description: formData.description,
-      mediaType: formData.mediaType,
-      createdAt: new Date().toISOString(),
-      createdBy: 'current-user', // Placeholder
-      updatedAt: new Date().toISOString(),
-    }
-
-    setOptimisticDatasets((prev) => [...prev, newDataset])
-
-    setIsCreateModalOpen(false)
-
-    toast.success('Dataset created successfully!', {
-      description: `${formData.name} has been added to your datasets.`,
-    })
-
-    // Note: In a real implementation, would call the API here
-    // and remove from optimistic list if it fails, or replace with real data on success
+    createDatasetMutation.mutate(
+      {
+        name: formData.name,
+        description: formData.description,
+        mediaType: formData.mediaType,
+      },
+      {
+        onSuccess: (createdDataset) => {
+          setIsCreateModalOpen(false)
+          toast.success('Dataset created successfully!', {
+            description: `${createdDataset.name} has been added to your datasets.`,
+          })
+        },
+        onError: (err) => {
+          toast.error('Failed to create dataset', {
+            description:
+              err instanceof Error ? err.message : 'An unknown error occurred',
+          })
+        },
+      },
+    )
   }
 
   return (

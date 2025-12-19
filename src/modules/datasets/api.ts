@@ -62,3 +62,32 @@ export async function getDatasets(): Promise<Dataset[]> {
 
   return []
 }
+
+export interface CreateDatasetRequest {
+  name: string
+  description: string
+  mediaType: MediaType
+}
+
+export async function createDataset(
+  request: CreateDatasetRequest,
+): Promise<Dataset> {
+  const response = await fetch(`${API_BASE_URL}/v1/datasets`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to create dataset: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
+  }
+
+  return response.json()
+}
