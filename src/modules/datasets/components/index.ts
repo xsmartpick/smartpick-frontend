@@ -4,6 +4,8 @@ export type {
   MediaType,
 } from './CreateDatasetModal'
 export { CreateDatasetModal } from './CreateDatasetModal'
+export type { DatasetDetailsProps } from './DatasetDetails'
+export { DatasetDetails } from './DatasetDetails'
 export type {
   DatasetsToolbarProps,
   SortDir,

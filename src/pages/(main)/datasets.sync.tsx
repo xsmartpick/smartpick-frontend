@@ -23,6 +23,7 @@ import type {
 } from '~/modules/datasets/components'
 import {
   CreateDatasetModal,
+  DatasetDetails,
   DatasetsToolbar,
 } from '~/modules/datasets/components'
 import { useCreateDataset, useDatasets } from '~/modules/datasets/hooks'
@@ -62,6 +63,7 @@ export const Component = () => {
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
 
   // Keyboard shortcut: N to create new dataset
   useEffect(() => {
@@ -214,7 +216,11 @@ export const Component = () => {
                   </TableHeader>
                   <TableBody>
                     {sortedDatasets.map((dataset: Dataset) => (
-                      <TableRow key={dataset.id} variant="clickable">
+                      <TableRow
+                        key={dataset.id}
+                        variant="clickable"
+                        onClick={() => setSelectedDataset(dataset)}
+                      >
                         <TableCell className="font-medium text-text">
                           {dataset.name}
                         </TableCell>
@@ -247,7 +253,8 @@ export const Component = () => {
                   {sortedDatasets.map((dataset) => (
                     <div
                       key={dataset.id}
-                      className="rounded-2xl border border-border bg-background p-4 hover:shadow-md transition-shadow"
+                      className="rounded-2xl border border-border bg-background p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => setSelectedDataset(dataset)}
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="min-w-0 flex-1">
@@ -281,6 +288,11 @@ export const Component = () => {
             open={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}
             onSubmit={handleCreateDataset}
+          />
+
+          <DatasetDetails
+            dataset={selectedDataset}
+            onClose={() => setSelectedDataset(null)}
           />
         </m.div>
       </div>
