@@ -1,7 +1,10 @@
+import { Database, Plus } from 'lucide-react'
 import { m } from 'motion/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { EmptyState, ErrorState, LoadingState } from '~/components/common'
+import { Button } from '~/components/ui/button'
 import {
   Table,
   TableBody,
@@ -12,8 +15,16 @@ import {
 } from '~/components/ui/table'
 import { Spring } from '~/lib/spring'
 import type { Dataset } from '~/modules/datasets'
-import type { SortDir, SortKey, ViewMode } from '~/modules/datasets/components'
-import { DatasetsToolbar } from '~/modules/datasets/components'
+import type {
+  CreateDatasetFormData,
+  SortDir,
+  SortKey,
+  ViewMode,
+} from '~/modules/datasets/components'
+import {
+  CreateDatasetModal,
+  DatasetsToolbar,
+} from '~/modules/datasets/components'
 import { useDatasets } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
@@ -49,8 +60,36 @@ export const Component = () => {
   const [view, setView] = useState<ViewMode>('table')
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [optimisticDatasets, setOptimisticDatasets] = useState<Dataset[]>([])
 
-  const sortedDatasets = [...datasets].sort((a, b) => {
+  // Keyboard shortcut: N to create new dataset
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Ignore if user is typing in an input/textarea
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return
+      }
+
+      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault()
+        setIsCreateModalOpen(true)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
+  // Merge API datasets with optimistic updates
+  const allDatasets = [...datasets, ...optimisticDatasets]
+
+  const sortedDatasets = [...allDatasets].sort((a, b) => {
     let aValue: string | number
     let bValue: string | number
 
@@ -73,23 +112,73 @@ export const Component = () => {
       : bStr.localeCompare(aStr)
   })
 
+  const handleCreateDataset = (formData: CreateDatasetFormData) => {
+    const newDataset: Dataset = {
+      id: `temp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+      name: formData.name,
+      description: formData.description,
+      mediaType: formData.mediaType,
+      createdAt: new Date().toISOString(),
+      createdBy: 'current-user', // Placeholder
+      updatedAt: new Date().toISOString(),
+    }
+
+    setOptimisticDatasets((prev) => [...prev, newDataset])
+
+    setIsCreateModalOpen(false)
+
+    toast.success('Dataset created successfully!', {
+      description: `${formData.name} has been added to your datasets.`,
+    })
+
+    // Note: In a real implementation, would call the API here
+    // and remove from optimistic list if it fails, or replace with real data on success
+  }
+
   return (
     <div className="min-h-screen bg-background text-text">
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      {/* Sticky Top Bar */}
+      <div className="sticky top-0 z-40 border-b border-border bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent text-background shadow-sm">
+              <Database className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-base font-semibold tracking-tight">
+                Datasets
+              </div>
+              <div className="text-xs text-text-secondary">
+                Manage your data collections
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="hidden items-center gap-2 rounded-xl border border-border bg-fill/50 px-3 py-2 text-xs text-text-tertiary md:flex">
+              <span className="font-medium text-text">Shortcuts</span>
+              <span className="rounded-md bg-fill px-1.5 py-0.5">N</span>
+              <span>new</span>
+            </div>
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              variant="primary"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New dataset
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-6 py-8">
         <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={Spring.presets.smooth}
         >
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-text mb-2">Datasets</h1>
-            <p className="text-text-secondary">
-              Manage your datasets here. View and organize your data
-              collections.
-            </p>
-          </div>
-
           <div className="space-y-4">
+            {/* Toolbar for view/sort controls */}
             <DatasetsToolbar
               view={view}
               onViewChange={setView}
@@ -189,6 +278,12 @@ export const Component = () => {
               )}
             </div>
           </div>
+
+          <CreateDatasetModal
+            open={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSubmit={handleCreateDataset}
+          />
         </m.div>
       </div>
     </div>

@@ -1,4 +1,10 @@
 export type {
+  CreateDatasetFormData,
+  CreateDatasetModalProps,
+  MediaType,
+} from './CreateDatasetModal'
+export { CreateDatasetModal } from './CreateDatasetModal'
+export type {
   DatasetsToolbarProps,
   SortDir,
   SortKey,
