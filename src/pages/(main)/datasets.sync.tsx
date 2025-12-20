@@ -25,6 +25,7 @@ import {
   CreateDatasetModal,
   DatasetDetails,
   DatasetsToolbar,
+  UserInfo,
 } from '~/modules/datasets/components'
 import { useCreateDataset, useDatasets } from '~/modules/datasets/hooks'
 
@@ -167,6 +168,7 @@ export const Component = () => {
               <Plus className="mr-2 h-4 w-4" />
               New dataset
             </Button>
+            <UserInfo />
           </div>
         </div>
       </div>
