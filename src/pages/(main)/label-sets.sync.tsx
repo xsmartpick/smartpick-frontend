@@ -3,7 +3,12 @@ import { m } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { EmptyState, ErrorState, LoadingState } from '~/components/common'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  UserInfo,
+} from '~/components/common'
 import { Button } from '~/components/ui/button'
 import {
   Table,
@@ -14,7 +19,6 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Spring } from '~/lib/spring'
-import { UserInfo } from '~/modules/datasets/components'
 import type { LabelSet } from '~/modules/label-sets'
 import type {
   CreateLabelSetFormData,
