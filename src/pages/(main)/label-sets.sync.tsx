@@ -1,4 +1,4 @@
-import { Database, Plus } from 'lucide-react'
+import { Plus, Tag } from 'lucide-react'
 import { m } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -19,19 +19,19 @@ import {
   TableRow,
 } from '~/components/ui/table'
 import { Spring } from '~/lib/spring'
-import type { Dataset } from '~/modules/datasets'
+import type { LabelSet } from '~/modules/label-sets'
 import type {
-  CreateDatasetFormData,
+  CreateLabelSetFormData,
   SortDir,
   SortKey,
   ViewMode,
-} from '~/modules/datasets/components'
+} from '~/modules/label-sets/components'
 import {
-  CreateDatasetModal,
-  DatasetDetails,
-  DatasetsToolbar,
-} from '~/modules/datasets/components'
-import { useCreateDataset, useDatasets } from '~/modules/datasets/hooks'
+  CreateLabelSetModal,
+  LabelSetDetails,
+  LabelSetsToolbar,
+} from '~/modules/label-sets/components'
+import { useCreateLabelSet, useLabelSets } from '~/modules/label-sets/hooks'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -62,15 +62,17 @@ function relativeTime(dateString: string): string {
 }
 
 export const Component = () => {
-  const { data: datasets = [], isLoading, error, refetch } = useDatasets()
-  const createDatasetMutation = useCreateDataset()
+  const { data: labelSets = [], isLoading, error, refetch } = useLabelSets()
+  const createLabelSetMutation = useCreateLabelSet()
   const [view, setView] = useState<ViewMode>('table')
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
+  const [selectedLabelSet, setSelectedLabelSet] = useState<LabelSet | null>(
+    null,
+  )
 
-  // Keyboard shortcut: N to create new dataset
+  // Keyboard shortcut: N to create new label set
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       // Ignore if user is typing in an input/textarea
@@ -93,7 +95,7 @@ export const Component = () => {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
-  const sortedDatasets = [...datasets].sort((a, b) => {
+  const sortedLabelSets = [...labelSets].sort((a, b) => {
     let aValue: string | number
     let bValue: string | number
 
@@ -116,22 +118,22 @@ export const Component = () => {
       : bStr.localeCompare(aStr)
   })
 
-  const handleCreateDataset = (formData: CreateDatasetFormData) => {
-    createDatasetMutation.mutate(
+  const handleCreateLabelSet = (formData: CreateLabelSetFormData) => {
+    createLabelSetMutation.mutate(
       {
         name: formData.name,
         description: formData.description,
-        mediaType: formData.mediaType,
+        labels: formData.labels,
       },
       {
-        onSuccess: (createdDataset) => {
+        onSuccess: (createdLabelSet) => {
           setIsCreateModalOpen(false)
-          toast.success('Dataset created successfully!', {
-            description: `${createdDataset.name} has been added to your datasets.`,
+          toast.success('Label set created successfully!', {
+            description: `${createdLabelSet.name} has been added to your label sets.`,
           })
         },
         onError: (err) => {
-          toast.error('Failed to create dataset', {
+          toast.error('Failed to create label set', {
             description:
               err instanceof Error ? err.message : 'An unknown error occurred',
           })
@@ -147,14 +149,14 @@ export const Component = () => {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent text-background shadow-sm">
-              <Database className="h-5 w-5" />
+              <Tag className="h-5 w-5" />
             </div>
             <div>
               <div className="text-base font-semibold tracking-tight">
-                Datasets
+                Label Sets
               </div>
               <div className="text-xs text-text-secondary">
-                Manage your data collections
+                Manage your label collections
               </div>
             </div>
           </div>
@@ -170,7 +172,7 @@ export const Component = () => {
               variant="primary"
             >
               <Plus className="mr-2 h-4 w-4" />
-              New dataset
+              New label set
             </Button>
             <UserInfo />
           </div>
@@ -185,7 +187,7 @@ export const Component = () => {
         >
           <div className="space-y-4">
             {/* Toolbar for view/sort controls */}
-            <DatasetsToolbar
+            <LabelSetsToolbar
               view={view}
               onViewChange={setView}
               sortKey={sortKey}
@@ -198,16 +200,16 @@ export const Component = () => {
 
             <div className="rounded-2xl border border-border bg-background p-6">
               {isLoading ? (
-                <LoadingState message="Loading datasets..." />
+                <LoadingState message="Loading label sets..." />
               ) : error ? (
                 <ErrorState
-                  title="Failed to load datasets"
+                  title="Failed to load label sets"
                   onRetry={() => refetch()}
                 />
-              ) : sortedDatasets.length === 0 ? (
+              ) : sortedLabelSets.length === 0 ? (
                 <EmptyState
-                  title="No datasets found"
-                  message="Get started by creating your first dataset."
+                  title="No label sets found"
+                  message="Get started by creating your first label set."
                 />
               ) : view === 'table' ? (
                 <Table variant="hover">
@@ -215,40 +217,64 @@ export const Component = () => {
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Description</TableHead>
-                      <TableHead>Media Type</TableHead>
+                      <TableHead>Labels</TableHead>
                       <TableHead>Created</TableHead>
                       <TableHead>Updated</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedDatasets.map((dataset: Dataset) => (
+                    {sortedLabelSets.map((labelSet: LabelSet) => (
                       <TableRow
-                        key={dataset.id}
+                        key={labelSet.id}
                         variant="clickable"
-                        onClick={() => setSelectedDataset(dataset)}
+                        onClick={() => setSelectedLabelSet(labelSet)}
                       >
                         <TableCell className="font-medium text-text">
-                          {dataset.name}
+                          {labelSet.name}
                         </TableCell>
                         <TableCell className="text-text-secondary">
-                          {dataset.description || '—'}
+                          {labelSet.description || '—'}
                         </TableCell>
                         <TableCell>
-                          <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
-                            {dataset.mediaType}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-text">
+                              {labelSet.labels.length}
+                            </span>
+                            <span className="text-xs text-text-tertiary">
+                              label{labelSet.labels.length !== 1 ? 's' : ''}
+                            </span>
+                            {labelSet.labels.length > 0 && (
+                              <div className="flex items-center gap-1 ml-2">
+                                {labelSet.labels.slice(0, 3).map((label) => (
+                                  <div
+                                    key={label.id}
+                                    className="h-3 w-3 rounded-full border border-border"
+                                    style={{
+                                      backgroundColor: label.color || '#6B7280',
+                                    }}
+                                    title={label.name}
+                                  />
+                                ))}
+                                {labelSet.labels.length > 3 && (
+                                  <span className="text-xs text-text-tertiary">
+                                    +{labelSet.labels.length - 3}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell
                           className="text-text-secondary"
-                          title={formatDate(dataset.createdAt)}
+                          title={formatDate(labelSet.createdAt)}
                         >
-                          {relativeTime(dataset.createdAt)}
+                          {relativeTime(labelSet.createdAt)}
                         </TableCell>
                         <TableCell
                           className="text-text-secondary"
-                          title={formatDate(dataset.updatedAt)}
+                          title={formatDate(labelSet.updatedAt)}
                         >
-                          {relativeTime(dataset.updatedAt)}
+                          {relativeTime(labelSet.updatedAt)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -256,31 +282,60 @@ export const Component = () => {
                 </Table>
               ) : (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  {sortedDatasets.map((dataset) => (
+                  {sortedLabelSets.map((labelSet) => (
                     <div
-                      key={dataset.id}
+                      key={labelSet.id}
                       className="rounded-2xl border border-border bg-background p-4 hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => setSelectedDataset(dataset)}
+                      onClick={() => setSelectedLabelSet(labelSet)}
                     >
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="min-w-0 flex-1">
                           <h3 className="font-semibold text-text truncate">
-                            {dataset.name}
+                            {labelSet.name}
                           </h3>
                           <p className="text-sm text-text-secondary mt-1 line-clamp-2">
-                            {dataset.description || '—'}
+                            {labelSet.description || '—'}
                           </p>
                         </div>
-                        <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text shrink-0">
-                          {dataset.mediaType}
-                        </span>
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
+                            {labelSet.labels.length} label
+                            {labelSet.labels.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mb-3">
+                        {labelSet.labels.length > 0 ? (
+                          <>
+                            {labelSet.labels.map((label) => (
+                              <div
+                                key={label.id}
+                                className="flex items-center gap-1.5 rounded-lg border border-border bg-fill/50 px-2 py-1"
+                              >
+                                {label.color && (
+                                  <div
+                                    className="h-2.5 w-2.5 rounded-full"
+                                    style={{ backgroundColor: label.color }}
+                                  />
+                                )}
+                                <span className="text-xs font-medium text-text">
+                                  {label.name}
+                                </span>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <span className="text-xs text-text-tertiary">
+                            No labels
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center justify-between text-xs text-text-tertiary">
-                        <span title={formatDate(dataset.createdAt)}>
-                          Created: {relativeTime(dataset.createdAt)}
+                        <span title={formatDate(labelSet.createdAt)}>
+                          Created: {relativeTime(labelSet.createdAt)}
                         </span>
-                        <span title={formatDate(dataset.updatedAt)}>
-                          Updated: {relativeTime(dataset.updatedAt)}
+                        <span title={formatDate(labelSet.updatedAt)}>
+                          Updated: {relativeTime(labelSet.updatedAt)}
                         </span>
                       </div>
                     </div>
@@ -290,15 +345,15 @@ export const Component = () => {
             </div>
           </div>
 
-          <CreateDatasetModal
+          <CreateLabelSetModal
             open={isCreateModalOpen}
             onClose={() => setIsCreateModalOpen(false)}
-            onSubmit={handleCreateDataset}
+            onSubmit={handleCreateLabelSet}
           />
 
-          <DatasetDetails
-            dataset={selectedDataset}
-            onClose={() => setSelectedDataset(null)}
+          <LabelSetDetails
+            labelSet={selectedLabelSet}
+            onClose={() => setSelectedLabelSet(null)}
           />
         </m.div>
       </div>

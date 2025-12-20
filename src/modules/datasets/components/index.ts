@@ -15,4 +15,3 @@ export type {
 export { DatasetsToolbar } from './DatasetsToolbar'
 export type { SectionTitleProps } from './SectionTitle'
 export { SectionTitle } from './SectionTitle'
-export { UserInfo } from './UserInfo'
