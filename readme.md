@@ -1,158 +1,66 @@
 # SmartPick Frontend - Simple Login UI
 
-Modern React application with basic email/password authentication flow.
-
-## Overview
-
-This is a simplified frontend implementation focusing on core authentication UI:
-- Simple login page with username/password
-- JWT token management
-- Protected routes
-- Modern UI with dark/light theme
+Modern React application với giao diện đăng nhập cơ bản username/password.
 
 ## Technologies
 
-- **Vite 7** - Build tool with fast HMR
-- **React 19** - UI library with concurrent features
+- **Vite 7** - Build tool
+- **React 19** - UI library
 - **TypeScript 5.9** - Type safety
 - **TailwindCSS 4** - Utility-first CSS
 - **React Router 7** - File-based routing
-- **Jotai** - Atomic state management
-- **TanStack Query** - Server state management
-- **Radix UI** - Accessible component primitives
+- **Jotai** - State management
+- **TanStack Query** - Server state
+- **Radix UI** - Accessible components
 - **Sonner** - Toast notifications
 
-## Current Features
+## Quick Start
 
-✅ Login page with modern UI
-✅ Form validation
-✅ Loading states
-✅ Error handling with toast notifications
-✅ Remember me functionality
-✅ JWT token storage in localStorage
-✅ Protected routes
-✅ Dark/Light theme toggle
-✅ Responsive design (mobile-first)
+### 1. Install Dependencies
 
-## Getting Started
-
-### Prerequisites
-- **Node.js** 20+
-- **pnpm** 10+
-
-### Installation
-
-1. Install dependencies:
 ```bash
 pnpm install
 ```
 
-2. Setup environment:
+### 2. Start Development Server
 
-Create `.env` file (already exists):
+```bash
+pnpm dev
+```
+
+App chạy tại: **http://localhost:5173**
+
+## Environment Variables
+
+File `.env`:
 ```env
 VITE_API_BASE_URL=http://localhost:8081/api/v1
 VITE_APP_NAME=SmartPick
 VITE_APP_VERSION=1.0.0
 ```
 
-### Development
-
-Start dev server:
-```bash
-pnpm dev
-```
-
-Server runs at: **http://localhost:5173**
-
-## Project Structure
-
-```
-smartpick-frontend/
-├── src/
-│   ├── modules/auth/           # Authentication module
-│   │   ├── components/
-│   │   │   ├── LoginPage.tsx   # Login page container
-│   │   │   └── LoginForm.tsx   # Login form component
-│   │   ├── hooks/
-│   │   │   └── useLogin.ts     # Login mutation hook
-│   │   └── types.ts            # Auth type definitions
-│   │
-│   ├── atoms/                  # Global state
-│   │   └── auth.ts             # Auth state (token, user)
-│   │
-│   ├── pages/                  # File-based routes
-│   │   └── login.sync.tsx      # /login route
-│   │
-│   ├── lib/                    # Utilities
-│   │   ├── api-client.ts       # API client with interceptors
-│   │   └── endpoints.ts        # API endpoint definitions
-│   │
-│   └── components/ui/          # Reusable UI components
-│       ├── button/
-│       ├── input/
-│       └── ...
-│
-├── .env                        # Environment variables
-├── vite.config.ts              # Vite configuration
-├── tailwind.config.ts          # TailwindCSS config
-└── package.json
-```
-
 ## Login Flow
 
-1. User enters username/password in LoginForm
-2. `useLogin` hook sends POST request to `/api/v1/auth/login`
-3. Backend returns JWT token + user info
-4. Token saved in localStorage
-5. User info saved in Jotai atom
-6. Redirect to dashboard
-7. Success toast notification
+1. Truy cập http://localhost:5173
+2. Nhập credentials:
+   - **Username**: `trangmaiq`
+   - **Password**: `admin123`
+3. Click "Sign In"
+4. Redirect đến dashboard với success toast
+5. Token được lưu trong localStorage
 
 ## API Integration
 
-### API Client
+### Endpoint
 
-**Location:** `src/lib/api-client.ts`
-
-Features:
-- Auto-attach JWT token to requests
-- Auto-logout on 401 errors
-- Centralized error handling
-- Type-safe with TypeScript
-
-```typescript
-const apiClient = ofetch.create({
-  baseURL: 'http://localhost:8081/api/v1',
-
-  // Auto-attach Bearer token
-  onRequest({ options }) {
-    const token = localStorage.getItem('smartpick_token')
-    if (token) {
-      options.headers.Authorization = `Bearer ${token}`
-    }
-  },
-
-  // Handle unauthorized
-  onResponseError({ response }) {
-    if (response.status === 401) {
-      localStorage.removeItem('smartpick_token')
-      window.location.href = '/login'
-    }
-  },
-})
-```
-
-### Login API
-
-**Endpoint:** `POST /api/v1/auth/login`
+**POST** `/api/v1/auth/login`
 
 **Request:**
 ```typescript
 {
   username: string
   password: string
-  rememberMe?: boolean
+  rememberMe?: boolean  // Extends token to 30 days
 }
 ```
 
@@ -170,111 +78,196 @@ const apiClient = ofetch.create({
 }
 ```
 
-**Default Credentials:**
-```
-Username: trangmaiq
-Password: admin123
-```
+### API Client Features
+
+- ✅ Auto-attach JWT Bearer token to requests
+- ✅ Auto-logout on 401 Unauthorized
+- ✅ Centralized error handling
+- ✅ Type-safe with TypeScript
 
 ## State Management
 
-### Auth State (Jotai)
-
+**Auth State (Jotai):**
 ```typescript
-// atoms/auth.ts
-tokenAtom           // JWT token (persisted)
+tokenAtom           // JWT token (persisted in localStorage)
 userAtom            // Current user info
-isAuthenticatedAtom // Computed state
+isAuthenticatedAtom // Computed authentication state
 ```
 
-### Login Mutation (React Query)
-
+**Login Mutation (React Query):**
 ```typescript
-// modules/auth/hooks/useLogin.ts
 const { mutate, isPending } = useLogin()
-
 mutate({ username, password, rememberMe })
 ```
 
-## UI Components
-
-### Button
-```tsx
-<Button variant="primary" size="md" isLoading={false}>
-  Sign In
-</Button>
-```
-
-### Input
-```tsx
-<Input
-  type="email"
-  placeholder="Enter your email"
-  hasError={false}
-/>
-```
-
-### Toast
-```tsx
-toast.success('Welcome back!', {
-  description: 'You have been successfully logged in.',
-})
-```
-
-## Theme System
-
-Dark/Light mode with persistent storage:
-
-```tsx
-import { useIsDark, useSetTheme } from '~/hooks/common/useDark'
-
-const isDark = useIsDark()
-const setTheme = useSetTheme()
-
-// Toggle theme
-setTheme(isDark ? 'light' : 'dark')
-```
-
-## Development
-
-### Available Commands
+## Available Commands
 
 ```bash
-# Development
 pnpm dev          # Start dev server
-
-# Build
 pnpm build        # Build for production
 pnpm serve        # Preview production build
-
-# Code Quality
 pnpm lint         # Lint and auto-fix
-pnpm format       # Format code
+pnpm format       # Format code with Prettier
 ```
 
-### Testing Login
+## Tóm tắt những gì đã làm
 
-1. Start backend (see backend README)
-2. Start frontend: `pnpm dev`
-3. Navigate to http://localhost:5173
-4. Login with `trangmaiq` / `admin123`
-5. Check browser console for API calls
-6. Verify token in localStorage
+### UI Implementation
+- ✅ **Login Page** với modern gradient background
+- ✅ **Dark/Light Theme** toggle với persistent storage
+- ✅ **Responsive Design** - Mobile-first approach
+- ✅ **Form Validation** - Required fields validation
+- ✅ **Loading States** - Spinner trong submit button
+- ✅ **Error Handling** - Toast notifications cho success/error
 
-## Environment Variables
+### Form Features
+- ✅ **Username Input** - Required field
+- ✅ **Password Input** - Show/hide toggle
+- ✅ **Remember Me Checkbox** - Extends token to 30 days
+- ✅ **Submit Button** - Loading state khi đang login
+- ✅ **Error Messages** - Hiển thị lỗi từ API
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_API_BASE_URL` | Backend API URL | `http://localhost:8081/api/v1` |
-| `VITE_APP_NAME` | App name | `SmartPick` |
-| `VITE_APP_VERSION` | App version | `1.0.0` |
+### Authentication Flow
+- ✅ **JWT Token Management** - Lưu trong localStorage
+- ✅ **Auto-redirect** - Redirect to dashboard sau login
+- ✅ **Auto-logout** - Clear token và redirect khi 401
+- ✅ **Protected Routes** - Middleware check authentication
+- ✅ **Token Persistence** - Token được lưu và restore khi reload
+
+### API Integration
+- ✅ **API Client Setup** với ofetch
+- ✅ **Request Interceptor** - Auto-attach Bearer token
+- ✅ **Response Interceptor** - Handle 401 errors
+- ✅ **Type-safe API Calls** - TypeScript generics
+- ✅ **Centralized Endpoints** - API_ENDPOINTS constants
+
+### State Management
+- ✅ **Jotai Atoms** cho auth state
+  - `tokenAtom` - JWT token với localStorage persistence
+  - `userAtom` - User information
+  - `isAuthenticatedAtom` - Computed state
+- ✅ **React Query** cho server mutations
+  - `useLogin` - Login mutation với loading/error states
+  - Success callback: Store token + user, show toast, redirect
+  - Error callback: Show error toast
+
+### Theme System
+- ✅ **Dark Mode** - Toggle giữa dark/light theme
+- ✅ **Theme Persistence** - Lưu preference trong localStorage
+- ✅ **Smooth Transitions** - CSS transitions cho theme change
+- ✅ **System Detection** - Auto-detect system preference
+
+### Code Quality
+- ✅ **TypeScript** - Strict mode enabled
+- ✅ **ESLint** - Code linting với React best practices
+- ✅ **Prettier** - Auto-formatting on commit
+- ✅ **Git Hooks** - Pre-commit validation
+
+## Project Structure
+
+```
+smartpick-frontend/
+├── src/
+│   ├── modules/auth/              # Auth module
+│   │   ├── components/
+│   │   │   ├── LoginPage.tsx      # Login page container
+│   │   │   └── LoginForm.tsx      # Login form component
+│   │   ├── hooks/
+│   │   │   └── useLogin.ts        # Login mutation hook
+│   │   └── types.ts               # Auth types (User, LoginRequest, etc.)
+│   │
+│   ├── atoms/
+│   │   └── auth.ts                # Auth state atoms
+│   │
+│   ├── lib/
+│   │   ├── api-client.ts          # API client with interceptors
+│   │   └── endpoints.ts           # API endpoint definitions
+│   │
+│   ├── components/ui/             # Reusable UI components
+│   │   ├── button/                # Button components
+│   │   ├── input/                 # Input components
+│   │   └── ...                    # Other UI components
+│   │
+│   └── pages/
+│       └── login.sync.tsx         # Login route (/login)
+│
+├── .env                           # Environment variables
+└── vite.config.ts                 # Vite configuration
+```
+
+## Components Detail
+
+### LoginPage
+**Location:** `src/modules/auth/components/LoginPage.tsx`
+
+- Container component với layout
+- Theme toggle button
+- Gradient background
+- Responsive padding và spacing
+
+### LoginForm
+**Location:** `src/modules/auth/components/LoginForm.tsx`
+
+- Form với 3 fields: username, password, rememberMe
+- Submit handler với useLogin hook
+- Loading state management
+- Error display với toast
+
+### useLogin Hook
+**Location:** `src/modules/auth/hooks/useLogin.ts`
+
+- React Query mutation
+- API call: POST /api/v1/auth/login
+- Success: Store token, store user, show toast, redirect
+- Error: Show error toast with message
+
+## Testing
+
+### Manual Testing Steps
+
+1. **Start Backend:**
+```bash
+cd smartpick-backend
+docker compose -f build/docker/docker-compose.yml up -d
+go run ./cmd/label
+```
+
+2. **Start Frontend:**
+```bash
+cd smartpick-frontend
+pnpm dev
+```
+
+3. **Test Login:**
+   - Navigate to http://localhost:5173
+   - Enter: trangmaiq / admin123
+   - Click "Sign In"
+   - Should redirect with success toast
+   - Check localStorage: `smartpick_token` should exist
+
+4. **Test Auto-logout:**
+   - Delete token from localStorage
+   - Try to access protected route
+   - Should redirect to /login
+
+### Browser DevTools Verification
+
+```javascript
+// Check stored token
+localStorage.getItem('smartpick_token')
+
+// Check Network tab
+// Should see: POST /api/v1/auth/login - Status 200
+// Request: { username, password, rememberMe }
+// Response: { token, user }
+```
 
 ## Troubleshooting
 
 ### Cannot connect to backend
-- Verify backend is running on http://localhost:8081
+- Verify backend is running: http://localhost:8081
 - Check `VITE_API_BASE_URL` in `.env`
-- Check CORS settings in backend
+- Check browser console for CORS errors
 
 ### Hot reload not working
 ```bash
@@ -283,28 +276,7 @@ pnpm dev
 ```
 
 ### Type errors
-Restart TypeScript server in VS Code:
-`Cmd/Ctrl + Shift + P` → "TypeScript: Restart TS Server"
-
-## Deployment
-
-### Build for production
-```bash
-pnpm build
-```
-
-Output: `dist/` folder
-
-### Deploy to Vercel/Netlify
-1. Connect GitHub repository
-2. Build command: `pnpm build`
-3. Output directory: `dist`
-4. Set environment variables
-
-## Related Tasks
-
-- **JIRA:** [SMAR-10 - Login UI Basic Email Password Flow](https://smartpick.atlassian.net/browse/SMAR-10)
-- **Backend:** See `smartpick-backend` for API implementation
+- Restart TypeScript server: Ctrl+Shift+P → "TypeScript: Restart TS Server"
 
 ## Browser Support
 
@@ -313,23 +285,28 @@ Output: `dist/` folder
 - Safari 15+
 - Mobile browsers
 
-## Notes
+## Deployment
 
-- Login UI is fully implemented and working
-- Connects to backend on http://localhost:8081
-- JWT token expires after 24 hours (or 30 days with rememberMe)
-- Theme preference persists in localStorage
-- Form validation included
-- Error handling with toast notifications
+### Build for Production
 
-## Resources
+```bash
+pnpm build
+```
 
-- [Vite Documentation](https://vite.dev/)
-- [React Documentation](https://react.dev/)
-- [TailwindCSS Documentation](https://tailwindcss.com/)
-- [Jotai Documentation](https://jotai.org/)
-- [TanStack Query](https://tanstack.com/query)
+Output: `dist/` folder
+
+### Deploy to Vercel/Netlify
+
+1. Connect GitHub repository
+2. Build command: `pnpm build`
+3. Output directory: `dist`
+4. Add environment variables
+
+## Related
+
+- **JIRA**: [SMAR-10 - Login UI Basic Email Password Flow](https://smartpick.atlassian.net/browse/SMAR-10)
+- **Backend**: See `smartpick-backend` repository
 
 ---
 
-**Built with ❤️ by Delta X Team**
+Built with Delta X
