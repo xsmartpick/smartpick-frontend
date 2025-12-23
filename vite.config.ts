@@ -1,12 +1,18 @@
+import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import tailwindcss from '@tailwindcss/vite'
 import reactRefresh from '@vitejs/plugin-react'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
 import { defineConfig } from 'vite'
 import { checker } from 'vite-plugin-checker'
+import { routeBuilderPlugin } from 'vite-plugin-route-builder'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import PKG from './package.json'
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url))
+const ROOT = __dirname
 
 export default defineConfig({
   plugins: [
@@ -22,12 +28,11 @@ export default defineConfig({
     }),
 
     tailwindcss(),
-    // Temporarily disabled due to path issue with spaces
-    // routeBuilderPlugin({
-    //   pagePattern: `${resolve(ROOT, './src/pages')}/**/*.tsx`,
-    //   outputPath: `${resolve(ROOT, './src/generated-routes.ts')}`,
-    //   enableInDev: true,
-    // }),
+    routeBuilderPlugin({
+      pagePattern: `${resolve(ROOT, './src/pages')}/**/*.tsx`,
+      outputPath: `${resolve(ROOT, './src/generated-routes.ts')}`,
+      enableInDev: true,
+    }),
   ],
   define: {
     APP_DEV_CWD: JSON.stringify(process.cwd()),
