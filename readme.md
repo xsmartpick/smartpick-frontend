@@ -34,7 +34,7 @@ App chạy tại: **http://localhost:5173**
 
 File `.env`:
 ```env
-VITE_API_BASE_URL=http://localhost:8081/api/v1
+VITE_API_BASE_URL=http://localhost:8080/api/v1
 VITE_APP_NAME=SmartPick
 VITE_APP_VERSION=1.0.0
 ```
@@ -265,7 +265,7 @@ localStorage.getItem('smartpick_token')
 ## Troubleshooting
 
 ### Cannot connect to backend
-- Verify backend is running: http://localhost:8081
+- Verify backend is running: http://localhost:8080
 - Check `VITE_API_BASE_URL` in `.env`
 - Check browser console for CORS errors
 
