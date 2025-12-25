@@ -18,7 +18,7 @@ jobs:
           # Format: <type>(SMAR-<number>)[!]: <description>
           # Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore
           # Optional ! for breaking changes
-          PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)\(SMAR-[0-9]+\)!?: [^\r\n]+$"
+          PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)\(SMAR-[0-9]+\)!?: .+$"
 
           if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then
             echo "❌ PR title does not follow conventional commit format!"
