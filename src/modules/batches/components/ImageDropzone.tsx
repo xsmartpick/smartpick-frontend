@@ -26,6 +26,7 @@ interface ImageDropzoneProps {
   maxSizeMB?: number
   acceptedTypes?: string[]
   className?: string
+  disabled?: boolean
 }
 
 export function ImageDropzone({
@@ -35,6 +36,7 @@ export function ImageDropzone({
   maxSizeMB = 10,
   acceptedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
   className,
+  disabled = false,
 }: ImageDropzoneProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -165,17 +167,20 @@ export function ImageDropzone({
       >
         <label
           htmlFor="image-upload"
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
+          onDragEnter={disabled ? undefined : handleDragEnter}
+          onDragLeave={disabled ? undefined : handleDragLeave}
+          onDragOver={disabled ? undefined : handleDragOver}
+          onDrop={disabled ? undefined : handleDrop}
           className={cn(
-            'relative flex flex-col items-center justify-center gap-4 p-8 cursor-pointer',
-            'border-2 border-dashed rounded-2xl transition-all duration-200',
-            'bg-fill/30 hover:bg-fill/50',
-            isDragging
-              ? 'border-accent bg-accent/5'
-              : 'border-border hover:border-accent/50',
+            'relative flex flex-col items-center justify-center gap-4 p-8 transition-all duration-200',
+            'border-2 border-dashed rounded-2xl',
+            disabled
+              ? 'cursor-not-allowed opacity-50 bg-fill/20 border-border'
+              : 'cursor-pointer bg-fill/30 hover:bg-fill/50',
+            !disabled &&
+              (isDragging
+                ? 'border-accent bg-accent/5'
+                : 'border-border hover:border-accent/50'),
           )}
         >
           <input
@@ -185,6 +190,7 @@ export function ImageDropzone({
             multiple
             accept={acceptedTypes.join(',')}
             onChange={handleFileInput}
+            disabled={disabled}
           />
 
           <m.div

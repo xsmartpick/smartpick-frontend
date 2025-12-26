@@ -1,4 +1,9 @@
 /**
+ * Upload status for a file
+ */
+export type FileUploadStatus = 'pending' | 'uploading' | 'uploaded' | 'failed'
+
+/**
  * Represents an uploaded image file with preview URL
  */
 export interface UploadedImage {
@@ -7,6 +12,9 @@ export interface UploadedImage {
   previewUrl: string
   name: string
   size: number
+  fileId?: string // Server-assigned file ID
+  uploadUrl?: string // Presigned upload URL
+  uploadStatus?: FileUploadStatus // Upload status
 }
 
 /**

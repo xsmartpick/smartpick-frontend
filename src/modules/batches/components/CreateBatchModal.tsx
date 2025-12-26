@@ -1,4 +1,4 @@
-import { FolderPlus, Sparkles } from 'lucide-react'
+import { Loader2, Sparkles, Upload } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
@@ -17,6 +17,7 @@ import { Textarea } from '~/components/ui/input/Textarea'
 import { Label } from '~/components/ui/label'
 import { Spring } from '~/lib/spring'
 
+import { useBulkUpload } from '../hooks/useBulkUpload'
 import type { CreateBatchFormData, UploadedImage } from '../types'
 import { ImageDropzone } from './ImageDropzone'
 
@@ -36,6 +37,50 @@ export function CreateBatchModal({
   const [description, setDescription] = useState('')
   const [images, setImages] = useState<UploadedImage[]>([])
   const [errors, setErrors] = useState<{ name?: string }>({})
+
+  const { uploadFiles, isUploading, progress } = useBulkUpload({
+    onProgress: (progress) => {
+      // Update image upload statuses based on progress
+      setImages((prev) =>
+        prev.map((img, idx) => {
+          const status: UploadedImage['uploadStatus'] =
+            idx < progress.completed
+              ? 'uploaded'
+              : idx < progress.completed + progress.uploading
+                ? 'uploading'
+                : idx <
+                    progress.completed + progress.uploading + progress.failed
+                  ? 'failed'
+                  : 'pending'
+          return { ...img, uploadStatus: status }
+        }),
+      )
+    },
+    onComplete: (results) => {
+      const successCount = results.filter((r) => r.status === 'uploaded').length
+      const failedCount = results.filter((r) => r.status === 'failed').length
+      const errors = results.filter((r) => r.error).map((r) => r.error)
+
+      if (failedCount === 0) {
+        toast.success('All files uploaded successfully!', {
+          description: `${successCount} file${successCount === 1 ? '' : 's'} uploaded.`,
+        })
+      } else {
+        const errorMessage =
+          errors.length > 0
+            ? `${successCount} succeeded, ${failedCount} failed. ${errors[0]}`
+            : `${successCount} succeeded, ${failedCount} failed.`
+        toast.warning('Some files failed to upload', {
+          description: errorMessage,
+        })
+      }
+    },
+    onError: (error) => {
+      toast.error('Upload failed', {
+        description: error.message || 'An error occurred during upload.',
+      })
+    },
+  })
 
   const resetForm = useCallback(() => {
     setStep('details')
@@ -79,17 +124,53 @@ export function CreateBatchModal({
     setStep('details')
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (images.length === 0) {
       toast.error('Please add at least one image')
       return
     }
 
-    onSubmit({
-      name: name.trim(),
-      description: description.trim(),
-      images,
-    })
+    if (isUploading) {
+      return // Prevent multiple submissions
+    }
+
+    try {
+      // Upload files first
+      const uploadResults = await uploadFiles(images)
+
+      // Update images with fileIds from upload results
+      const updatedImages: UploadedImage[] = images.map((img) => {
+        const result = uploadResults.find(
+          (r) => r.fileId === (img.fileId || img.id),
+        )
+        const uploadStatus: UploadedImage['uploadStatus'] =
+          result?.status === 'uploaded' ? 'uploaded' : 'failed'
+        return {
+          ...img,
+          fileId: result?.fileId || img.fileId || img.id,
+          uploadStatus,
+        }
+      })
+
+      // Only proceed if at least one file uploaded successfully
+      const successCount = uploadResults.filter(
+        (r) => r.status === 'uploaded',
+      ).length
+      if (successCount === 0) {
+        toast.error('No files were uploaded successfully')
+        return
+      }
+
+      // Call onSubmit with updated images
+      onSubmit({
+        name: name.trim(),
+        description: description.trim(),
+        images: updatedImages,
+      })
+    } catch (error) {
+      // Error handling is done in the hook's onError callback
+      console.error('Submit error:', error)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -118,12 +199,18 @@ export function CreateBatchModal({
       >
         <DialogHeader>
           <DialogTitle>
-            {step === 'details' ? 'Create New Batch' : 'Upload Images'}
+            {step === 'details'
+              ? 'Create New Batch'
+              : isUploading
+                ? 'Uploading Files...'
+                : 'Upload Images'}
           </DialogTitle>
           <DialogDescription>
             {step === 'details'
               ? 'Give your batch a name and optional description. You can add images in the next step.'
-              : 'Add images to your batch. You can drag and drop or click to browse.'}
+              : isUploading
+                ? `Uploading ${progress.completed + progress.uploading}/${progress.total} files...`
+                : 'Add images to your batch. You can drag and drop or click to browse.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -258,12 +345,61 @@ export function CreateBatchModal({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={Spring.presets.smooth}
+              className="space-y-4"
             >
+              {/* Upload Progress */}
+              {isUploading && progress.total > 0 && (
+                <m.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={Spring.presets.smooth}
+                  className="rounded-xl border border-border bg-fill/50 p-4"
+                >
+                  <div className="mb-2 flex items-center justify-between text-sm">
+                    <span className="font-medium text-text">
+                      Uploading files...
+                    </span>
+                    <span className="text-text-secondary">
+                      {progress.completed + progress.uploading}/{progress.total}
+                    </span>
+                  </div>
+                  <div className="relative h-2 overflow-hidden rounded-full bg-fill">
+                    <m.div
+                      className="h-full bg-accent"
+                      initial={{ width: 0 }}
+                      animate={{
+                        width: `${
+                          ((progress.completed + progress.uploading) /
+                            progress.total) *
+                          100
+                        }%`,
+                      }}
+                      transition={Spring.presets.smooth}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center gap-4 text-xs text-text-secondary">
+                    <span>✓ {progress.completed} completed</span>
+                    {progress.uploading > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        {progress.uploading} uploading
+                      </span>
+                    )}
+                    {progress.failed > 0 && (
+                      <span className="text-red">
+                        ✗ {progress.failed} failed
+                      </span>
+                    )}
+                  </div>
+                </m.div>
+              )}
+
               <ImageDropzone
                 images={images}
                 onImagesChange={setImages}
                 maxFiles={50}
                 maxSizeMB={10}
+                disabled={isUploading}
               />
             </m.div>
           )}
@@ -287,11 +423,20 @@ export function CreateBatchModal({
               <Button
                 onClick={handleSubmit}
                 variant="primary"
-                disabled={images.length === 0}
+                disabled={images.length === 0 || isUploading}
               >
-                <FolderPlus className="mr-2 h-4 w-4" />
-                Create Batch ({images.length}{' '}
-                {images.length === 1 ? 'image' : 'images'})
+                {isUploading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload & Create Batch ({images.length}{' '}
+                    {images.length === 1 ? 'image' : 'images'})
+                  </>
+                )}
               </Button>
             </>
           )}
