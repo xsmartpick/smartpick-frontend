@@ -91,3 +91,21 @@ export async function createDataset(
 
   return response.json()
 }
+
+export async function deleteDataset(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/v1/datasets/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to delete dataset: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
+  }
+}

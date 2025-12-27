@@ -17,6 +17,7 @@ import { Divider } from '~/components/ui/divider'
 import { ScrollArea } from '~/components/ui/scroll-areas/ScrollArea'
 import { Spring } from '~/lib/spring'
 import type { Dataset, MediaType } from '~/modules/datasets'
+import { useDeleteDataset } from '~/modules/datasets'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -29,7 +30,7 @@ function formatDate(dateString: string): string {
   })
 }
 
-function getMediaTypeIcon(mediaType: MediaType) {
+function getMediaTypeIcon(mediaType?: MediaType) {
   switch (mediaType) {
     case 'image': {
       return <Image className="h-4 w-4" />
@@ -49,7 +50,9 @@ function getMediaTypeIcon(mediaType: MediaType) {
   }
 }
 
-function getMediaTypeLabel(mediaType: MediaType): string {
+function getMediaTypeLabel(mediaType?: MediaType): string {
+  if (!mediaType) return 'Unknown'
+
   return mediaType.charAt(0).toUpperCase() + mediaType.slice(1)
 }
 
@@ -59,7 +62,24 @@ export interface DatasetDetailsProps {
 }
 
 export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
+  const deleteDatasetMutation = useDeleteDataset()
   const isOpen = dataset !== null
+
+  function handleDelete() {
+    if (!dataset) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this dataset? This action cannot be undone.',
+    )
+
+    if (!confirmed) return
+
+    deleteDatasetMutation.mutate(dataset.id, {
+      onSuccess: () => {
+        onClose()
+      },
+    })
+  }
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -249,10 +269,21 @@ export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
               {/* Footer Actions */}
               <div className="border-t border-border px-6 py-4">
                 <div className="flex items-center justify-end gap-2">
-                  <Button variant="ghost" onClick={onClose}>
+                  <Button
+                    variant="ghost"
+                    onClick={onClose}
+                    disabled={deleteDatasetMutation.isPending}
+                  >
                     Close
                   </Button>
-                  <Button variant="primary">Edit Dataset</Button>
+
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={deleteDatasetMutation.isPending}
+                  >
+                    Delete Dataset
+                  </Button>
                 </div>
               </div>
             </div>
