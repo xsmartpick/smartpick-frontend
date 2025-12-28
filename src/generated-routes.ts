@@ -10,7 +10,9 @@ import * as SyncComponent0 from './pages/login.sync'
 import * as SyncComponent1 from './pages/(main)/batches.sync'
 import * as SyncComponent2 from './pages/(main)/datasets.sync'
 import * as SyncComponent3 from './pages/(main)/label-sets.sync'
-import * as SyncComponent5 from './pages/(main)/index.sync'
+import * as SyncComponent4 from './pages/(main)/index.sync'
+import * as SyncComponent5 from './pages/dashboard.sync'
+import * as SyncComponent6 from './pages/batches.sync'
 
 // Generated route configuration
 export const routes: RouteObject[] = [
@@ -43,11 +45,23 @@ export const routes: RouteObject[] = [
       },
       {
         path: '',
-        Component: SyncComponent5.Component,
-        loader: SyncComponent5.loader,
-        handle: SyncComponent5.handle,
+        Component: SyncComponent4.Component,
+        loader: SyncComponent4.loader,
+        handle: SyncComponent4.handle,
       },
     ],
+  },
+  {
+    path: 'dashboard',
+    Component: SyncComponent5.Component,
+    loader: SyncComponent5.loader,
+    handle: SyncComponent5.handle,
+  },
+  {
+    path: 'batches-old',
+    Component: SyncComponent6.Component,
+    loader: SyncComponent6.loader,
+    handle: SyncComponent6.handle,
   },
 ]
 

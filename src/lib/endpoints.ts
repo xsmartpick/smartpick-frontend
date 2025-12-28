@@ -14,4 +14,9 @@ export const API_ENDPOINTS = {
     UPLOAD_BULK: '/files/upload/bulk',
     UPLOAD_BULK_COMPLETE: '/files/upload/bulk/complete',
   },
+  BATCHES: {
+    LIST: '/batches',
+    CREATE: '/batches',
+    DELETE: (id: string) => `/batches/${id}`,
+  },
 } as const
