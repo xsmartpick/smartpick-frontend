@@ -1,10 +1,7 @@
 import { useCallback, useState } from 'react'
 
-import type {BulkCompleteUploadRequest, BulkUploadRequest} from '../api';
-import {
-  completeBulkUpload,
-  startBulkUpload
-} from '../api'
+import type { BulkCompleteUploadRequest, BulkUploadRequest } from '../api'
+import { completeBulkUpload, startBulkUpload } from '../api'
 import type { UploadedImage } from '../types'
 
 export interface BulkUploadProgress {
@@ -95,10 +92,16 @@ export function useBulkUpload(options?: UseBulkUploadOptions) {
       })
 
       try {
-        // Step 1: Start bulk upload - get presigned URLs
+        // Step 1: Generate UUIDs for fileIds
+        const imagesWithFileIds = images.map((img) => ({
+          ...img,
+          fileId: img.fileId || crypto.randomUUID(), // Generate UUID v4 if not already set
+        }))
+
+        // Step 2: Start bulk upload - get presigned URLs
         const uploadRequest: BulkUploadRequest = {
-          requests: images.map((img) => ({
-            fileId: img.fileId || img.id, // Use existing fileId or fallback to id
+          requests: imagesWithFileIds.map((img) => ({
+            fileId: img.fileId!, // UUID v4 - guaranteed to exist
             fileName: img.name,
             contentType: img.file.type,
             sizeBytes: img.size,
@@ -115,8 +118,8 @@ export function useBulkUpload(options?: UseBulkUploadOptions) {
         // Upload files in parallel
         const uploadPromises = uploadResponse.responses.map(
           async (response) => {
-            const image = images.find(
-              (img) => (img.fileId || img.id) === response.fileId,
+            const image = imagesWithFileIds.find(
+              (img) => img.fileId === response.fileId,
             )
 
             if (!image) {
@@ -223,6 +226,8 @@ export function useBulkUpload(options?: UseBulkUploadOptions) {
         options?.onProgress?.(finalProgress)
         options?.onComplete?.(finalResults)
 
+        // Return results with fileIds (UUIDs that were sent to server)
+        // The fileIds are already in finalResults from the server response
         return finalResults
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error))
