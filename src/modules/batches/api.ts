@@ -70,3 +70,65 @@ export async function completeBulkUpload(
     },
   )
 }
+
+/**
+ * Image from batch API response
+ */
+export interface BatchImageResponse {
+  id: string
+  name: string
+  size: number
+  contentType: string
+  uploadStatus: string
+  downloadUrl: string
+}
+
+/**
+ * Batch from API response
+ */
+export interface BatchResponse {
+  id: string
+  name: string
+  description: string
+  status: string
+  imageCount: number
+  createdAt: string
+  updatedAt: string
+  images?: BatchImageResponse[]
+}
+
+/**
+ * Get all batches
+ */
+export async function getBatches(): Promise<BatchResponse[]> {
+  return apiClient<BatchResponse[]>(API_ENDPOINTS.BATCHES.LIST, {
+    method: 'GET',
+  })
+}
+
+/**
+ * Request to create a new batch
+ */
+export interface CreateBatchRequest {
+  name: string
+  description?: string
+  datasetId?: string | null
+  fileIds?: string[]
+}
+
+/**
+ * Response from creating a batch
+ */
+export interface CreateBatchResponse extends BatchResponse {}
+
+/**
+ * Create a new batch
+ */
+export async function createBatch(
+  request: CreateBatchRequest,
+): Promise<CreateBatchResponse> {
+  return apiClient<CreateBatchResponse>(API_ENDPOINTS.BATCHES.CREATE, {
+    method: 'POST',
+    body: request,
+  })
+}

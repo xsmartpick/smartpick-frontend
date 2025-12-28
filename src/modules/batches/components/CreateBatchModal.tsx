@@ -88,7 +88,9 @@ export function CreateBatchModal({
     setDescription('')
     // Clean up object URLs
     for (const img of images) {
-      URL.revokeObjectURL(img.previewUrl)
+      if (img.previewUrl) {
+        URL.revokeObjectURL(img.previewUrl)
+      }
     }
     setImages([])
     setErrors({})
