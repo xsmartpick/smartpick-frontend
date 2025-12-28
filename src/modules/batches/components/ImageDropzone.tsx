@@ -142,7 +142,7 @@ export function ImageDropzone({
   const removeImage = useCallback(
     (id: string) => {
       const imageToRemove = images.find((img) => img.id === id)
-      if (imageToRemove) {
+      if (imageToRemove?.previewUrl) {
         URL.revokeObjectURL(imageToRemove.previewUrl)
       }
       onImagesChange(images.filter((img) => img.id !== id))
@@ -152,7 +152,9 @@ export function ImageDropzone({
 
   const clearAll = useCallback(() => {
     for (const img of images) {
-      URL.revokeObjectURL(img.previewUrl)
+      if (img.previewUrl) {
+        URL.revokeObjectURL(img.previewUrl)
+      }
     }
     onImagesChange([])
   }, [images, onImagesChange])

@@ -4,17 +4,29 @@
 export type FileUploadStatus = 'pending' | 'uploading' | 'uploaded' | 'failed'
 
 /**
- * Represents an uploaded image file with preview URL
+ * Represents an uploaded image file (for local uploads before server response)
  */
 export interface UploadedImage {
   id: string
   file: File
-  previewUrl: string
+  previewUrl: string // Blob URL created with URL.createObjectURL() for local preview
   name: string
   size: number
-  fileId?: string // Server-assigned file ID
-  uploadUrl?: string // Presigned upload URL
+  fileId?: string // Server-assigned file ID (UUID)
+  uploadUrl?: string // Presigned upload URL (from bulk upload API)
   uploadStatus?: FileUploadStatus // Upload status
+}
+
+/**
+ * Represents an image from the API (doesn't have File object)
+ */
+export interface BatchImage {
+  id: string
+  name: string
+  size: number
+  contentType: string
+  uploadStatus: string
+  downloadUrl: string
 }
 
 /**
@@ -33,7 +45,7 @@ export interface Batch {
   imageCount: number
   createdAt: string
   updatedAt: string
-  images?: UploadedImage[]
+  images?: BatchImage[]
 }
 
 /**
