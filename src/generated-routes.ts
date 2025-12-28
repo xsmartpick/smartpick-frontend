@@ -9,7 +9,8 @@ import type { RouteObject } from 'react-router'
 import * as SyncComponent0 from './pages/login.sync'
 import * as SyncComponent1 from './pages/(main)/batches.sync'
 import * as SyncComponent2 from './pages/(main)/datasets.sync'
-import * as SyncComponent3 from './pages/(main)/label-sets.sync'
+import * as SyncComponent3 from './pages/(main)/label.sync'
+import * as SyncComponent4 from './pages/(main)/label-sets.sync'
 import * as SyncComponent5 from './pages/(main)/index.sync'
 
 // Generated route configuration
@@ -36,10 +37,16 @@ export const routes: RouteObject[] = [
         handle: SyncComponent2.handle,
       },
       {
-        path: 'label-sets',
+        path: 'label',
         Component: SyncComponent3.Component,
         loader: SyncComponent3.loader,
         handle: SyncComponent3.handle,
+      },
+      {
+        path: 'label-sets',
+        Component: SyncComponent4.Component,
+        loader: SyncComponent4.loader,
+        handle: SyncComponent4.handle,
       },
       {
         path: '',
