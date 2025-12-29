@@ -1,9 +1,9 @@
 export const API_ENDPOINTS = {
   AUTH: {
-    LOGIN: '/auth/login',
-    LOGOUT: '/auth/logout',
-    REFRESH: '/auth/refresh',
-    ME: '/auth/me',
+    LOGIN: '/api/v1/auth/login',
+    LOGOUT: '/api/v1/auth/logout',
+    REFRESH: '/api/v1/auth/refresh',
+    ME: '/v1/me',
   },
   // Future endpoints for SmartPick features
   CASHEW: {
