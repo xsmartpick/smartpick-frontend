@@ -125,7 +125,7 @@ export function BatchCard({
                 )}
               >
                 <img
-                  src={image.previewUrl}
+                  src={image.downloadUrl}
                   alt={image.name}
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />

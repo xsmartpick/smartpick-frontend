@@ -7,6 +7,10 @@ import { Spring } from '~/lib/spring'
 
 import type { UploadedImage } from '../types'
 
+/**
+ * Generate a simple ID for local file tracking (React keys)
+ * UUID for fileId will be generated in useBulkUpload when actually uploading
+ */
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
 }
@@ -77,12 +81,15 @@ export function ImageDropzone({
           continue
         }
 
+        // Generate simple ID for local tracking (React keys)
+        // fileId (UUID) will be generated in useBulkUpload when actually uploading
         validFiles.push({
           id: generateId(),
           file,
           previewUrl: URL.createObjectURL(file),
           name: file.name,
           size: file.size,
+          // fileId will be set in useBulkUpload hook when upload starts
         })
       }
 
@@ -142,7 +149,7 @@ export function ImageDropzone({
   const removeImage = useCallback(
     (id: string) => {
       const imageToRemove = images.find((img) => img.id === id)
-      if (imageToRemove) {
+      if (imageToRemove?.previewUrl) {
         URL.revokeObjectURL(imageToRemove.previewUrl)
       }
       onImagesChange(images.filter((img) => img.id !== id))
@@ -152,7 +159,9 @@ export function ImageDropzone({
 
   const clearAll = useCallback(() => {
     for (const img of images) {
-      URL.revokeObjectURL(img.previewUrl)
+      if (img.previewUrl) {
+        URL.revokeObjectURL(img.previewUrl)
+      }
     }
     onImagesChange([])
   }, [images, onImagesChange])

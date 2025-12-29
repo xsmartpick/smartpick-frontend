@@ -3,23 +3,26 @@ import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import { EmptyState, UserInfo } from '~/components/common'
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  UserInfo,
+} from '~/components/common'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Spring } from '~/lib/spring'
-import type { Batch, CreateBatchFormData } from '~/modules/batches'
-import { BatchCard, CreateBatchModal } from '~/modules/batches'
-
-// Generate a unique ID for batches
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`
-}
-
-// Mock data for demonstration
-const INITIAL_BATCHES: Batch[] = []
+import type { CreateBatchFormData } from '~/modules/batches'
+import {
+  BatchCard,
+  CreateBatchModal,
+  useBatches,
+  useCreateBatch,
+} from '~/modules/batches'
 
 export const Component = () => {
-  const [batches, setBatches] = useState<Batch[]>(INITIAL_BATCHES)
+  const { data: batches = [], isLoading, error, refetch } = useBatches()
+  const createBatchMutation = useCreateBatch()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -46,51 +49,59 @@ export const Component = () => {
   }, [])
 
   // Filter batches by search query
-  const filteredBatches = useMemo(() => {
-    if (!searchQuery.trim()) return batches
-    const query = searchQuery.toLowerCase()
-    return batches.filter(
-      (batch) =>
-        batch.name.toLowerCase().includes(query) ||
-        batch.description.toLowerCase().includes(query),
-    )
-  }, [batches, searchQuery])
+  const filteredBatches = !searchQuery.trim()
+    ? batches
+    : batches.filter((batch) => {
+        const query = searchQuery.toLowerCase()
+        return (
+          batch.name.toLowerCase().includes(query) ||
+          batch.description.toLowerCase().includes(query)
+        )
+      })
 
   // Handle create batch
-  const handleCreateBatch = useCallback((data: CreateBatchFormData) => {
-    const now = new Date().toISOString()
-    const newBatch: Batch = {
-      id: generateId(),
-      name: data.name,
-      description: data.description,
-      status: 'draft',
-      imageCount: data.images.length,
-      createdAt: now,
-      updatedAt: now,
-      images: data.images,
-    }
+  const handleCreateBatch = useCallback(
+    async (data: CreateBatchFormData) => {
+      try {
+        // Extract fileIds from successfully uploaded images
+        const fileIds = data.images
+          .filter((img) => img.uploadStatus === 'uploaded' && img.fileId)
+          .map((img) => img.fileId!)
+          .filter((id): id is string => id !== undefined)
 
-    setBatches((prev) => [newBatch, ...prev])
-    setIsCreateModalOpen(false)
-    toast.success('Batch created successfully!', {
-      description: `${newBatch.name} with ${newBatch.imageCount} images has been created.`,
-    })
-  }, [])
+        await createBatchMutation.mutateAsync({
+          name: data.name,
+          description: data.description || undefined,
+          datasetId: undefined, // TODO: Add dataset selection if needed
+          fileIds: fileIds.length > 0 ? fileIds : undefined,
+        })
+
+        setIsCreateModalOpen(false)
+        toast.success('Batch created successfully!', {
+          description: `${data.name} with ${fileIds.length} images has been created.`,
+        })
+      } catch (error) {
+        console.error('Failed to create batch:', error)
+        toast.error('Failed to create batch', {
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An error occurred while creating the batch.',
+        })
+      }
+    },
+    [createBatchMutation, setIsCreateModalOpen],
+  )
 
   // Handle delete batch
-  const handleDeleteBatch = useCallback((id: string) => {
-    setBatches((prev) => {
-      const batch = prev.find((b) => b.id === id)
-      if (batch?.images) {
-        // Clean up object URLs
-        for (const img of batch.images) {
-          URL.revokeObjectURL(img.previewUrl)
-        }
-      }
-      return prev.filter((b) => b.id !== id)
-    })
-    toast.success('Batch deleted')
-  }, [])
+  const handleDeleteBatch = useCallback(
+    (_: string) => {
+      // TODO: Implement delete batch API call
+      toast.success('Batch deleted')
+      refetch()
+    },
+    [refetch],
+  )
 
   // Stats
   const totalImages = useMemo(
@@ -141,151 +152,163 @@ export const Component = () => {
       </div>
 
       <div className="mx-auto max-w-6xl px-6 py-8">
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={Spring.presets.smooth}
-        >
-          {/* Stats cards */}
-          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.05 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <FolderPlus className="h-5 w-5" />
+        {isLoading ? (
+          <LoadingState message="Loading batches..." />
+        ) : error ? (
+          <ErrorState
+            title="Failed to load batches"
+            message={error.message}
+            onRetry={() => refetch()}
+          />
+        ) : (
+          <m.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={Spring.presets.smooth}
+          >
+            {/* Stats cards */}
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <m.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...Spring.presets.smooth, delay: 0.05 }}
+                className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                    <FolderPlus className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-text">
+                      {batches.length}
+                    </p>
+                    <p className="text-xs text-text-secondary">Total Batches</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">
-                    {batches.length}
-                  </p>
-                  <p className="text-xs text-text-secondary">Total Batches</p>
-                </div>
-              </div>
-            </m.div>
+              </m.div>
 
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.1 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500">
-                  <ImageIcon className="h-5 w-5" />
+              <m.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...Spring.presets.smooth, delay: 0.1 }}
+                className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500">
+                    <ImageIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-text">
+                      {totalImages}
+                    </p>
+                    <p className="text-xs text-text-secondary">Total Images</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">{totalImages}</p>
-                  <p className="text-xs text-text-secondary">Total Images</p>
-                </div>
-              </div>
-            </m.div>
+              </m.div>
 
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.15 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green/10 text-green">
-                  <i className="i-mingcute-check-circle-fill h-5 w-5" />
+              <m.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ ...Spring.presets.smooth, delay: 0.15 }}
+                className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green/10 text-green">
+                    <i className="i-mingcute-check-circle-fill h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-text">
+                      {batches.filter((b) => b.status === 'completed').length}
+                    </p>
+                    <p className="text-xs text-text-secondary">Completed</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">
-                    {batches.filter((b) => b.status === 'completed').length}
-                  </p>
-                  <p className="text-xs text-text-secondary">Completed</p>
-                </div>
-              </div>
-            </m.div>
-          </div>
-
-          {/* Search and filter bar */}
-          <div className="mb-6 flex items-center gap-3">
-            <div className="relative flex-1">
-              <Input
-                type="search"
-                placeholder="Search batches..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" />
+              </m.div>
             </div>
-          </div>
 
-          {/* Batch grid or empty state */}
-          {filteredBatches.length === 0 ? (
-            <m.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={Spring.presets.smooth}
-              className="rounded-2xl border border-border bg-background p-12"
-            >
-              {batches.length === 0 ? (
-                <EmptyState
-                  icon={
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 text-violet-500">
-                      <FolderPlus className="h-8 w-8" />
-                    </div>
-                  }
-                  title="No batches yet"
-                  message="Create your first batch to start uploading and organizing images."
-                  action={
-                    <Button
-                      onClick={() => setIsCreateModalOpen(true)}
-                      variant="primary"
-                      className="mt-4"
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Create your first batch
-                    </Button>
-                  }
+            {/* Search and filter bar */}
+            <div className="mb-6 flex items-center gap-3">
+              <div className="relative flex-1">
+                <Input
+                  type="search"
+                  placeholder="Search batches..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
                 />
-              ) : (
-                <EmptyState
-                  icon={
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-fill text-text-tertiary">
-                      <Search className="h-8 w-8" />
-                    </div>
-                  }
-                  title="No matching batches"
-                  message={`No batches found matching "${searchQuery}"`}
-                  action={
-                    <Button
-                      onClick={() => setSearchQuery('')}
-                      variant="secondary"
-                      className="mt-4"
-                    >
-                      Clear search
-                    </Button>
-                  }
-                />
-              )}
-            </m.div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              <AnimatePresence mode="popLayout">
-                {filteredBatches.map((batch) => (
-                  <BatchCard
-                    key={batch.id}
-                    batch={batch}
-                    onDelete={handleDeleteBatch}
-                    onClick={(b) => {
-                      toast.info(`Viewing batch: ${b.name}`, {
-                        description: 'Batch details view coming soon!',
-                      })
-                    }}
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" />
+              </div>
+            </div>
+
+            {/* Batch grid or empty state */}
+            {filteredBatches.length === 0 ? (
+              <m.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={Spring.presets.smooth}
+                className="rounded-2xl border border-border bg-background p-12"
+              >
+                {batches.length === 0 ? (
+                  <EmptyState
+                    icon={
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500/20 to-fuchsia-500/20 text-violet-500">
+                        <FolderPlus className="h-8 w-8" />
+                      </div>
+                    }
+                    title="No batches yet"
+                    message="Create your first batch to start uploading and organizing images."
+                    action={
+                      <Button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        variant="primary"
+                        className="mt-4"
+                      >
+                        <Plus className="mr-2 h-4 w-4" />
+                        Create your first batch
+                      </Button>
+                    }
                   />
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-        </m.div>
+                ) : (
+                  <EmptyState
+                    icon={
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-fill text-text-tertiary">
+                        <Search className="h-8 w-8" />
+                      </div>
+                    }
+                    title="No matching batches"
+                    message={`No batches found matching "${searchQuery}"`}
+                    action={
+                      <Button
+                        onClick={() => setSearchQuery('')}
+                        variant="secondary"
+                        className="mt-4"
+                      >
+                        Clear search
+                      </Button>
+                    }
+                  />
+                )}
+              </m.div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <AnimatePresence mode="popLayout">
+                  {filteredBatches.map((batch) => (
+                    <BatchCard
+                      key={batch.id}
+                      batch={batch}
+                      onDelete={handleDeleteBatch}
+                      onClick={(b) => {
+                        toast.info(`Viewing batch: ${b.name}`, {
+                          description: 'Batch details view coming soon!',
+                        })
+                      }}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </m.div>
+        )}
       </div>
 
       {/* Create Batch Modal */}

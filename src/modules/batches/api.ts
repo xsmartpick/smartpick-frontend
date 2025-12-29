@@ -91,43 +91,6 @@ export class ApiError extends Error {
 // ============= Batch API Functions =============
 
 /**
- * Fetch all batches
- * Uses apiClient for consistency with project patterns
- */
-export async function getBatches(): Promise<BatchMetadata[]> {
-  const data = await apiClient<BatchMetadata[] | GetBatchesResponse>(
-    API_ENDPOINTS.BATCHES.LIST,
-    {
-      method: 'GET',
-    },
-  )
-
-  // Handle both array response and object with batches property
-  if (Array.isArray(data)) {
-    return data
-  }
-
-  if ('batches' in data && Array.isArray(data.batches)) {
-    return data.batches
-  }
-
-  return []
-}
-
-/**
- * Create a new batch
- * Uses apiClient for consistency with project patterns
- */
-export async function createBatch(
-  request: CreateBatchRequest,
-): Promise<{ id: string }> {
-  return apiClient<{ id: string }>(API_ENDPOINTS.BATCHES.CREATE, {
-    method: 'POST',
-    body: request,
-  })
-}
-
-/**
  * Delete a batch (soft delete)
  * Author: FemtoHell for SMAR-40
  * Uses apiClient for auth and error handling
@@ -165,4 +128,66 @@ export async function completeBulkUpload(
       body: request,
     },
   )
+}
+
+/**
+ * Image from batch API response
+ */
+export interface BatchImageResponse {
+  id: string
+  name: string
+  size: number
+  contentType: string
+  uploadStatus: string
+  downloadUrl: string
+}
+
+/**
+ * Batch from API response
+ */
+export interface BatchResponse {
+  id: string
+  name: string
+  description: string
+  status: string
+  imageCount: number
+  createdAt: string
+  updatedAt: string
+  images?: BatchImageResponse[]
+}
+
+/**
+ * Get all batches
+ */
+export async function getBatches(): Promise<BatchResponse[]> {
+  return apiClient<BatchResponse[]>(API_ENDPOINTS.BATCHES.LIST, {
+    method: 'GET',
+  })
+}
+
+/**
+ * Request to create a new batch
+ */
+export interface CreateBatchRequest {
+  name: string
+  description?: string
+  datasetId?: string | null
+  fileIds?: string[]
+}
+
+/**
+ * Response from creating a batch
+ */
+export interface CreateBatchResponse extends BatchResponse {}
+
+/**
+ * Create a new batch
+ */
+export async function createBatch(
+  request: CreateBatchRequest,
+): Promise<CreateBatchResponse> {
+  return apiClient<CreateBatchResponse>(API_ENDPOINTS.BATCHES.CREATE, {
+    method: 'POST',
+    body: request,
+  })
 }

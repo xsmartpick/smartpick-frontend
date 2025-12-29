@@ -88,7 +88,9 @@ export function CreateBatchModal({
     setDescription('')
     // Clean up object URLs
     for (const img of images) {
-      URL.revokeObjectURL(img.previewUrl)
+      if (img.previewUrl) {
+        URL.revokeObjectURL(img.previewUrl)
+      }
     }
     setImages([])
     setErrors({})
@@ -139,15 +141,17 @@ export function CreateBatchModal({
       const uploadResults = await uploadFiles(images)
 
       // Update images with fileIds from upload results
-      const updatedImages: UploadedImage[] = images.map((img) => {
-        const result = uploadResults.find(
-          (r) => r.fileId === (img.fileId || img.id),
-        )
+      // Upload results contain the UUID fileIds that were sent to server
+      const updatedImages: UploadedImage[] = images.map((img, idx) => {
+        // Match by index first (order should match), then by fileId if available
+        const result =
+          uploadResults[idx] ||
+          uploadResults.find((r) => r.fileId === img.fileId)
         const uploadStatus: UploadedImage['uploadStatus'] =
           result?.status === 'uploaded' ? 'uploaded' : 'failed'
         return {
           ...img,
-          fileId: result?.fileId || img.fileId || img.id,
+          fileId: result?.fileId || img.fileId, // Use UUID from upload result
           uploadStatus,
         }
       })

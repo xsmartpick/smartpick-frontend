@@ -1,11 +1,8 @@
-// Batch React Hooks
-// Author: FemtoHell for SMAR-40
-// Following the pattern from datasets/hooks.ts by Trang Mai
-
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import type { CreateBatchRequest } from './api'
 import { createBatch, deleteBatch, getBatches } from './api'
+import type { Batch } from './types'
 
 export const batchKeys = {
   all: ['batches'] as const,
@@ -17,19 +14,41 @@ export const batchKeys = {
 }
 
 /**
- * Hook to fetch all batches
+ * Map API response to Batch type
  */
+function mapBatchResponse(
+  response: Awaited<ReturnType<typeof getBatches>>[number],
+): Batch {
+  return {
+    id: response.id,
+    name: response.name,
+    description: response.description || '',
+    status: (response.status as Batch['status']) || 'draft',
+    imageCount: response.imageCount,
+    createdAt: response.createdAt,
+    updatedAt: response.updatedAt,
+    images: response.images?.map((img) => ({
+      id: img.id,
+      name: img.name,
+      size: img.size,
+      contentType: img.contentType,
+      uploadStatus: img.uploadStatus,
+      downloadUrl: img.downloadUrl,
+    })),
+  }
+}
+
 export function useBatches() {
   return useQuery({
     queryKey: batchKeys.lists(),
-    queryFn: getBatches,
+    queryFn: async () => {
+      const batches = await getBatches()
+      return batches.map((element) => mapBatchResponse(element))
+    },
     staleTime: 30 * 1000, // 30 seconds
   })
 }
 
-/**
- * Hook to create a new batch
- */
 export function useCreateBatch() {
   const queryClient = useQueryClient()
 

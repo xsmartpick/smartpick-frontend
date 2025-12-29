@@ -9,10 +9,9 @@ import type { RouteObject } from 'react-router'
 import * as SyncComponent0 from './pages/login.sync'
 import * as SyncComponent1 from './pages/(main)/batches.sync'
 import * as SyncComponent2 from './pages/(main)/datasets.sync'
-import * as SyncComponent3 from './pages/(main)/label-sets.sync'
-import * as SyncComponent4 from './pages/(main)/index.sync'
-import * as SyncComponent5 from './pages/dashboard.sync'
-import * as SyncComponent6 from './pages/batches.sync'
+import * as SyncComponent3 from './pages/(main)/label.sync'
+import * as SyncComponent4 from './pages/(main)/label-sets.sync'
+import * as SyncComponent5 from './pages/(main)/index.sync'
 
 // Generated route configuration
 export const routes: RouteObject[] = [
@@ -38,30 +37,24 @@ export const routes: RouteObject[] = [
         handle: SyncComponent2.handle,
       },
       {
-        path: 'label-sets',
+        path: 'label',
         Component: SyncComponent3.Component,
         loader: SyncComponent3.loader,
         handle: SyncComponent3.handle,
       },
       {
-        path: '',
+        path: 'label-sets',
         Component: SyncComponent4.Component,
         loader: SyncComponent4.loader,
         handle: SyncComponent4.handle,
       },
+      {
+        path: '',
+        Component: SyncComponent5.Component,
+        loader: SyncComponent5.loader,
+        handle: SyncComponent5.handle,
+      },
     ],
-  },
-  {
-    path: 'dashboard',
-    Component: SyncComponent5.Component,
-    loader: SyncComponent5.loader,
-    handle: SyncComponent5.handle,
-  },
-  {
-    path: 'batches-old',
-    Component: SyncComponent6.Component,
-    loader: SyncComponent6.loader,
-    handle: SyncComponent6.handle,
   },
 ]
 
