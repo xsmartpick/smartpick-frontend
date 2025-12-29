@@ -1,36 +1,5 @@
-// Batch API Service
-// Author: FemtoHell for SMAR-40
-// Following the pattern from datasets/api.ts by Trang Mai
-
 import { apiClient } from '~/lib/api-client'
 import { API_ENDPOINTS } from '~/lib/endpoints'
-
-// ============= Batch Types =============
-
-export interface BatchMetadata {
-  id: string
-  name: string
-  description?: string
-  datasetId?: string
-  createdAt: string
-  createdBy: string
-  updatedAt: string
-  deletedAt?: string
-  deletedBy?: string
-}
-
-export interface GetBatchesResponse {
-  batches: BatchMetadata[]
-  total?: number
-}
-
-export interface CreateBatchRequest {
-  name: string
-  description?: string
-  datasetId?: string
-}
-
-// ============= File Upload Types =============
 
 /**
  * Request to start bulk file upload
@@ -74,34 +43,6 @@ export interface BulkCompleteUploadResponse {
     error?: string // Optional error message for files that couldn't be updated
   }>
 }
-
-// ============= Error Class =============
-
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public statusText?: string,
-  ) {
-    super(message)
-    this.name = 'ApiError'
-  }
-}
-
-// ============= Batch API Functions =============
-
-/**
- * Delete a batch (soft delete)
- * Author: FemtoHell for SMAR-40
- * Uses apiClient for auth and error handling
- */
-export async function deleteBatch(batchId: string): Promise<void> {
-  await apiClient(API_ENDPOINTS.BATCHES.DELETE(batchId), {
-    method: 'DELETE',
-  })
-}
-
-// ============= File Upload API Functions =============
 
 /**
  * Start bulk file upload - get presigned URLs

@@ -15,16 +15,14 @@ jobs:
           echo "Checking PR title: $PR_TITLE"
 
           # Conventional commit pattern with SMAR ticket number
-          # Format: <type>(SMAR-<number>)[!]: <description>
+          # Format: <type>(SMAR-<number>): <description>
           # Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore
-          # Optional ! for breaking changes
-          PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)\(SMAR-[0-9]+\)!?: .+$"
+          PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore)\(SMAR-[0-9]+\): .+$"
 
           if [[ ! "$PR_TITLE" =~ $PATTERN ]]; then
             echo "❌ PR title does not follow conventional commit format!"
             echo ""
-            echo "Expected format: <type>(SMAR-<number>)[!]: <description>"
-            echo "  (Add ! for breaking changes)"
+            echo "Expected format: <type>(SMAR-<number>): <description>"
             echo ""
             echo "Valid types:"
             echo "  - feat: A new feature"
@@ -40,7 +38,6 @@ jobs:
             echo ""
             echo "Examples:"
             echo "  ✅ feat(SMAR-11): Login BE (Basic Email Password Flow)"
-            echo "  ✅ feat(SMAR-12)!: breaking API changes"
             echo "  ✅ docs(SMAR-31): update api doc"
             echo "  ✅ chore(SMAR-24): add .gitignore"
             echo "  ✅ fix(SMAR-15): resolve authentication bug"

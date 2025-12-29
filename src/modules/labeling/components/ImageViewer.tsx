@@ -100,26 +100,26 @@ export function ImageViewer({ image, className }: ImageViewerProps) {
       }
 
       switch (e.key) {
-        case '+':
-        case '=': {
-          e.preventDefault()
-          handleZoomIn()
-
-          break
-        }
-        case '-': {
-          e.preventDefault()
-          handleZoomOut()
-
-          break
-        }
-        case '0': {
-          e.preventDefault()
-          handleReset()
-
-          break
-        }
-        // No default
+      case '+': 
+      case '=': {
+        e.preventDefault()
+        handleZoomIn()
+      
+      break;
+      }
+      case '-': {
+        e.preventDefault()
+        handleZoomOut()
+      
+      break;
+      }
+      case '0': {
+        e.preventDefault()
+        handleReset()
+      
+      break;
+      }
+      // No default
       }
     }
 

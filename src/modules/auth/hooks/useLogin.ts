@@ -35,8 +35,8 @@ export const useLogin = () => {
         description: 'You have been successfully logged in.',
       })
 
-      // Redirect to dashboard
-      navigate('/dashboard')
+      // Redirect to home page
+      navigate('/')
     },
     onError: (error: any) => {
       // Handle login errors

@@ -17,6 +17,5 @@ export const API_ENDPOINTS = {
   BATCHES: {
     LIST: '/batches',
     CREATE: '/batches',
-    DELETE: (id: string) => `/batches/${id}`,
   },
 } as const
