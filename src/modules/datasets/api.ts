@@ -69,6 +69,12 @@ export interface CreateDatasetRequest {
   mediaType: MediaType
 }
 
+export interface UpdateDatasetRequest {
+  name?: string
+  description?: string
+  mediaType?: MediaType
+}
+
 export async function createDataset(
   request: CreateDatasetRequest,
 ): Promise<Dataset> {
@@ -90,4 +96,26 @@ export async function createDataset(
   }
 
   return response.json()
+}
+
+export async function updateDataset(
+  id: string,
+  request: UpdateDatasetRequest,
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/v1/datasets/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to update dataset: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
+  }
 }
