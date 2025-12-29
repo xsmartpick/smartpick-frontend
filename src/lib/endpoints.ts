@@ -10,4 +10,12 @@ export const API_ENDPOINTS = {
     CLASSIFICATION: '/cashew/classification',
     STATS: '/cashew/stats',
   },
+  FILES: {
+    UPLOAD_BULK: '/files/upload/bulk',
+    UPLOAD_BULK_COMPLETE: '/files/upload/bulk/complete',
+  },
+  BATCHES: {
+    LIST: '/batches',
+    CREATE: '/batches',
+  },
 } as const

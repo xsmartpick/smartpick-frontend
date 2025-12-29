@@ -56,7 +56,7 @@ export async function getDatasets(): Promise<Dataset[]> {
     return data
   }
 
-  if (data.datasets && Array.isArray(data.datasets)) {
+  if (data?.datasets && Array.isArray(data.datasets)) {
     return data.datasets
   }
 

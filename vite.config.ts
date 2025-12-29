@@ -8,6 +8,8 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 import PKG from './package.json'
 
+const ROOT_DIR = path.resolve(__dirname, '')
+
 export default defineConfig({
   plugins: [
     codeInspectorPlugin({
