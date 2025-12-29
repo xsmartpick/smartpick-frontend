@@ -3,6 +3,7 @@ import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
+import { getStableRouterNavigate } from '~/atoms/route'
 import {
   EmptyState,
   ErrorState,
@@ -298,9 +299,8 @@ export const Component = () => {
                       batch={batch}
                       onDelete={handleDeleteBatch}
                       onClick={(b) => {
-                        toast.info(`Viewing batch: ${b.name}`, {
-                          description: 'Batch details view coming soon!',
-                        })
+                        const navigate = getStableRouterNavigate()
+                        if (navigate) navigate(`/batches/${b.id}`)
                       }}
                     />
                   ))}
