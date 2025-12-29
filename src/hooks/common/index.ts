@@ -1,6 +1,7 @@
 export * from './useControlled'
 export * from './useDark'
 export * from './useInputComposition'
+export * from './useKeyboardShortcut'
 export * from './useMeasure'
 export * from './useMobile'
 export * from './usePrevious'

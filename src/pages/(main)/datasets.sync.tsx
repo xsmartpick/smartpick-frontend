@@ -1,6 +1,6 @@
 import { Database, Plus } from 'lucide-react'
 import { m } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -18,6 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table'
+import { useKeyboardShortcut } from '~/hooks/common'
 import { relativeTime } from '~/lib/date-utils'
 import { Spring } from '~/lib/spring'
 import type { Dataset } from '~/modules/datasets'
@@ -55,27 +56,10 @@ export const Component = () => {
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
 
   // Keyboard shortcut: N to create new dataset
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      // Ignore if user is typing in an input/textarea
-      const target = e.target as HTMLElement
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return
-      }
-
-      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault()
-        setIsCreateModalOpen(true)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  useKeyboardShortcut({
+    key: 'n',
+    handler: () => setIsCreateModalOpen(true),
+  })
 
   const sortedDatasets = [...datasets].sort((a, b) => {
     let aValue: string | number

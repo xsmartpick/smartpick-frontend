@@ -1,6 +1,6 @@
 import { FolderPlus, ImageIcon, Plus, Search } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
@@ -12,8 +12,9 @@ import {
 } from '~/components/common'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { useKeyboardShortcut } from '~/hooks/common'
 import { Spring } from '~/lib/spring'
-import type { Batch,CreateBatchFormData  } from '~/modules/batches'
+import type { Batch, CreateBatchFormData } from '~/modules/batches'
 import {
   BatchCard,
   CreateBatchModal,
@@ -32,26 +33,10 @@ export const Component = () => {
   const [searchQuery, setSearchQuery] = useState('')
 
   // Keyboard shortcut: N to create new batch
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      const target = e.target as HTMLElement
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return
-      }
-
-      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault()
-        setIsCreateModalOpen(true)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  useKeyboardShortcut({
+    key: 'n',
+    handler: () => setIsCreateModalOpen(true),
+  })
 
   // Filter batches by search query
   const filteredBatches = !searchQuery.trim()
