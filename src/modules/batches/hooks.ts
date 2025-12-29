@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import type { CreateBatchRequest } from './api'
-import { createBatch, getBatches } from './api'
+import { createBatch, getBatch, getBatches } from './api'
 import type { Batch } from './types'
 
 export const batchKeys = {
@@ -45,6 +45,22 @@ export function useBatches() {
       const batches = await getBatches()
       return batches.map((element) => mapBatchResponse(element))
     },
+    staleTime: 30 * 1000, // 30 seconds
+  })
+}
+
+/**
+ * Get a single batch by ID
+ */
+export function useBatch(id: string | undefined) {
+  return useQuery({
+    queryKey: batchKeys.detail(id ?? ''),
+    queryFn: async () => {
+      if (!id) throw new Error('Batch ID is required')
+      const batch = await getBatch(id)
+      return mapBatchResponse(batch)
+    },
+    enabled: !!id,
     staleTime: 30 * 1000, // 30 seconds
   })
 }

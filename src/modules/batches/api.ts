@@ -107,6 +107,15 @@ export async function getBatches(): Promise<BatchResponse[]> {
 }
 
 /**
+ * Get a single batch by ID
+ */
+export async function getBatch(id: string): Promise<BatchResponse> {
+  return apiClient<BatchResponse>(API_ENDPOINTS.BATCHES.DETAIL(id), {
+    method: 'GET',
+  })
+}
+
+/**
  * Request to create a new batch
  */
 export interface CreateBatchRequest {
