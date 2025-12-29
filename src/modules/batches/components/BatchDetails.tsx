@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu/DropdownMenu'
+import { useMobile } from '~/hooks/common'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
 
@@ -82,6 +83,7 @@ function formatFileSize(bytes: number): string {
 
 export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
   const navigate = getStableRouterNavigate()
+  const isMobile = useMobile()
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null,
   )
@@ -128,22 +130,32 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
     <div className="min-h-screen bg-background text-text">
       {/* Header */}
       <div className="sticky top-0 z-40 border-b border-border bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto max-w-7xl px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+        <div
+          className={cn(
+            'mx-auto max-w-7xl',
+            isMobile ? 'px-3 py-2.5' : 'px-6 py-4',
+          )}
+        >
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-4">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleBack}
-                className="h-9 w-9 p-0"
+                className="h-9 w-9 shrink-0 p-0"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-              <div className="min-w-0 flex-1">
-                <h1 className="truncate text-xl font-semibold text-text">
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h1
+                  className={cn(
+                    'truncate font-semibold text-text',
+                    isMobile ? 'text-base' : 'text-xl',
+                  )}
+                >
                   {batch.name}
                 </h1>
-                {batch.description && (
+                {batch.description && !isMobile && (
                   <p className="mt-0.5 truncate text-sm text-text-secondary">
                     {batch.description}
                   </p>
@@ -151,19 +163,25 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
-                  getStatusColor(batch.status),
-                )}
-              >
-                {getStatusLabel(batch.status)}
-              </span>
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+              {!isMobile && (
+                <span
+                  className={cn(
+                    'inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium',
+                    getStatusColor(batch.status),
+                  )}
+                >
+                  {getStatusLabel(batch.status)}
+                </span>
+              )}
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-9 w-9 p-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 shrink-0 p-0"
+                  >
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
