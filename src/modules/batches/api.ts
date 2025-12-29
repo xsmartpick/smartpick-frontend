@@ -132,3 +132,12 @@ export async function createBatch(
     body: request,
   })
 }
+
+/**
+ * Delete a batch (soft delete)
+ */
+export async function deleteBatch(batchId: string): Promise<void> {
+  await apiClient(API_ENDPOINTS.BATCHES.DELETE(batchId), {
+    method: 'DELETE',
+  })
+}

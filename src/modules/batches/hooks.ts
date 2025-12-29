@@ -1,7 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tantml/react-query'
 
 import type { CreateBatchRequest } from './api'
-import { createBatch, getBatches } from './api'
+import { createBatch, deleteBatch, getBatches } from './api'
 import type { Batch } from './types'
 
 export const batchKeys = {
@@ -56,6 +56,18 @@ export function useCreateBatch() {
     mutationFn: (request: CreateBatchRequest) => createBatch(request),
     onSuccess: () => {
       // Invalidate and refetch batches list
+      queryClient.invalidateQueries({ queryKey: batchKeys.lists() })
+    },
+  })
+}
+
+export function useDeleteBatch() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (batchId: string) => deleteBatch(batchId),
+    onSuccess: () => {
+      // Invalidate and refetch batches list after successful deletion
       queryClient.invalidateQueries({ queryKey: batchKeys.lists() })
     },
   })
