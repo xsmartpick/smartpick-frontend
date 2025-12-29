@@ -4,6 +4,7 @@ import {
   Download,
   ImageIcon,
   MoreHorizontal,
+  Scissors,
   Trash2,
 } from 'lucide-react'
 import { m } from 'motion/react'
@@ -21,6 +22,7 @@ import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
 
 import type { Batch } from '../types'
+import { SplitBatchModal } from './SplitBatchModal'
 
 interface BatchDetailsProps {
   batch: Batch
@@ -83,6 +85,7 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null,
   )
+  const [isSplitModalOpen, setIsSplitModalOpen] = useState(false)
 
   const handleBack = useCallback(() => {
     if (navigate) navigate('/batches', { replace: false })
@@ -101,20 +104,21 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
     images.forEach((img) => {
       const status = img.uploadStatus.toLowerCase()
       switch (status) {
-      case 'uploaded': {
-      stats.uploaded++
-      break;
-      }
-      case 'processing': {
-      stats.processing++
-      break;
-      }
-      case 'failed': {
-      stats.failed++
-      break;
-      }
-      default: { stats.pending++
-      }
+        case 'uploaded': {
+          stats.uploaded++
+          break
+        }
+        case 'processing': {
+          stats.processing++
+          break
+        }
+        case 'failed': {
+          stats.failed++
+          break
+        }
+        default: {
+          stats.pending++
+        }
       }
     })
     return stats
@@ -164,6 +168,10 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setIsSplitModalOpen(true)}>
+                    <Scissors className="mr-2 h-4 w-4" />
+                    Split into Tasks
+                  </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Download className="mr-2 h-4 w-4" />
                     Export batch
@@ -405,6 +413,20 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
           </m.div>
         </div>
       )}
+
+      {/* Split Batch Modal */}
+      <SplitBatchModal
+        open={isSplitModalOpen}
+        batch={batch}
+        onClose={() => setIsSplitModalOpen(false)}
+        onSubmit={async (_) => {
+          // UI-only implementation
+          // TODO: BE integration
+
+          // Simulate API call delay
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }}
+      />
     </div>
   )
 }

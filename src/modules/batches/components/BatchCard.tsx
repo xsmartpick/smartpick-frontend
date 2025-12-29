@@ -1,4 +1,10 @@
-import { Calendar, ImageIcon, MoreHorizontal, Trash2 } from 'lucide-react'
+import {
+  Calendar,
+  ImageIcon,
+  MoreHorizontal,
+  Scissors,
+  Trash2,
+} from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
 
@@ -18,6 +24,7 @@ import type { Batch } from '../types'
 interface BatchCardProps {
   batch: Batch
   onDelete?: (id: string) => void
+  onSplit?: (batch: Batch) => void
   onClick?: (batch: Batch) => void
   className?: string
 }
@@ -59,6 +66,7 @@ function getStatusLabel(status: Batch['status']) {
 export function BatchCard({
   batch,
   onDelete,
+  onSplit,
   onClick,
   className,
 }: BatchCardProps) {
@@ -161,6 +169,17 @@ export function BatchCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {onSplit && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSplit(batch)
+                  }}
+                >
+                  <Scissors className="mr-2 h-4 w-4" />
+                  Split into Tasks
+                </DropdownMenuItem>
+              )}
               {onDelete && (
                 <DropdownMenuItem
                   onClick={(e) => {
