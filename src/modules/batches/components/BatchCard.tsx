@@ -107,49 +107,23 @@ export function BatchCard({
       onClick={() => onClick?.(batch)}
     >
       {/* Preview images mosaic */}
-      <div className="relative aspect-[16/10] overflow-hidden bg-fill">
-        {batch.images && batch.images.length > 0 ? (
-          <div className="grid h-full w-full grid-cols-3 gap-0.5">
-            {batch.images.slice(0, 6).map((image, idx) => (
-              <m.div
-                key={image.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: idx * 0.05 }}
-                className={cn(
-                  'relative overflow-hidden',
-                  idx === 0 &&
-                    batch.images &&
-                    batch.images.length >= 3 &&
-                    'col-span-2 row-span-2',
-                )}
-              >
-                <img
-                  src={image.downloadUrl}
-                  alt={image.name}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </m.div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <div className="flex flex-col items-center gap-2 text-text-tertiary">
-              <ImageIcon className="h-8 w-8" />
-              <span className="text-xs">No images</span>
+      {/* FemtoHell: ListBatches API không trả presigned URLs (performance optimization)
+          Images chỉ có trong GetBatch endpoint. Grid view hiển thị placeholder với imageCount.
+          Click vào batch để xem full images trong detail page. */}
+      <div className="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-accent/5 via-fill to-accent/10">
+        <div className="flex h-full w-full items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="rounded-2xl bg-accent/10 p-4">
+              <ImageIcon className="h-12 w-12 text-accent" />
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-text">{batch.imageCount}</p>
+              <p className="text-xs text-text-tertiary">
+                {batch.imageCount === 1 ? 'image' : 'images'}
+              </p>
             </div>
           </div>
-        )}
-
-        {/* Image count badge */}
-        <m.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-lg bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm"
-        >
-          <ImageIcon className="h-3.5 w-3.5" />
-          {batch.imageCount}
-        </m.div>
+        </div>
 
         {/* Hover overlay gradient */}
         <m.div

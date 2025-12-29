@@ -43,6 +43,7 @@ export interface Batch {
   description: string
   status: BatchStatus
   imageCount: number
+  datasetId?: string // FemtoHell: Optional dataset association
   createdAt: string
   updatedAt: string
   images?: BatchImage[]

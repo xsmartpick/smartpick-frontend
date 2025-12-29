@@ -1,6 +1,7 @@
 import { FolderPlus, ImageIcon, Plus, Search } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import {
@@ -18,11 +19,14 @@ import {
   CreateBatchModal,
   useBatches,
   useCreateBatch,
+  useDeleteBatch,
 } from '~/modules/batches'
 
 export const Component = () => {
+  const navigate = useNavigate()
   const { data: batches = [], isLoading, error, refetch } = useBatches()
   const createBatchMutation = useCreateBatch()
+  const deleteBatchMutation = useDeleteBatch()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -93,14 +97,25 @@ export const Component = () => {
     [createBatchMutation, setIsCreateModalOpen],
   )
 
-  // Handle delete batch
+  // FemtoHell: Handle delete batch - implemented with useDeleteBatch hook
   const handleDeleteBatch = useCallback(
-    (_: string) => {
-      // TODO: Implement delete batch API call
-      toast.success('Batch deleted')
-      refetch()
+    async (batchId: string) => {
+      try {
+        await deleteBatchMutation.mutateAsync(batchId)
+        toast.success('Batch deleted successfully', {
+          description: 'The batch has been removed.',
+        })
+      } catch (error) {
+        console.error('Failed to delete batch:', error)
+        toast.error('Failed to delete batch', {
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An error occurred while deleting the batch.',
+        })
+      }
     },
-    [refetch],
+    [deleteBatchMutation],
   )
 
   // Stats
@@ -298,9 +313,8 @@ export const Component = () => {
                       batch={batch}
                       onDelete={handleDeleteBatch}
                       onClick={(b) => {
-                        toast.info(`Viewing batch: ${b.name}`, {
-                          description: 'Batch details view coming soon!',
-                        })
+                        // FemtoHell: Navigate to batch detail page
+                        navigate(`/batches/${b.id}`)
                       }}
                     />
                   ))}

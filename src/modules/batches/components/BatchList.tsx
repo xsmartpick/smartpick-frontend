@@ -13,8 +13,8 @@ import {
   TableRow,
 } from '~/components/ui/table'
 
-import type { BatchMetadata } from '../api'
 import { useBatches } from '../hooks'
+import type { Batch } from '../types'
 import { DeleteBatchDialog } from './DeleteBatchDialog'
 
 /**
@@ -75,26 +75,30 @@ export function BatchList() {
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead>Dataset</TableHead>
+            <TableHead>Images</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {batches.map((batch: BatchMetadata) => (
+          {batches.map((batch: Batch) => (
             <TableRow key={batch.id}>
               <TableCell className="font-medium">{batch.name}</TableCell>
               <TableCell className="max-w-md truncate">
                 {batch.description || '—'}
               </TableCell>
               <TableCell>
-                {batch.datasetId ? (
+                {/* FemtoHell: datasetId chưa có trong Batch type hiện tại, comment để tránh lỗi */}
+                {/* {batch.datasetId ? (
                   <span className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                     {batch.datasetId.slice(0, 8)}...
                   </span>
                 ) : (
                   <span className="text-gray-500">Not assigned</span>
-                )}
+                )} */}
+                <span className="text-xs text-gray-500">
+                  {batch.imageCount} images
+                </span>
               </TableCell>
               <TableCell className="text-sm text-gray-500">
                 {formatDate(batch.createdAt)}

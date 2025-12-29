@@ -134,6 +134,38 @@ export async function createBatch(
 }
 
 /**
+ * Get a single batch by ID
+ */
+export async function getBatchById(batchId: string): Promise<BatchResponse> {
+  return apiClient<BatchResponse>(API_ENDPOINTS.BATCHES.GET(batchId), {
+    method: 'GET',
+  })
+}
+
+/**
+ * Request to update a batch
+ */
+export interface UpdateBatchRequest {
+  name?: string
+  description?: string
+  status?: string
+  datasetId?: string | null
+}
+
+/**
+ * Update an existing batch
+ */
+export async function updateBatch(
+  batchId: string,
+  request: UpdateBatchRequest,
+): Promise<void> {
+  await apiClient(API_ENDPOINTS.BATCHES.UPDATE(batchId), {
+    method: 'PATCH',
+    body: request,
+  })
+}
+
+/**
  * Delete a batch (soft delete)
  */
 export async function deleteBatch(batchId: string): Promise<void> {

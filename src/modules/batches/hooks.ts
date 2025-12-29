@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tantml/react-query'
 
-import type { CreateBatchRequest } from './api'
-import { createBatch, deleteBatch, getBatches } from './api'
+import type { CreateBatchRequest, UpdateBatchRequest } from './api'
+import {
+  createBatch,
+  deleteBatch,
+  getBatchById,
+  getBatches,
+  updateBatch,
+} from './api'
 import type { Batch } from './types'
 
 export const batchKeys = {
@@ -49,6 +55,18 @@ export function useBatches() {
   })
 }
 
+export function useBatch(id: string) {
+  return useQuery({
+    queryKey: batchKeys.detail(id),
+    queryFn: async () => {
+      const batch = await getBatchById(id)
+      return mapBatchResponse(batch)
+    },
+    enabled: !!id,
+    staleTime: 30 * 1000,
+  })
+}
+
 export function useCreateBatch() {
   const queryClient = useQueryClient()
 
@@ -56,6 +74,27 @@ export function useCreateBatch() {
     mutationFn: (request: CreateBatchRequest) => createBatch(request),
     onSuccess: () => {
       // Invalidate and refetch batches list
+      queryClient.invalidateQueries({ queryKey: batchKeys.lists() })
+    },
+  })
+}
+
+export function useUpdateBatch() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      batchId,
+      request,
+    }: {
+      batchId: string
+      request: UpdateBatchRequest
+    }) => updateBatch(batchId, request),
+    onSuccess: (_data, variables) => {
+      // Invalidate specific batch and list
+      queryClient.invalidateQueries({
+        queryKey: batchKeys.detail(variables.batchId),
+      })
       queryClient.invalidateQueries({ queryKey: batchKeys.lists() })
     },
   })
