@@ -1,3 +1,4 @@
 export { BatchCard } from './BatchCard'
+export { BatchDetails } from './BatchDetails'
 export { CreateBatchModal } from './CreateBatchModal'
 export { ImageDropzone } from './ImageDropzone'
