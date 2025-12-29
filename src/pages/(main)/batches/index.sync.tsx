@@ -8,6 +8,7 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  StatsCard,
   UserInfo,
 } from '~/components/common'
 import { Button } from '~/components/ui/button'
@@ -169,62 +170,27 @@ export const Component = () => {
           >
             {/* Stats cards */}
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-              <m.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...Spring.presets.smooth, delay: 0.05 }}
-                className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                    <FolderPlus className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-text">
-                      {batches.length}
-                    </p>
-                    <p className="text-xs text-text-secondary">Total Batches</p>
-                  </div>
-                </div>
-              </m.div>
-
-              <m.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...Spring.presets.smooth, delay: 0.1 }}
-                className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10 text-violet-500">
-                    <ImageIcon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-text">
-                      {totalImages}
-                    </p>
-                    <p className="text-xs text-text-secondary">Total Images</p>
-                  </div>
-                </div>
-              </m.div>
-
-              <m.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ ...Spring.presets.smooth, delay: 0.15 }}
-                className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green/10 text-green">
-                    <i className="i-mingcute-check-circle-fill h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold text-text">
-                      {batches.filter((b) => b.status === 'completed').length}
-                    </p>
-                    <p className="text-xs text-text-secondary">Completed</p>
-                  </div>
-                </div>
-              </m.div>
+              <StatsCard
+                icon={<FolderPlus className="h-5 w-5" />}
+                iconClassName="bg-accent/10 text-accent"
+                value={batches.length}
+                label="Total Batches"
+                delay={0.05}
+              />
+              <StatsCard
+                icon={<ImageIcon className="h-5 w-5" />}
+                iconClassName="bg-violet-500/10 text-violet-500"
+                value={totalImages}
+                label="Total Images"
+                delay={0.1}
+              />
+              <StatsCard
+                icon={<i className="i-mingcute-check-circle-fill h-5 w-5" />}
+                iconClassName="bg-green/10 text-green"
+                value={batches.filter((b) => b.status === 'completed').length}
+                label="Completed"
+                delay={0.15}
+              />
             </div>
 
             {/* Search and filter bar */}
