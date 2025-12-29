@@ -1,9 +1,9 @@
 import { FolderPlus, ImageIcon, Plus, Search } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
+import { getStableRouterNavigate } from '~/atoms/route'
 import {
   EmptyState,
   ErrorState,
@@ -13,21 +13,24 @@ import {
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Spring } from '~/lib/spring'
-import type { CreateBatchFormData } from '~/modules/batches'
+import type { Batch, CreateBatchFormData } from '~/modules/batches'
 import {
   BatchCard,
   CreateBatchModal,
+  SplitBatchModal,
   useBatches,
   useCreateBatch,
   useDeleteBatch,
 } from '~/modules/batches'
 
 export const Component = () => {
-  const navigate = useNavigate()
   const { data: batches = [], isLoading, error, refetch } = useBatches()
   const createBatchMutation = useCreateBatch()
   const deleteBatchMutation = useDeleteBatch()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isSplitModalOpen, setIsSplitModalOpen] = useState(false)
+  const [selectedBatchForSplit, setSelectedBatchForSplit] =
+    useState<Batch | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   // Keyboard shortcut: N to create new batch
@@ -117,6 +120,17 @@ export const Component = () => {
     },
     [deleteBatchMutation],
   )
+
+  // Handle split batch
+  const handleSplitBatch = useCallback((batch: Batch) => {
+    setSelectedBatchForSplit(batch)
+    setIsSplitModalOpen(true)
+  }, [])
+
+  const handleCloseSplitModal = useCallback(() => {
+    setIsSplitModalOpen(false)
+    setSelectedBatchForSplit(null)
+  }, [])
 
   // Stats
   const totalImages = useMemo(
@@ -312,9 +326,11 @@ export const Component = () => {
                       key={batch.id}
                       batch={batch}
                       onDelete={handleDeleteBatch}
+                      onSplit={handleSplitBatch}
                       onClick={(b) => {
                         // FemtoHell: Navigate to batch detail page
-                        navigate(`/batches/${b.id}`)
+                        const navigate = getStableRouterNavigate()
+                        if (navigate) navigate(`/batches/${b.id}`)
                       }}
                     />
                   ))}
@@ -331,6 +347,22 @@ export const Component = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateBatch}
       />
+
+      {/* Split Batch Modal */}
+      {selectedBatchForSplit && (
+        <SplitBatchModal
+          open={isSplitModalOpen}
+          batch={selectedBatchForSplit}
+          onClose={handleCloseSplitModal}
+          onSubmit={async (_) => {
+            // UI-only implementation
+            // TODO: BE integration
+
+            // Simulate API call delay
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+          }}
+        />
+      )}
     </div>
   )
 }

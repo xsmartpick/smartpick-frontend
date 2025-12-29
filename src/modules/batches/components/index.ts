@@ -1,5 +1,7 @@
 export { BatchCard } from './BatchCard'
+export { BatchDetails } from './BatchDetails'
 export { BatchList } from './BatchList'
 export { CreateBatchModal } from './CreateBatchModal'
 export { DeleteBatchDialog } from './DeleteBatchDialog'
 export { ImageDropzone } from './ImageDropzone'
+export { SplitBatchModal } from './SplitBatchModal'

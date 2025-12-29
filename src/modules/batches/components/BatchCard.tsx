@@ -1,4 +1,10 @@
-import { Calendar, ImageIcon, MoreHorizontal, Trash2 } from 'lucide-react'
+import {
+  Calendar,
+  ImageIcon,
+  MoreHorizontal,
+  Scissors,
+  Trash2,
+} from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
 
@@ -10,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu/DropdownMenu'
 import { cn } from '~/lib/cn'
+import { formatDate, relativeTime } from '~/lib/date-utils'
 import { Spring } from '~/lib/spring'
 
 import type { Batch } from '../types'
@@ -17,6 +24,7 @@ import type { Batch } from '../types'
 interface BatchCardProps {
   batch: Batch
   onDelete?: (id: string) => void
+  onSplit?: (batch: Batch) => void
   onClick?: (batch: Batch) => void
   className?: string
 }
@@ -55,35 +63,10 @@ function getStatusLabel(status: Batch['status']) {
   }
 }
 
-function formatDate(dateString: string): string {
-  const date = new Date(dateString)
-  return date.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-}
-
-function relativeTime(dateString: string): string {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffSec = Math.floor(diffMs / 1000)
-  const diffMin = Math.floor(diffSec / 60)
-  const diffHour = Math.floor(diffMin / 60)
-  const diffDay = Math.floor(diffHour / 24)
-
-  if (diffSec < 10) return 'just now'
-  if (diffSec < 60) return `${diffSec}s ago`
-  if (diffMin < 60) return `${diffMin}m ago`
-  if (diffHour < 24) return `${diffHour}h ago`
-  if (diffDay < 7) return `${diffDay}d ago`
-  return formatDate(dateString)
-}
-
 export function BatchCard({
   batch,
   onDelete,
+  onSplit,
   onClick,
   className,
 }: BatchCardProps) {
@@ -160,6 +143,17 @@ export function BatchCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {onSplit && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onSplit(batch)
+                  }}
+                >
+                  <Scissors className="mr-2 h-4 w-4" />
+                  Split into Tasks
+                </DropdownMenuItem>
+              )}
               {onDelete && (
                 <DropdownMenuItem
                   onClick={(e) => {
