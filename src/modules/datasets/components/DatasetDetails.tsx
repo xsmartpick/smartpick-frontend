@@ -277,6 +277,8 @@ export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
                     Close
                   </Button>
 
+                  <Button variant="primary">Edit Dataset</Button>
+
                   <Button
                     variant="destructive"
                     onClick={handleDelete}
