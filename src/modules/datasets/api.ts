@@ -101,7 +101,7 @@ export async function createDataset(
 export async function updateDataset(
   id: string,
   request: UpdateDatasetRequest,
-): Promise<void> {
+): Promise<Dataset> {
   const response = await fetch(`${API_BASE_URL}/v1/datasets/${id}`, {
     method: 'PUT',
     headers: {
@@ -118,4 +118,6 @@ export async function updateDataset(
       response.statusText,
     )
   }
+
+  return response.json()
 }

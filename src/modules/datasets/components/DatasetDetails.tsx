@@ -27,7 +27,11 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { Spring } from '~/lib/spring'
-import type { Dataset, MediaType } from '~/modules/datasets'
+import type {
+  Dataset,
+  MediaType,
+  UpdateDatasetRequest,
+} from '~/modules/datasets'
 import { useUpdateDataset } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
@@ -130,11 +134,7 @@ export function DatasetDetails({
       return
     }
 
-    const request: {
-      name?: string
-      description?: string
-      mediaType?: MediaType
-    } = {}
+    const request: UpdateDatasetRequest = {}
 
     if (trimmedName !== dataset.name) {
       request.name = trimmedName
@@ -154,15 +154,8 @@ export function DatasetDetails({
     updateDatasetMutation.mutate(
       { id: dataset.id, request },
       {
-        onSuccess: () => {
-          const updatedDataset: Dataset = {
-            ...dataset,
-            name: trimmedName,
-            description: trimmedDescription,
-            mediaType,
-            updatedAt: new Date().toISOString(),
-          }
-          onUpdated?.(updatedDataset)
+        onSuccess: (updated) => {
+          onUpdated?.(updated)
           setIsEditing(false)
           toast.success('Dataset updated successfully.')
         },
