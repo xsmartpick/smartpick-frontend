@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { CreateDatasetRequest } from './api'
-import { createDataset, getDatasets } from './api'
+import type { CreateDatasetRequest, UpdateDatasetRequest } from './api'
+import { createDataset, getDatasets, updateDataset } from './api'
 
 export const datasetKeys = {
   all: ['datasets'] as const,
@@ -27,6 +27,23 @@ export function useCreateDataset() {
     mutationFn: (request: CreateDatasetRequest) => createDataset(request),
     onSuccess: () => {
       // Invalidate and refetch datasets list
+      queryClient.invalidateQueries({ queryKey: datasetKeys.lists() })
+    },
+  })
+}
+
+export function useUpdateDataset() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      request,
+    }: {
+      id: string
+      request: UpdateDatasetRequest
+    }) => updateDataset(id, request),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: datasetKeys.lists() })
     },
   })

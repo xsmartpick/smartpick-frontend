@@ -11,12 +11,28 @@ import {
 } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import * as React from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
 import { Divider } from '~/components/ui/divider'
+import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/input/Textarea'
+import { Label } from '~/components/ui/label'
 import { ScrollArea } from '~/components/ui/scroll-areas/ScrollArea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 import { Spring } from '~/lib/spring'
-import type { Dataset, MediaType } from '~/modules/datasets'
+import type {
+  Dataset,
+  MediaType,
+  UpdateDatasetRequest,
+} from '~/modules/datasets'
+import { useUpdateDataset } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -56,10 +72,20 @@ function getMediaTypeLabel(mediaType: MediaType): string {
 export interface DatasetDetailsProps {
   dataset: Dataset | null
   onClose: () => void
+  onUpdated?: (dataset: Dataset) => void
 }
 
-export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
+export function DatasetDetails({
+  dataset,
+  onClose,
+  onUpdated,
+}: DatasetDetailsProps) {
   const isOpen = dataset !== null
+  const updateDatasetMutation = useUpdateDataset()
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [name, setName] = React.useState('')
+  const [description, setDescription] = React.useState('')
+  const [mediaType, setMediaType] = React.useState<MediaType>('image')
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -73,6 +99,75 @@ export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
   }, [isOpen, onClose])
+
+  React.useEffect(() => {
+    if (!dataset) return
+    setName(dataset.name)
+    setDescription(dataset.description ?? '')
+    setMediaType(dataset.mediaType)
+    setIsEditing(false)
+  }, [dataset])
+
+  const trimmedName = name.trim()
+  const trimmedDescription = description.trim()
+  const currentDescription = dataset?.description ?? ''
+  const isDirty = Boolean(
+    dataset &&
+      (trimmedName !== dataset.name ||
+        trimmedDescription !== currentDescription ||
+        mediaType !== dataset.mediaType),
+  )
+  const isNameValid = trimmedName.length >= 2
+
+  const handleCancelEdit = () => {
+    if (!dataset) return
+    setName(dataset.name)
+    setDescription(dataset.description ?? '')
+    setMediaType(dataset.mediaType)
+    setIsEditing(false)
+  }
+
+  const handleApply = () => {
+    if (!dataset) return
+    if (!isNameValid) {
+      toast.error('Name must be at least 2 characters.')
+      return
+    }
+
+    const request: UpdateDatasetRequest = {}
+
+    if (trimmedName !== dataset.name) {
+      request.name = trimmedName
+    }
+    if (trimmedDescription !== currentDescription) {
+      request.description = trimmedDescription
+    }
+    if (mediaType !== dataset.mediaType) {
+      request.mediaType = mediaType
+    }
+
+    if (Object.keys(request).length === 0) {
+      toast.info('No changes to apply.')
+      return
+    }
+
+    updateDatasetMutation.mutate(
+      { id: dataset.id, request },
+      {
+        onSuccess: (updated) => {
+          onUpdated?.(updated)
+          setIsEditing(false)
+          toast.success('Dataset updated successfully.')
+        },
+        onError: (err) => {
+          toast.error('Failed to update dataset.', {
+            description:
+              err instanceof Error ? err.message : 'An unknown error occurred.',
+          })
+        },
+      },
+    )
+  }
 
   return (
     <AnimatePresence>
@@ -133,37 +228,89 @@ export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
                       </h3>
                       <div className="space-y-4 rounded-2xl border border-border bg-fill/30 p-4">
                         <div>
-                          <label className="mb-1 block text-xs font-medium text-text-tertiary">
+                          <Label
+                            htmlFor="dataset-name"
+                            className="mb-1 block text-xs font-medium text-text-tertiary"
+                          >
                             Name
-                          </label>
-                          <p className="text-sm text-text">{dataset.name}</p>
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              id="dataset-name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              disabled={updateDatasetMutation.isPending}
+                            />
+                          ) : (
+                            <p className="text-sm text-text">{dataset.name}</p>
+                          )}
                         </div>
 
                         <Divider />
 
                         <div>
-                          <label className="mb-1 block text-xs font-medium text-text-tertiary">
+                          <Label
+                            htmlFor="dataset-description"
+                            className="mb-1 block text-xs font-medium text-text-tertiary"
+                          >
                             Description
-                          </label>
-                          <p className="text-sm text-text">
-                            {dataset.description || (
-                              <span className="text-text-tertiary italic">
-                                No description provided
-                              </span>
-                            )}
-                          </p>
+                          </Label>
+                          {isEditing ? (
+                            <Textarea
+                              id="dataset-description"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              rows={4}
+                              disabled={updateDatasetMutation.isPending}
+                            />
+                          ) : (
+                            <p className="text-sm text-text">
+                              {dataset.description || (
+                                <span className="text-text-tertiary italic">
+                                  No description provided
+                                </span>
+                              )}
+                            </p>
+                          )}
                         </div>
 
                         <Divider />
 
                         <div>
-                          <label className="mb-1 block text-xs font-medium text-text-tertiary">
+                          <Label
+                            htmlFor="dataset-media-type"
+                            className="mb-1 block text-xs font-medium text-text-tertiary"
+                          >
                             Media Type
-                          </label>
-                          <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-text">
-                            {getMediaTypeIcon(dataset.mediaType)}
-                            <span>{getMediaTypeLabel(dataset.mediaType)}</span>
-                          </div>
+                          </Label>
+                          {isEditing ? (
+                            <Select
+                              value={mediaType}
+                              onValueChange={(value) =>
+                                setMediaType(value as MediaType)
+                              }
+                            >
+                              <SelectTrigger
+                                id="dataset-media-type"
+                                disabled={updateDatasetMutation.isPending}
+                              >
+                                <SelectValue placeholder="Select media type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="image">Image</SelectItem>
+                                <SelectItem value="video">Video</SelectItem>
+                                <SelectItem value="audio">Audio</SelectItem>
+                                <SelectItem value="text">Text</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-text">
+                              {getMediaTypeIcon(dataset.mediaType)}
+                              <span>
+                                {getMediaTypeLabel(dataset.mediaType)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </section>
@@ -249,10 +396,37 @@ export function DatasetDetails({ dataset, onClose }: DatasetDetailsProps) {
               {/* Footer Actions */}
               <div className="border-t border-border px-6 py-4">
                 <div className="flex items-center justify-end gap-2">
-                  <Button variant="ghost" onClick={onClose}>
-                    Close
-                  </Button>
-                  <Button variant="primary">Edit Dataset</Button>
+                  {isEditing ? (
+                    <>
+                      <Button
+                        variant="ghost"
+                        onClick={handleCancelEdit}
+                        disabled={updateDatasetMutation.isPending}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={handleApply}
+                        isLoading={updateDatasetMutation.isPending}
+                        disabled={!isDirty || !isNameValid}
+                      >
+                        Apply
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="ghost" onClick={onClose}>
+                        Close
+                      </Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        Edit Dataset
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

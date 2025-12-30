@@ -267,6 +267,7 @@ export const Component = () => {
           <DatasetDetails
             dataset={selectedDataset}
             onClose={() => setSelectedDataset(null)}
+            onUpdated={(updated) => setSelectedDataset(updated)}
           />
         </m.div>
       </div>
