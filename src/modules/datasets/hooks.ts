@@ -38,7 +38,7 @@ export function useDeleteDataset() {
   return useMutation({
     mutationFn: (id: string) => deleteDataset(id),
     onSuccess: () => {
-      // Refresh dataset list sau khi xoá
+      // Refresh dataset list after deletion
       queryClient.invalidateQueries({ queryKey: datasetKeys.lists() })
     },
   })
