@@ -1,3 +1,6 @@
+import { resolve } from 'node:path'
+import * as path from 'node:path'
+
 import tailwindcss from '@tailwindcss/vite'
 import reactRefresh from '@vitejs/plugin-react'
 import { codeInspectorPlugin } from 'code-inspector-plugin'
@@ -7,6 +10,8 @@ import { routeBuilderPlugin } from 'vite-plugin-route-builder'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 import PKG from './package.json'
+
+const ROOT_DIR = path.resolve(__dirname, '')
 
 export default defineConfig({
   plugins: [
@@ -22,9 +27,10 @@ export default defineConfig({
     }),
 
     tailwindcss(),
+    // Temporarily disabled due to path issue with spaces
     routeBuilderPlugin({
-      pagePattern: './src/pages/**/*.{tsx,sync.tsx}',
-      outputPath: './src/generated-routes.ts',
+      pagePattern: `${resolve(ROOT_DIR, './src/pages')}/**/*.tsx`,
+      outputPath: `${resolve(ROOT_DIR, './src/generated-routes.ts')}`,
       enableInDev: true,
     }),
   ],
