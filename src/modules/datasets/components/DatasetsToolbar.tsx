@@ -20,6 +20,9 @@ export interface DatasetsToolbarProps {
   sortKey: SortKey
   sortDir: SortDir
   onSortChange: (key: SortKey, dir: SortDir) => void
+
+  search: string
+  onSearchChange: (value: string) => void
 }
 
 function useClickOutside<T extends HTMLElement>(
@@ -137,6 +140,8 @@ export function DatasetsToolbar({
   sortKey,
   sortDir,
   onSortChange,
+  search,
+  onSearchChange,
 }: DatasetsToolbarProps) {
   return (
     <div className="rounded-3xl border border-border bg-background p-4 shadow-sm">
@@ -146,6 +151,18 @@ export function DatasetsToolbar({
         subtitle="Create and manage datasets before you start labeling."
         right={
           <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search datasets..."
+              value={search}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="
+                hidden sm:block
+                w-56 rounded-xl border border-border bg-background
+                px-3 py-2 text-sm
+                focus:outline-none focus:ring-2 focus:ring-primary/20
+              "
+            />
             <div className="hidden sm:flex">
               <div className="inline-flex rounded-2xl border border-border bg-background p-1">
                 <button
