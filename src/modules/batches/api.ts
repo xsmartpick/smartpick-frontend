@@ -141,3 +141,12 @@ export async function createBatch(
     body: request,
   })
 }
+
+/**
+ * Delete a batch by ID
+ */
+export async function deleteBatch(id: string): Promise<void> {
+  return apiClient<void>(API_ENDPOINTS.BATCHES.DELETE(id), {
+    method: 'DELETE',
+  })
+}

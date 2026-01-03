@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
 import { Button } from '~/components/ui/button'
@@ -22,12 +23,12 @@ import { useMobile } from '~/hooks/common'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
 
+import { useDeleteBatch } from '../hooks'
 import type { Batch } from '../types'
 import { SplitBatchModal } from './SplitBatchModal'
 
 interface BatchDetailsProps {
   batch: Batch
-  onDelete?: (id: string) => void
 }
 
 function getStatusColor(status: Batch['status']) {
@@ -81,9 +82,10 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
+export function BatchDetails({ batch }: BatchDetailsProps) {
   const navigate = getStableRouterNavigate()
   const isMobile = useMobile()
+  const deleteBatchMutation = useDeleteBatch()
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null,
   )
@@ -92,6 +94,23 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
   const handleBack = useCallback(() => {
     if (navigate) navigate('/batches', { replace: false })
   }, [navigate])
+
+  const handleDelete = useCallback(async () => {
+    try {
+      await deleteBatchMutation.mutateAsync(batch.id)
+      toast.success('Batch deleted successfully')
+      // Navigate back to batches list after successful delete
+      if (navigate) navigate('/batches', { replace: true })
+    } catch (error) {
+      console.error('Failed to delete batch:', error)
+      toast.error('Failed to delete batch', {
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An error occurred while deleting the batch.',
+      })
+    }
+  }, [batch.id, deleteBatchMutation, navigate])
 
   const images = batch.images || []
 
@@ -194,15 +213,13 @@ export function BatchDetails({ batch, onDelete }: BatchDetailsProps) {
                     <Download className="mr-2 h-4 w-4" />
                     Export batch
                   </DropdownMenuItem>
-                  {onDelete && (
-                    <DropdownMenuItem
-                      onClick={() => onDelete(batch.id)}
-                      className="text-red focus:text-red"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete batch
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    className="text-red focus:text-red"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete batch
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

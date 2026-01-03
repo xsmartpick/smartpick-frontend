@@ -22,11 +22,13 @@ import {
   SplitBatchModal,
   useBatches,
   useCreateBatch,
+  useDeleteBatch,
 } from '~/modules/batches'
 
 export const Component = () => {
   const { data: batches = [], isLoading, error, refetch } = useBatches()
   const createBatchMutation = useCreateBatch()
+  const deleteBatchMutation = useDeleteBatch()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isSplitModalOpen, setIsSplitModalOpen] = useState(false)
   const [selectedBatchForSplit, setSelectedBatchForSplit] =
@@ -86,12 +88,21 @@ export const Component = () => {
 
   // Handle delete batch
   const handleDeleteBatch = useCallback(
-    (_: string) => {
-      // TODO: Implement delete batch API call
-      toast.success('Batch deleted')
-      refetch()
+    async (id: string) => {
+      try {
+        await deleteBatchMutation.mutateAsync(id)
+        toast.success('Batch deleted successfully')
+      } catch (error) {
+        console.error('Failed to delete batch:', error)
+        toast.error('Failed to delete batch', {
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An error occurred while deleting the batch.',
+        })
+      }
     },
-    [refetch],
+    [deleteBatchMutation],
   )
 
   // Handle split batch
