@@ -53,6 +53,7 @@ export const Component = () => {
   const [sortKey, setSortKey] = useState<SortKey>('updatedAt')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null)
 
   // Keyboard shortcut: N to create new dataset
@@ -61,7 +62,18 @@ export const Component = () => {
     handler: () => setIsCreateModalOpen(true),
   })
 
-  const sortedDatasets = [...datasets].sort((a, b) => {
+  const filteredDatasets = datasets.filter((dataset) => {
+    if (!search.trim()) return true
+
+    const keyword = search.toLowerCase()
+
+    return (
+      dataset.name.toLowerCase().includes(keyword) ||
+      (dataset.description ?? '').toLowerCase().includes(keyword)
+    )
+  })
+
+  const sortedDatasets = [...filteredDatasets].sort((a, b) => {
     let aValue: string | number
     let bValue: string | number
 
@@ -77,11 +89,9 @@ export const Component = () => {
       return sortDir === 'asc' ? aValue - bValue : bValue - aValue
     }
 
-    const aStr = String(aValue)
-    const bStr = String(bValue)
     return sortDir === 'asc'
-      ? aStr.localeCompare(bStr)
-      : bStr.localeCompare(aStr)
+      ? String(aValue).localeCompare(String(bValue))
+      : String(bValue).localeCompare(String(aValue))
   })
 
   const handleCreateDataset = (formData: CreateDatasetFormData) => {
@@ -162,6 +172,8 @@ export const Component = () => {
                 setSortKey(key)
                 setSortDir(dir)
               }}
+              search={search}
+              onSearchChange={setSearch}
             />
 
             <div className="rounded-2xl border border-border bg-background p-6">
