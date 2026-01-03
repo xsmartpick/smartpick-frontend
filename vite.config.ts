@@ -22,7 +22,6 @@ export default defineConfig({
     }),
 
     tailwindcss(),
-    // Fixed path issue with spaces by using relative paths
     routeBuilderPlugin({
       pagePattern: './src/pages/**/*.tsx',
       outputPath: './src/generated-routes.ts',
