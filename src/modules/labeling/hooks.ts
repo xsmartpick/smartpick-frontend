@@ -95,44 +95,49 @@ export function useLabeling({
       const label = labels.find((l) => l.id === labelId)
       if (!label) return
 
-      setAssignments((prev) => {
-        const existingIndex = prev.findIndex(
-          (a) => a.imageId === currentImage.id && a.labelId === labelId,
+      const existingAssignment = assignments.find(
+        (a) => a.imageId === currentImage.id && a.labelId === labelId,
+      )
+      const wasSelected = !!existingAssignment
+
+      if (wasSelected) {
+        // Remove assignment
+        setAssignments((prev) =>
+          prev.filter(
+            (a) => !(a.imageId === currentImage.id && a.labelId === labelId),
+          ),
         )
+      } else {
+        // Add assignment
+        setAssignments((prev) => [
+          ...prev.filter(
+            (a) => !(a.imageId === currentImage.id && a.labelId === labelId),
+          ),
+          {
+            imageId: currentImage.id,
+            labelId: label.id,
+            labelName: label.name,
+            labelColor: label.color,
+            assignedAt: new Date().toISOString(),
+          },
+        ])
 
-        const wasSelected = existingIndex !== -1
-
-        if (wasSelected) {
-          // Remove assignment
-          return prev.filter((_, idx) => idx !== existingIndex)
-        } else {
-          // Add assignment
-          const newAssignments = [
-            ...prev.filter(
-              (a) => !(a.imageId === currentImage.id && a.labelId === labelId),
-            ),
-            {
-              imageId: currentImage.id,
-              labelId: label.id,
-              labelName: label.name,
-              labelColor: label.color,
-              assignedAt: new Date().toISOString(),
-            },
-          ]
-
-          // Auto-advance to next image if enabled and not at the end
-          if (autoAdvance && currentIndex < images.length - 1) {
-            // Use setTimeout to allow state update to complete first
-            setTimeout(() => {
-              setCurrentIndex((prev) => Math.min(prev + 1, images.length - 1))
-            }, 300) // Small delay for better UX - user sees the selection
-          }
-
-          return newAssignments
+        // Auto-advance to next image if enabled and not at the end
+        if (autoAdvance && currentIndex < images.length - 1) {
+          setTimeout(() => {
+            setCurrentIndex((prev) => Math.min(prev + 1, images.length - 1))
+          }, 300) // Small delay for better UX - user sees the selection
         }
-      })
+      }
     },
-    [currentImage, labels, autoAdvance, currentIndex, images.length],
+    [
+      currentImage,
+      labels,
+      assignments,
+      autoAdvance,
+      currentIndex,
+      images.length,
+    ],
   )
 
   // Save handler
