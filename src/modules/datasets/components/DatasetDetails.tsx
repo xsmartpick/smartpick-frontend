@@ -32,6 +32,7 @@ import type {
   MediaType,
   UpdateDatasetRequest,
 } from '~/modules/datasets'
+import { useDeleteDataset } from '~/modules/datasets'
 import { useUpdateDataset } from '~/modules/datasets/hooks'
 
 function formatDate(dateString: string): string {
@@ -45,7 +46,7 @@ function formatDate(dateString: string): string {
   })
 }
 
-function getMediaTypeIcon(mediaType: MediaType) {
+function getMediaTypeIcon(mediaType?: MediaType) {
   switch (mediaType) {
     case 'image': {
       return <Image className="h-4 w-4" />
@@ -65,7 +66,9 @@ function getMediaTypeIcon(mediaType: MediaType) {
   }
 }
 
-function getMediaTypeLabel(mediaType: MediaType): string {
+function getMediaTypeLabel(mediaType?: MediaType): string {
+  if (!mediaType) return 'Unknown'
+
   return mediaType.charAt(0).toUpperCase() + mediaType.slice(1)
 }
 
@@ -82,10 +85,27 @@ export function DatasetDetails({
 }: DatasetDetailsProps) {
   const isOpen = dataset !== null
   const updateDatasetMutation = useUpdateDataset()
+  const deleteDatasetMutation = useDeleteDataset()
   const [isEditing, setIsEditing] = React.useState(false)
   const [name, setName] = React.useState('')
   const [description, setDescription] = React.useState('')
   const [mediaType, setMediaType] = React.useState<MediaType>('image')
+
+  function handleDelete() {
+    if (!dataset) return
+
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this dataset? This action cannot be undone.',
+    )
+
+    if (!confirmed) return
+
+    deleteDatasetMutation.mutate(dataset.id, {
+      onSuccess: () => {
+        onClose()
+      },
+    })
+  }
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -416,7 +436,11 @@ export function DatasetDetails({
                     </>
                   ) : (
                     <>
-                      <Button variant="ghost" onClick={onClose}>
+                      <Button
+                        variant="ghost"
+                        onClick={onClose}
+                        disabled={deleteDatasetMutation.isPending}
+                      >
                         Close
                       </Button>
                       <Button
@@ -427,6 +451,13 @@ export function DatasetDetails({
                       </Button>
                     </>
                   )}
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={deleteDatasetMutation.isPending}
+                  >
+                    Delete Dataset
+                  </Button>
                 </div>
               </div>
             </div>
