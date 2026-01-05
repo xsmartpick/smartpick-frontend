@@ -1,7 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { CreateLabelSetRequest } from './api'
-import { createLabelSet, getLabelSets } from './api'
+import type { CreateLabelSetRequest, UpdateLabelSetRequest } from './api'
+import {
+  createLabelSet,
+  deleteLabelSet,
+  getLabelSets,
+  updateLabelSet,
+} from './api'
 
 export const labelSetKeys = {
   all: ['label-sets'] as const,
@@ -27,6 +32,39 @@ export function useCreateLabelSet() {
     mutationFn: (request: CreateLabelSetRequest) => createLabelSet(request),
     onSuccess: () => {
       // Invalidate and refetch label sets list
+      queryClient.invalidateQueries({ queryKey: labelSetKeys.lists() })
+    },
+  })
+}
+
+export function useUpdateLabelSet() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      request,
+    }: {
+      id: string
+      request: UpdateLabelSetRequest
+    }) => updateLabelSet(id, request),
+    onSuccess: (updated) => {
+      queryClient.setQueryData(labelSetKeys.lists(), (current) => {
+        if (!Array.isArray(current)) return current
+        return current.map((labelSet) =>
+          labelSet.id === updated.id ? updated : labelSet,
+        )
+      })
+    },
+  })
+}
+
+export function useDeleteLabelSet() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (id: string) => deleteLabelSet(id),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: labelSetKeys.lists() })
     },
   })

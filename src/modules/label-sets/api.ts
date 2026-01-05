@@ -1,3 +1,9 @@
+// In development, use relative path to leverage Vite proxy
+// In production, use VITE_API_URL env var or default to localhost:8080
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? '' : 'http://localhost:8080')
+
 export interface Label {
   id: string
   name: string
@@ -7,9 +13,22 @@ export interface Label {
 
 export interface LabelSet {
   id: string
+  batchId?: string | null
   name: string
-  description: string
+  description?: string | null
   labels: Label[]
+  labelIds?: string[]
+  createdAt: string
+  createdBy: string
+  updatedAt: string
+}
+
+interface BackendLabelSet {
+  id: string
+  batchId?: string | null
+  name: string
+  description?: string | null
+  labelIds?: string[] | null
   createdAt: string
   createdBy: string
   updatedAt: string
@@ -31,90 +50,123 @@ export class ApiError extends Error {
   }
 }
 
-// Mock data for development
-const mockLabelSets: LabelSet[] = [
-  {
-    id: '1',
-    name: 'Object Detection Labels',
-    description: 'Labels for detecting objects in images',
-    labels: [
-      {
-        id: '1',
-        name: 'Person',
-        description: 'Human person',
-        color: '#3B82F6',
-      },
-      { id: '2', name: 'Car', description: 'Vehicle', color: '#EF4444' },
-      { id: '3', name: 'Bicycle', color: '#10B981' },
-      { id: '4', name: 'Dog', color: '#F59E0B' },
-    ],
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'user@example.com',
-    updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: '2',
-    name: 'Classification Labels',
-    description: 'Simple classification categories',
-    labels: [
-      { id: '5', name: 'Good', color: '#10B981' },
-      { id: '6', name: 'Bad', color: '#EF4444' },
-      { id: '7', name: 'Neutral', color: '#6B7280' },
-    ],
-    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'user@example.com',
-    updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-  },
-  {
-    id: '3',
-    name: 'Sentiment Analysis',
-    description: 'Labels for sentiment classification',
-    labels: [
-      { id: '8', name: 'Positive', color: '#10B981' },
-      { id: '9', name: 'Negative', color: '#EF4444' },
-      { id: '10', name: 'Neutral', color: '#6B7280' },
-    ],
-    createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    createdBy: 'user@example.com',
-    updatedAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-  },
-]
-
-// Simulate API delay
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+function mapLabelSet(data: BackendLabelSet): LabelSet {
+  return {
+    id: data.id,
+    batchId: data.batchId ?? null,
+    name: data.name,
+    description: data.description ?? '',
+    labels: [],
+    labelIds: data.labelIds ?? [],
+    createdAt: data.createdAt,
+    createdBy: data.createdBy,
+    updatedAt: data.updatedAt,
+  }
+}
 
 export async function getLabelSets(): Promise<LabelSet[]> {
-  // Mock: simulate API call
-  await delay(300)
+  const response = await fetch(`${API_BASE_URL}/v1/labelsets`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 
-  return [...mockLabelSets]
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to fetch label sets: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
+  }
+
+  const data = await response.json()
+  const raw = Array.isArray(data) ? data : data?.labelSets
+  if (!Array.isArray(raw)) {
+    return []
+  }
+
+  return raw.map((item) => mapLabelSet(item))
 }
 
 export interface CreateLabelSetRequest {
   name: string
   description: string
-  labels: Omit<Label, 'id'>[]
+  batchId?: string | null
+  labelIds?: string[] | null
 }
 
 export async function createLabelSet(
   request: CreateLabelSetRequest,
 ): Promise<LabelSet> {
-  // Mock: simulate API call
-  await delay(500)
+  const response = await fetch(`${API_BASE_URL}/v1/labelsets`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
 
-  const newLabelSet: LabelSet = {
-    id: String(mockLabelSets.length + 1),
-    name: request.name,
-    description: request.description,
-    labels: request.labels.map((label, idx) => ({
-      ...label,
-      id: String(mockLabelSets.length * 10 + idx + 1),
-    })),
-    createdAt: new Date().toISOString(),
-    createdBy: 'user@example.com',
-    updatedAt: new Date().toISOString(),
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to create label set: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
   }
 
-  mockLabelSets.push(newLabelSet)
-  return newLabelSet
+  const data = (await response.json()) as BackendLabelSet
+  return mapLabelSet(data)
+}
+
+export interface UpdateLabelSetRequest {
+  name?: string
+  description?: string
+  batchId?: string | null
+  labelIds?: string[] | null
+}
+
+export async function updateLabelSet(
+  id: string,
+  request: UpdateLabelSetRequest,
+): Promise<LabelSet> {
+  const response = await fetch(`${API_BASE_URL}/v1/labelsets/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to update label set: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
+  }
+
+  const data = (await response.json()) as BackendLabelSet
+  return mapLabelSet(data)
+}
+
+export async function deleteLabelSet(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/v1/labelsets/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new ApiError(
+      `Failed to delete label set: ${response.status} ${errorText}`,
+      response.status,
+      response.statusText,
+    )
+  }
 }
