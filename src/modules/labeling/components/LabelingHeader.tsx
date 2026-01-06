@@ -1,5 +1,6 @@
-import { Save } from 'lucide-react'
+import { ArrowLeft, Save } from 'lucide-react'
 import { m } from 'motion/react'
+import { Link } from 'react-router'
 
 import { Button } from '~/components/ui/button'
 import { useMobile } from '~/hooks/common/useMobile'
@@ -33,6 +34,13 @@ export function LabelingHeader({
         )}
       >
         <div className="flex items-center gap-4">
+          <Link
+            to="/"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-fill hover:text-text"
+            title="Back to dashboard"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
           <div>
             <h1 className="text-lg font-semibold text-text">Label Images</h1>
             <p className="text-xs text-text-secondary">
