@@ -9,7 +9,6 @@ import {
   ErrorState,
   LoadingState,
   StatsCard,
-  UserInfo,
 } from '~/components/common'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -124,25 +123,23 @@ export const Component = () => {
 
   return (
     <div className="min-h-screen bg-background text-text">
-      {/* Sticky Top Bar */}
-      <div className="sticky top-0 z-40 border-b border-border bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <div className="flex items-center gap-3">
+      {/* Page Header */}
+      <div className="border-b border-border bg-background/50 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-6">
+          <div className="flex items-center gap-4">
             <m.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={Spring.presets.bouncy}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-md shadow-violet-500/20"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-lg shadow-violet-500/20"
             >
-              <FolderPlus className="h-5 w-5" />
+              <FolderPlus className="h-6 w-6" />
             </m.div>
             <div>
-              <div className="text-base font-semibold tracking-tight">
-                Batches
-              </div>
-              <div className="text-xs text-text-secondary">
+              <h1 className="text-xl font-bold tracking-tight">Batches</h1>
+              <p className="text-sm text-text-secondary">
                 Upload and manage image batches
-              </div>
+              </p>
             </div>
           </div>
 
@@ -159,12 +156,11 @@ export const Component = () => {
               <Plus className="mr-2 h-4 w-4" />
               New batch
             </Button>
-            <UserInfo />
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         {isLoading ? (
           <LoadingState message="Loading batches..." />
         ) : error ? (

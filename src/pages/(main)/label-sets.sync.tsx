@@ -1,14 +1,9 @@
 import { Plus, Tag } from 'lucide-react'
 import { m } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 
-import {
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  UserInfo,
-} from '~/components/common'
+import { EmptyState, ErrorState, LoadingState } from '~/components/common'
 import { Button } from '~/components/ui/button'
 import {
   Table,
@@ -18,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table'
+import { useKeyboardShortcut } from '~/hooks/common'
 import { Spring } from '~/lib/spring'
 import type { LabelSet } from '~/modules/label-sets'
 import type {
@@ -73,27 +69,10 @@ export const Component = () => {
   )
 
   // Keyboard shortcut: N to create new label set
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      // Ignore if user is typing in an input/textarea
-      const target = e.target as HTMLElement
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return
-      }
-
-      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey) {
-        e.preventDefault()
-        setIsCreateModalOpen(true)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
+  useKeyboardShortcut({
+    key: 'n',
+    handler: () => setIsCreateModalOpen(true),
+  })
 
   const sortedLabelSets = [...labelSets].sort((a, b) => {
     let aValue: string | number
@@ -151,20 +130,23 @@ export const Component = () => {
 
   return (
     <div className="min-h-screen bg-background text-text">
-      {/* Sticky Top Bar */}
-      <div className="sticky top-0 z-40 border-b border-border bg-background/75 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-6 py-3">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent text-background shadow-sm">
-              <Tag className="h-5 w-5" />
-            </div>
+      {/* Page Header */}
+      <div className="border-b border-border bg-background/50 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-6">
+          <div className="flex items-center gap-4">
+            <m.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={Spring.presets.bouncy}
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-background shadow-lg shadow-accent/20"
+            >
+              <Tag className="h-6 w-6" />
+            </m.div>
             <div>
-              <div className="text-base font-semibold tracking-tight">
-                Label Sets
-              </div>
-              <div className="text-xs text-text-secondary">
+              <h1 className="text-xl font-bold tracking-tight">Label Sets</h1>
+              <p className="text-sm text-text-secondary">
                 Manage your label collections
-              </div>
+              </p>
             </div>
           </div>
 
@@ -181,12 +163,11 @@ export const Component = () => {
               <Plus className="mr-2 h-4 w-4" />
               New label set
             </Button>
-            <UserInfo />
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="mx-auto max-w-5xl px-6 py-8">
         <m.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -253,7 +234,7 @@ export const Component = () => {
                                 : 'labels'}
                             </span>
                             {labelSet.labels.length > 0 && (
-                              <div className="flex items-center gap-1 ml-2">
+                              <div className="ml-2 flex items-center gap-1">
                                 {labelSet.labels.slice(0, 3).map((label) => (
                                   <div
                                     key={label.id}
@@ -294,19 +275,19 @@ export const Component = () => {
                   {sortedLabelSets.map((labelSet) => (
                     <div
                       key={labelSet.id}
-                      className="rounded-2xl border border-border bg-background p-4 hover:shadow-md transition-shadow cursor-pointer"
+                      className="cursor-pointer rounded-2xl border border-border bg-background p-4 transition-shadow hover:shadow-md"
                       onClick={() => setSelectedLabelSet(labelSet)}
                     >
-                      <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="mb-3 flex items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-text truncate">
+                          <h3 className="truncate font-semibold text-text">
                             {labelSet.name}
                           </h3>
-                          <p className="text-sm text-text-secondary mt-1 line-clamp-2">
+                          <p className="mt-1 line-clamp-2 text-sm text-text-secondary">
                             {labelSet.description || '—'}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end gap-1 shrink-0">
+                        <div className="flex shrink-0 flex-col items-end gap-1">
                           <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
                             {`${labelSet.labels.length} ${
                               labelSet.labels.length === 1 ? 'label' : 'labels'
@@ -314,7 +295,7 @@ export const Component = () => {
                           </span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mb-3">
+                      <div className="mb-3 flex items-center gap-2">
                         {labelSet.labels.length > 0 ? (
                           <>
                             {labelSet.labels.map((label) => (
