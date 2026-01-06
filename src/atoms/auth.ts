@@ -24,3 +24,13 @@ export const isAuthenticatedAtom = atom((get) => {
   const user = get(userAtom)
   return token !== null && user !== null
 })
+
+// QR Session State (persisted in memory while app is open)
+export const [
+  qrSessionAtom,
+  useQrSession,
+  useQrSessionValue,
+  useSetQrSession,
+  getQrSession,
+  setQrSession,
+] = createAtomHooks(atom<{ qrToken: string; expiresAt: string } | null>(null))

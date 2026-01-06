@@ -4,6 +4,10 @@ export const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
     REFRESH: '/auth/refresh',
     ME: '/auth/me',
+    QR: {
+      GENERATE: '/auth/qr/generate',
+      POLL: (token: string) => `/auth/qr/poll/${token}`,
+    },
   },
   // Future endpoints for SmartPick features
   CASHEW: {

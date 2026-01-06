@@ -25,3 +25,16 @@ export interface AuthState {
   token: string | null
   isAuthenticated: boolean
 }
+
+export interface QrGenerateResponse {
+  qrToken: string
+  expiresAt: string
+}
+
+export type QrStatus = 'pending' | 'authorized' | 'rejected' | 'expired'
+
+export interface QrPollResponse {
+  status: QrStatus
+  token?: string
+  user?: User
+}
