@@ -1,10 +1,15 @@
+import { useState } from 'react'
+
+import { SegmentGroup, SegmentItem } from '~/components/ui/segment'
 import { useIsDark, useSetTheme } from '~/hooks/common/useDark'
 
 import { LoginForm } from './LoginForm'
+import { QrLoginPanel } from './QrLoginPanel'
 
 export const LoginPage = () => {
   const isDark = useIsDark()
   const setTheme = useSetTheme()
+  const [loginMethod, setLoginMethod] = useState<'password' | 'qr'>('password')
 
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark')
@@ -170,8 +175,41 @@ export const LoginPage = () => {
               </p>
             </div>
 
-            {/* Login Form */}
-            <LoginForm />
+            {/* Login Form or QR Panel */}
+            <div className="space-y-6">
+              <SegmentGroup
+                value={loginMethod}
+                onValueChanged={(value) =>
+                  setLoginMethod(value as 'password' | 'qr')
+                }
+                className="w-full bg-gray-100 dark:bg-gray-700/50 p-1"
+              >
+                <SegmentItem
+                  value="password"
+                  label={
+                    <span className="flex items-center gap-2">
+                      <i className="i-mingcute-keyboard-line" />
+                      Password
+                    </span>
+                  }
+                  className="flex-1"
+                />
+                <SegmentItem
+                  value="qr"
+                  label={
+                    <span className="flex items-center gap-2">
+                      <i className="i-mingcute-qrcode-line" />
+                      QR Code
+                    </span>
+                  }
+                  className="flex-1"
+                />
+              </SegmentGroup>
+
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                {loginMethod === 'password' ? <LoginForm /> : <QrLoginPanel />}
+              </div>
+            </div>
 
             {/* Additional Info */}
             <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">

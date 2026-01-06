@@ -6,23 +6,17 @@
 import type { RouteObject } from 'react-router'
 
 // Imports for page components
-import * as SyncComponent0 from './pages/login.sync'
-import * as SyncComponent1 from './pages/(main)/batches/[id].sync'
-import * as SyncComponent2 from './pages/(main)/batches/index.sync'
-import * as SyncComponent3 from './pages/(main)/datasets.sync'
-import * as SyncComponent4 from './pages/(main)/label.sync'
-import * as SyncComponent5 from './pages/(main)/label-sets.sync'
+import * as SyncComponent0 from './pages/(main)/batches/[id].sync'
+import * as SyncComponent1 from './pages/(main)/batches/index.sync'
+import * as SyncComponent2 from './pages/(main)/datasets.sync'
+import * as SyncComponent3 from './pages/(main)/label.sync'
+import * as SyncComponent4 from './pages/(main)/label-sets.sync'
+import * as SyncComponent5 from './pages/(main)/login.sync'
 import * as SyncComponent6 from './pages/(main)/index.sync'
 const lazy0 = () => import('./pages/(main)/layout')
 
 // Generated route configuration
 export const routes: RouteObject[] = [
-  {
-    path: 'login',
-    Component: SyncComponent0.Component,
-    loader: SyncComponent0.loader,
-    handle: SyncComponent0.handle,
-  },
   {
     path: '',
     lazy: lazy0,
@@ -32,32 +26,38 @@ export const routes: RouteObject[] = [
         children: [
           {
             path: ':id',
-            Component: SyncComponent1.Component,
-            loader: SyncComponent1.loader,
-            handle: SyncComponent1.handle,
+            Component: SyncComponent0.Component,
+            loader: SyncComponent0.loader,
+            handle: SyncComponent0.handle,
           },
           {
             path: '',
-            Component: SyncComponent2.Component,
-            loader: SyncComponent2.loader,
-            handle: SyncComponent2.handle,
+            Component: SyncComponent1.Component,
+            loader: SyncComponent1.loader,
+            handle: SyncComponent1.handle,
           },
         ],
       },
       {
         path: 'datasets',
+        Component: SyncComponent2.Component,
+        loader: SyncComponent2.loader,
+        handle: SyncComponent2.handle,
+      },
+      {
+        path: 'label',
         Component: SyncComponent3.Component,
         loader: SyncComponent3.loader,
         handle: SyncComponent3.handle,
       },
       {
-        path: 'label',
+        path: 'label-sets',
         Component: SyncComponent4.Component,
         loader: SyncComponent4.loader,
         handle: SyncComponent4.handle,
       },
       {
-        path: 'label-sets',
+        path: 'login',
         Component: SyncComponent5.Component,
         loader: SyncComponent5.loader,
         handle: SyncComponent5.handle,
