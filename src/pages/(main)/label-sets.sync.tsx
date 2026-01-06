@@ -1,6 +1,6 @@
 import { Plus, Tag } from 'lucide-react'
 import { m } from 'motion/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import {
@@ -18,8 +18,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table'
-import { useKeyboardShortcut } from '~/hooks/common'
-import { relativeTime } from '~/lib/date-utils'
 import { Spring } from '~/lib/spring'
 import type { LabelSet } from '~/modules/label-sets'
 import type {
@@ -46,6 +44,23 @@ function formatDate(dateString: string): string {
   })
 }
 
+function relativeTime(dateString: string): string {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffSec = Math.floor(diffMs / 1000)
+  const diffMin = Math.floor(diffSec / 60)
+  const diffHour = Math.floor(diffMin / 60)
+  const diffDay = Math.floor(diffHour / 24)
+
+  if (diffSec < 10) return 'just now'
+  if (diffSec < 60) return `${diffSec}s ago`
+  if (diffMin < 60) return `${diffMin}m ago`
+  if (diffHour < 24) return `${diffHour}h ago`
+  if (diffDay < 7) return `${diffDay}d ago`
+  return formatDate(dateString)
+}
+
 export const Component = () => {
   const { data: labelSets = [], isLoading, error, refetch } = useLabelSets()
   const createLabelSetMutation = useCreateLabelSet()
@@ -58,10 +73,27 @@ export const Component = () => {
   )
 
   // Keyboard shortcut: N to create new label set
-  useKeyboardShortcut({
-    key: 'n',
-    handler: () => setIsCreateModalOpen(true),
-  })
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Ignore if user is typing in an input/textarea
+      const target = e.target as HTMLElement
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return
+      }
+
+      if (e.key.toLowerCase() === 'n' && !e.metaKey && !e.ctrlKey) {
+        e.preventDefault()
+        setIsCreateModalOpen(true)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   const sortedLabelSets = [...labelSets].sort((a, b) => {
     let aValue: string | number
@@ -91,7 +123,6 @@ export const Component = () => {
       {
         name: formData.name,
         description: formData.description,
-        labels: formData.labels,
       },
       {
         onSuccess: (createdLabelSet) => {
@@ -108,6 +139,14 @@ export const Component = () => {
         },
       },
     )
+  }
+
+  const handleLabelSetUpdated = (updatedLabelSet: LabelSet) => {
+    setSelectedLabelSet(updatedLabelSet)
+  }
+
+  const handleLabelSetDeleted = (id: string) => {
+    setSelectedLabelSet((current) => (current?.id === id ? null : current))
   }
 
   return (
@@ -209,7 +248,9 @@ export const Component = () => {
                               {labelSet.labels.length}
                             </span>
                             <span className="text-xs text-text-tertiary">
-                              label{labelSet.labels.length !== 1 ? 's' : ''}
+                              {labelSet.labels.length === 1
+                                ? 'label'
+                                : 'labels'}
                             </span>
                             {labelSet.labels.length > 0 && (
                               <div className="flex items-center gap-1 ml-2">
@@ -267,8 +308,9 @@ export const Component = () => {
                         </div>
                         <div className="flex flex-col items-end gap-1 shrink-0">
                           <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
-                            {labelSet.labels.length} label
-                            {labelSet.labels.length !== 1 ? 's' : ''}
+                            {`${labelSet.labels.length} ${
+                              labelSet.labels.length === 1 ? 'label' : 'labels'
+                            }`}
                           </span>
                         </div>
                       </div>
@@ -322,6 +364,8 @@ export const Component = () => {
           <LabelSetDetails
             labelSet={selectedLabelSet}
             onClose={() => setSelectedLabelSet(null)}
+            onUpdated={handleLabelSetUpdated}
+            onDeleted={handleLabelSetDeleted}
           />
         </m.div>
       </div>

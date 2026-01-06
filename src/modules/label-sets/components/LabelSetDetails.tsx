@@ -1,12 +1,21 @@
-import { Calendar, Clock, Tag, User, X } from 'lucide-react'
+import { Calendar, Clock, Tag, Trash2, User, X } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import * as React from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
 import { Divider } from '~/components/ui/divider'
+import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/input/Textarea'
+import { Label } from '~/components/ui/label'
+import { Prompt } from '~/components/ui/prompts/Prompt'
 import { ScrollArea } from '~/components/ui/scroll-areas/ScrollArea'
 import { Spring } from '~/lib/spring'
-import type { LabelSet } from '~/modules/label-sets'
+import type { LabelSet, UpdateLabelSetRequest } from '~/modules/label-sets'
+import {
+  useDeleteLabelSet,
+  useUpdateLabelSet,
+} from '~/modules/label-sets/hooks'
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString)
@@ -22,10 +31,22 @@ function formatDate(dateString: string): string {
 export interface LabelSetDetailsProps {
   labelSet: LabelSet | null
   onClose: () => void
+  onUpdated?: (labelSet: LabelSet) => void
+  onDeleted?: (id: string) => void
 }
 
-export function LabelSetDetails({ labelSet, onClose }: LabelSetDetailsProps) {
+export function LabelSetDetails({
+  labelSet,
+  onClose,
+  onUpdated,
+  onDeleted,
+}: LabelSetDetailsProps) {
   const isOpen = labelSet !== null
+  const updateLabelSetMutation = useUpdateLabelSet()
+  const deleteLabelSetMutation = useDeleteLabelSet()
+  const [isEditing, setIsEditing] = React.useState(false)
+  const [name, setName] = React.useState('')
+  const [description, setDescription] = React.useState('')
 
   React.useEffect(() => {
     if (!isOpen) return
@@ -39,6 +60,95 @@ export function LabelSetDetails({ labelSet, onClose }: LabelSetDetailsProps) {
     window.addEventListener('keydown', handleEscape)
     return () => window.removeEventListener('keydown', handleEscape)
   }, [isOpen, onClose])
+
+  React.useEffect(() => {
+    if (!labelSet) return
+    setName(labelSet.name)
+    setDescription(labelSet.description ?? '')
+    setIsEditing(false)
+  }, [labelSet])
+
+  const trimmedName = name.trim()
+  const trimmedDescription = description.trim()
+  const currentDescription = labelSet?.description ?? ''
+  const isDirty = Boolean(
+    labelSet &&
+      (trimmedName !== labelSet.name ||
+        trimmedDescription !== currentDescription),
+  )
+  const isNameValid = trimmedName.length >= 2
+  const isMutating =
+    updateLabelSetMutation.isPending || deleteLabelSetMutation.isPending
+
+  const handleCancelEdit = () => {
+    if (!labelSet) return
+    setName(labelSet.name)
+    setDescription(labelSet.description ?? '')
+    setIsEditing(false)
+  }
+
+  const handleApply = () => {
+    if (!labelSet) return
+    if (!isNameValid) {
+      toast.error('Name must be at least 2 characters.')
+      return
+    }
+
+    const request: UpdateLabelSetRequest = {}
+
+    if (trimmedName !== labelSet.name) {
+      request.name = trimmedName
+    }
+    if (trimmedDescription !== currentDescription) {
+      request.description = trimmedDescription
+    }
+
+    if (Object.keys(request).length === 0) {
+      toast.info('No changes to apply.')
+      return
+    }
+
+    updateLabelSetMutation.mutate(
+      { id: labelSet.id, request },
+      {
+        onSuccess: (updated) => {
+          onUpdated?.(updated)
+          setIsEditing(false)
+          toast.success('Label set updated successfully.')
+        },
+        onError: (err) => {
+          toast.error('Failed to update label set.', {
+            description:
+              err instanceof Error ? err.message : 'An unknown error occurred.',
+          })
+        },
+      },
+    )
+  }
+
+  const handleDelete = () => {
+    if (!labelSet) return
+
+    Prompt.prompt({
+      title: 'Delete label set?',
+      description: `This will permanently remove "${labelSet.name}".`,
+      variant: 'danger',
+      onConfirmText: 'Delete',
+      onConfirm: async () => {
+        try {
+          await deleteLabelSetMutation.mutateAsync(labelSet.id)
+          toast.success('Label set deleted.')
+          onDeleted?.(labelSet.id)
+          onClose()
+        } catch (err) {
+          toast.error('Failed to delete label set.', {
+            description:
+              err instanceof Error ? err.message : 'An unknown error occurred.',
+          })
+        }
+      },
+    })
+  }
 
   return (
     <AnimatePresence>
@@ -99,25 +209,52 @@ export function LabelSetDetails({ labelSet, onClose }: LabelSetDetailsProps) {
                       </h3>
                       <div className="space-y-4 rounded-2xl border border-border bg-fill/30 p-4">
                         <div>
-                          <label className="mb-1 block text-xs font-medium text-text-tertiary">
+                          <Label
+                            htmlFor="label-set-name"
+                            className="mb-1 block text-xs font-medium text-text-tertiary"
+                          >
                             Name
-                          </label>
-                          <p className="text-sm text-text">{labelSet.name}</p>
+                          </Label>
+                          {isEditing ? (
+                            <Input
+                              id="label-set-name"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                              maxLength={64}
+                              disabled={isMutating}
+                            />
+                          ) : (
+                            <p className="text-sm text-text">{labelSet.name}</p>
+                          )}
                         </div>
 
                         <Divider />
 
                         <div>
-                          <label className="mb-1 block text-xs font-medium text-text-tertiary">
+                          <Label
+                            htmlFor="label-set-description"
+                            className="mb-1 block text-xs font-medium text-text-tertiary"
+                          >
                             Description
-                          </label>
-                          <p className="text-sm text-text">
-                            {labelSet.description || (
-                              <span className="text-text-tertiary italic">
-                                No description provided
-                              </span>
-                            )}
-                          </p>
+                          </Label>
+                          {isEditing ? (
+                            <Textarea
+                              id="label-set-description"
+                              value={description}
+                              onChange={(e) => setDescription(e.target.value)}
+                              rows={4}
+                              maxLength={500}
+                              disabled={isMutating}
+                            />
+                          ) : (
+                            <p className="text-sm text-text">
+                              {labelSet.description || (
+                                <span className="text-text-tertiary italic">
+                                  No description provided
+                                </span>
+                              )}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </section>
@@ -240,11 +377,53 @@ export function LabelSetDetails({ labelSet, onClose }: LabelSetDetailsProps) {
 
               {/* Footer Actions */}
               <div className="border-t border-border px-6 py-4">
-                <div className="flex items-center justify-end gap-2">
-                  <Button variant="ghost" onClick={onClose}>
-                    Close
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    variant="destructive"
+                    onClick={handleDelete}
+                    disabled={isMutating}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
                   </Button>
-                  <Button variant="primary">Edit Label Set</Button>
+                  <div className="flex items-center gap-2">
+                    {isEditing ? (
+                      <>
+                        <Button
+                          variant="ghost"
+                          onClick={handleCancelEdit}
+                          disabled={isMutating}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={handleApply}
+                          isLoading={updateLabelSetMutation.isPending}
+                          disabled={!isDirty || !isNameValid || isMutating}
+                        >
+                          Apply
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          onClick={onClose}
+                          disabled={isMutating}
+                        >
+                          Close
+                        </Button>
+                        <Button
+                          variant="primary"
+                          onClick={() => setIsEditing(true)}
+                          disabled={isMutating}
+                        >
+                          Edit Label Set
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
