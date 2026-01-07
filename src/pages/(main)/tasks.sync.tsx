@@ -194,6 +194,7 @@ export const Component = () => {
               filters={filters}
               onFiltersChange={handleFiltersChange}
               totalResults={totalCount}
+              facets={data?.facets}
             />
 
             {/* Table */}
@@ -252,12 +253,18 @@ export const Component = () => {
                       {tasks.map((task: Task) => (
                         <TableRow key={task.id}>
                           <TableCell className="font-medium text-text">
-                            {task.title}
+                            <div
+                              className="line-clamp-2 max-w-[250px]"
+                              title={task.title}
+                            >
+                              {task.title}
+                            </div>
                           </TableCell>
                           <TableCell>
                             <Link
                               to={`/batches/${task.batchId}`}
-                              className="text-accent hover:underline"
+                              className="block max-w-[180px] truncate text-accent hover:underline"
+                              title={task.batchName}
                             >
                               {task.batchName}
                             </Link>

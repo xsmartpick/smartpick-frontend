@@ -14,6 +14,10 @@ interface TasksToolbarProps {
   filters: TaskFilters
   onFiltersChange: (filters: TaskFilters) => void
   totalResults?: number
+  facets?: {
+    status: Record<TaskStatus, number>
+    priority: Record<TaskPriority, number>
+  }
 }
 
 interface FilterOption {
@@ -115,10 +119,12 @@ function Dropdown({
 function CheckboxMenuItem({
   label,
   checked,
+  count,
   onChange,
 }: {
   label: string
   checked: boolean
+  count?: number
   onChange: (checked: boolean) => void
 }) {
   return (
@@ -136,6 +142,11 @@ function CheckboxMenuItem({
         {checked ? <Check className="h-4 w-4 text-accent" /> : null}
       </span>
       <span className="flex-1">{label}</span>
+      {count !== undefined && (
+        <span className="text-xs text-text-tertiary tabular-nums">
+          ({count})
+        </span>
+      )}
     </button>
   )
 }
@@ -146,6 +157,7 @@ export function TasksToolbar({
   filters,
   onFiltersChange,
   totalResults,
+  facets,
 }: TasksToolbarProps) {
   const statusCount = filters.status?.length ?? 0
   const priorityCount = filters.priority?.length ?? 0
@@ -216,6 +228,7 @@ export function TasksToolbar({
                 checked={
                   filters.status?.includes(option.value as TaskStatus) ?? false
                 }
+                count={facets?.status[option.value as TaskStatus]}
                 onChange={() => handleStatusToggle(option.value as TaskStatus)}
               />
             ))}
@@ -242,6 +255,7 @@ export function TasksToolbar({
                   filters.priority?.includes(option.value as TaskPriority) ??
                   false
                 }
+                count={facets?.priority[option.value as TaskPriority]}
                 onChange={() =>
                   handlePriorityToggle(option.value as TaskPriority)
                 }

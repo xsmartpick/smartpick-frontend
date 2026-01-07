@@ -103,6 +103,10 @@ interface UseTasksResult {
   totalCount: number
   totalPages: number
   currentPage: number
+  facets: {
+    status: Record<TaskStatus, number>
+    priority: Record<TaskPriority, number>
+  }
 }
 
 /**
@@ -124,18 +128,42 @@ export function useTasks(options: UseTasksOptions = {}) {
       // MOCK: Simulate network delay
       await new Promise((resolve) => setTimeout(resolve, 300))
 
-      let filteredTasks = [...ALL_MOCK_TASKS]
+      // Base: All tasks
+      let searchFilteredTasks = [...ALL_MOCK_TASKS]
 
-      // MOCK: Apply search filter
+      // MOCK: Apply search filter first
       if (search.trim()) {
         const keyword = search.toLowerCase()
-        filteredTasks = filteredTasks.filter(
+        searchFilteredTasks = searchFilteredTasks.filter(
           (task) =>
             task.title.toLowerCase().includes(keyword) ||
             task.batchName.toLowerCase().includes(keyword) ||
             (task.description ?? '').toLowerCase().includes(keyword),
         )
       }
+
+      // Calculate facets based on search-filtered tasks (before applying status/priority filters)
+      const statusCounts = STATUSES.reduce(
+        (acc, status) => {
+          acc[status] = searchFilteredTasks.filter(
+            (t) => t.status === status,
+          ).length
+          return acc
+        },
+        {} as Record<TaskStatus, number>,
+      )
+
+      const priorityCounts = PRIORITIES.reduce(
+        (acc, priority) => {
+          acc[priority] = searchFilteredTasks.filter(
+            (t) => t.priority === priority,
+          ).length
+          return acc
+        },
+        {} as Record<TaskPriority, number>,
+      )
+
+      let filteredTasks = [...searchFilteredTasks]
 
       // MOCK: Apply status filter
       if (filters.status && filters.status.length > 0) {
@@ -201,6 +229,10 @@ export function useTasks(options: UseTasksOptions = {}) {
         totalCount,
         totalPages,
         currentPage: page,
+        facets: {
+          status: statusCounts,
+          priority: priorityCounts,
+        },
       }
     },
   })
