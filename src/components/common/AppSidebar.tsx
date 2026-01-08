@@ -69,10 +69,10 @@ export function AppSidebar({
       description: 'Image batches',
     },
     {
-      id: 'tasks',
-      label: 'Tasks',
+      id: 'admin-tasks',
+      label: 'Admin Tasks',
       icon: <ClipboardList className="h-5 w-5" />,
-      href: '/tasks',
+      href: '/admintasks',
       description: 'Admin task overview',
     },
     {

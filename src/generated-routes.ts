@@ -12,7 +12,7 @@ import * as SyncComponent2 from './pages/(main)/datasets.sync'
 import * as SyncComponent3 from './pages/(main)/label.sync'
 import * as SyncComponent4 from './pages/(main)/label-sets.sync'
 import * as SyncComponent5 from './pages/(main)/login.sync'
-import * as SyncComponent6 from './pages/(main)/tasks.sync'
+import * as SyncComponent6 from './pages/(main)/admintasks.sync'
 import * as SyncComponent7 from './pages/(main)/index.sync'
 const lazy0 = () => import('./pages/(main)/layout')
 
@@ -64,7 +64,7 @@ export const routes: RouteObject[] = [
         handle: SyncComponent5.handle,
       },
       {
-        path: 'tasks',
+        path: 'admintasks',
         Component: SyncComponent6.Component,
         loader: SyncComponent6.loader,
         handle: SyncComponent6.handle,

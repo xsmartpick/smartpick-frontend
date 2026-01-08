@@ -21,9 +21,9 @@ import type {
   TaskPriority,
   TaskSort,
   TaskStatus,
-} from '~/modules/tasks'
-import { useTasks } from '~/modules/tasks'
-import { TasksToolbar } from '~/modules/tasks/components'
+} from '~/modules/admintasks'
+import { useTasks } from '~/modules/admintasks'
+import { TasksToolbar } from '~/modules/admintasks/components'
 
 const PAGE_SIZE = 10
 
