@@ -1,6 +1,7 @@
 import {
   ChevronLeft,
   ChevronRight,
+  ClipboardList,
   Database,
   FolderOpen,
   Home,
@@ -69,6 +70,13 @@ export function AppSidebar({
       icon: <FolderOpen className="h-5 w-5" />,
       href: '/batches',
       description: 'Image batches',
+    },
+    {
+      id: 'admin-tasks',
+      label: 'Admin Tasks',
+      icon: <ClipboardList className="h-5 w-5" />,
+      href: '/admintasks',
+      description: 'Admin task overview',
     },
     {
       id: 'label',
