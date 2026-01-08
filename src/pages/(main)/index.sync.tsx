@@ -7,6 +7,7 @@ import {
   TrendingUp,
 } from 'lucide-react'
 import { m } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { useUserValue } from '~/atoms/user'
@@ -47,50 +48,54 @@ const QuickActionCard = ({
   href: string
   variant?: 'default' | 'primary'
   delay: number
-}) => (
-  <StaggerItem delay={delay}>
-    <Link
-      to={href}
-      className={cn(
-        'group relative flex flex-col overflow-hidden rounded-2xl border p-5 transition-all duration-300',
-        variant === 'primary'
-          ? 'border-accent/30 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10'
-          : 'border-border bg-background hover:border-border hover:bg-fill/50 hover:shadow-md',
-      )}
-    >
-      <div
+}) => {
+  const { t } = useTranslation()
+
+  return (
+    <StaggerItem delay={delay}>
+      <Link
+        to={href}
         className={cn(
-          'mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110',
+          'group relative flex flex-col overflow-hidden rounded-2xl border p-5 transition-all duration-300',
           variant === 'primary'
-            ? 'bg-accent text-background shadow-lg shadow-accent/20'
-            : 'bg-fill text-text-secondary',
+            ? 'border-accent/30 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent hover:border-accent/50 hover:shadow-lg hover:shadow-accent/10'
+            : 'border-border bg-background hover:border-border hover:bg-fill/50 hover:shadow-md',
         )}
       >
-        {icon}
-      </div>
-      <h3
-        className={cn(
-          'text-base font-semibold',
-          variant === 'primary' ? 'text-accent' : 'text-text',
-        )}
-      >
-        {title}
-      </h3>
-      <p className="mt-1 text-sm text-text-secondary">{description}</p>
-      <div
-        className={cn(
-          'mt-4 flex items-center gap-1 text-sm font-medium transition-all duration-300',
-          variant === 'primary'
-            ? 'text-accent'
-            : 'text-text-tertiary group-hover:text-text',
-        )}
-      >
-        <span>Get started</span>
-        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-      </div>
-    </Link>
-  </StaggerItem>
-)
+        <div
+          className={cn(
+            'mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110',
+            variant === 'primary'
+              ? 'bg-accent text-background shadow-lg shadow-accent/20'
+              : 'bg-fill text-text-secondary',
+          )}
+        >
+          {icon}
+        </div>
+        <h3
+          className={cn(
+            'text-base font-semibold',
+            variant === 'primary' ? 'text-accent' : 'text-text',
+          )}
+        >
+          {title}
+        </h3>
+        <p className="mt-1 text-sm text-text-secondary">{description}</p>
+        <div
+          className={cn(
+            'mt-4 flex items-center gap-1 text-sm font-medium transition-all duration-300',
+            variant === 'primary'
+              ? 'text-accent'
+              : 'text-text-tertiary group-hover:text-text',
+          )}
+        >
+          <span>{t('common.getStarted')}</span>
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </div>
+      </Link>
+    </StaggerItem>
+  )
+}
 
 const StatCard = ({
   icon,
@@ -135,12 +140,13 @@ const StatCard = ({
 
 export const Component = () => {
   const user = useUserValue()
+  const { t } = useTranslation()
 
   const getGreeting = () => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'Good morning'
-    if (hour < 18) return 'Good afternoon'
-    return 'Good evening'
+    if (hour < 12) return t('common.greeting.morning')
+    if (hour < 18) return t('common.greeting.afternoon')
+    return t('common.greeting.evening')
   }
 
   return (
@@ -149,12 +155,12 @@ export const Component = () => {
         {/* Header */}
         <StaggerItem delay={0}>
           <div className="mb-10">
-            <h1 className="text-3xl font-bold tracking-tight text-text">
-              {getGreeting()}, {user?.name?.split(' ')[0] ?? 'there'}
+            <h1 className="text-3xl font-bold text-text tracking-normal ">
+              {getGreeting()},{' '}
+              {user?.name?.split(' ')[0] ?? t('common.defaultName')}
             </h1>
             <p className="mt-2 text-text-secondary">
-              Here&apos;s your labeling activity overview. Keep up the great
-              work!
+              {t('dashboard.welcomeSubtitle')}
             </p>
           </div>
         </StaggerItem>
@@ -163,27 +169,27 @@ export const Component = () => {
         <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             icon={<CheckCircle2 className="h-5 w-5" />}
-            label="Labeled today"
+            label={t('dashboard.stats.labeledToday')}
             value={47}
             trend={{ value: '+12%', positive: true }}
             delay={0.05}
           />
           <StatCard
             icon={<PenTool className="h-5 w-5" />}
-            label="Total labeled"
+            label={t('dashboard.stats.totalLabeled')}
             value="1,247"
             delay={0.1}
           />
           <StatCard
             icon={<Clock className="h-5 w-5" />}
-            label="Avg. time/image"
+            label={t('dashboard.stats.avgTime')}
             value="2.4s"
             trend={{ value: '-8%', positive: true }}
             delay={0.15}
           />
           <StatCard
             icon={<FolderOpen className="h-5 w-5" />}
-            label="Pending batches"
+            label={t('dashboard.stats.pendingBatches')}
             value={3}
             delay={0.2}
           />
@@ -192,29 +198,29 @@ export const Component = () => {
         {/* Quick Actions */}
         <StaggerItem delay={0.25}>
           <h2 className="mb-4 text-lg font-semibold text-text">
-            Quick Actions
+            {t('dashboard.quickActions.title')}
           </h2>
         </StaggerItem>
         <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <QuickActionCard
             icon={<PenTool className="h-6 w-6" />}
-            title="Start Labeling"
-            description="Continue where you left off or start a new batch"
+            title={t('dashboard.quickActions.startLabeling.title')}
+            description={t('dashboard.quickActions.startLabeling.description')}
             href="/label"
             variant="primary"
             delay={0.3}
           />
           <QuickActionCard
             icon={<FolderOpen className="h-5 w-5" />}
-            title="Browse Batches"
-            description="View and manage your assigned image batches"
+            title={t('dashboard.quickActions.browseBatches.title')}
+            description={t('dashboard.quickActions.browseBatches.description')}
             href="/batches"
             delay={0.35}
           />
           <QuickActionCard
             icon={<CheckCircle2 className="h-5 w-5" />}
-            title="Review Labels"
-            description="Check your recent labeling work and accuracy"
+            title={t('dashboard.quickActions.reviewLabels.title')}
+            description={t('dashboard.quickActions.reviewLabels.description')}
             href="/batches"
             delay={0.4}
           />
@@ -225,13 +231,13 @@ export const Component = () => {
           <div className="rounded-2xl border border-border bg-background p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-text">
-                Recent Activity
+                {t('dashboard.recentActivity.title')}
               </h2>
               <Link
                 to="/batches"
                 className="text-sm font-medium text-accent hover:underline"
               >
-                View all
+                {t('common.seeAll')}
               </Link>
             </div>
             <div className="space-y-4">
@@ -284,8 +290,12 @@ export const Component = () => {
                       <div className="font-medium text-text">
                         {activity.batch}
                       </div>
+                      <div className="text-sm text-text-secondary" />
                       <div className="text-sm text-text-secondary">
-                        {activity.action} • {activity.count} images
+                        {activity.action === 'In progress'
+                          ? t('dashboard.recentActivity.status.inProgress')
+                          : t('dashboard.recentActivity.status.completed')}{' '}
+                        • {activity.count} images
                       </div>
                     </div>
                   </div>
@@ -304,16 +314,16 @@ export const Component = () => {
             <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
               <div>
                 <h3 className="text-xl font-bold text-text">
-                  Ready to continue labeling?
+                  {t('dashboard.cta.title')}
                 </h3>
                 <p className="mt-1 text-text-secondary">
-                  You have 3 batches waiting for your review.
+                  {t('dashboard.cta.description', { count: 3 })}
                 </p>
               </div>
               <Button variant="primary" asChild>
                 <Link to="/label" className="flex items-center gap-2">
                   <PenTool className="h-4 w-4" />
-                  Start Labeling
+                  {t('dashboard.cta.button')}
                 </Link>
               </Button>
             </div>

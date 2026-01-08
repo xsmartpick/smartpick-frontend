@@ -4,6 +4,7 @@ import {
   Database,
   FolderOpen,
   Home,
+  Languages,
   Moon,
   PenTool,
   Sun,
@@ -11,6 +12,7 @@ import {
 } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { useReadonlyRouteSelector } from '~/atoms/route'
@@ -50,6 +52,7 @@ export function AppSidebar({
   const isDark = useIsDark()
   const theme = useThemeAtomValue()
   const setTheme = useSetTheme()
+  const { i18n } = useTranslation()
 
   // Navigation items - labeler focused
   const navItems: NavItem[] = [
@@ -103,6 +106,12 @@ export function AppSidebar({
     } else {
       setTheme('dark')
     }
+  }
+
+  const toggleLanguage = () => {
+    const currentLang = i18n.language
+    const newLang = currentLang.startsWith('vi') ? 'en' : 'vi'
+    i18n.changeLanguage(newLang)
   }
 
   // Mobile bottom navigation
@@ -287,6 +296,39 @@ export function AppSidebar({
 
       {/* Bottom section */}
       <div className="border-t border-border p-3">
+        {/* Language toggle */}
+        <button
+          type="button"
+          onClick={toggleLanguage}
+          className={cn(
+            'group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-text-secondary transition-colors hover:bg-fill hover:text-text',
+            collapsed && 'justify-center px-2',
+          )}
+        >
+          <m.span
+            key={i18n.language}
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={Spring.presets.bouncy}
+            className="shrink-0"
+          >
+            <Languages className="h-5 w-5" />
+          </m.span>
+          <AnimatePresence>
+            {!collapsed && (
+              <m.span
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={Spring.presets.smooth}
+                className="text-sm font-medium"
+              >
+                {i18n.language.startsWith('vi') ? 'Tiếng Việt' : 'English'}
+              </m.span>
+            )}
+          </AnimatePresence>
+        </button>
+
         {/* Theme toggle */}
         <button
           type="button"

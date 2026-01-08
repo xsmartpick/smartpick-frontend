@@ -1,0 +1,48 @@
+{
+    "common": {
+        "defaultName": "bạn",
+        "getStarted": "Bắt đầu",
+        "seeAll": "Xem tất cả",
+        "greeting": {
+            "morning": "Chào buổi sáng",
+            "afternoon": "Chào buổi chiều",
+            "evening": "Chào buổi tối"
+        }
+    },
+    "dashboard": {
+        "welcomeSubtitle": "Đây là tổng quan hoạt động dán nhãn của bạn. Tiếp tục phát huy nhé!",
+        "stats": {
+            "labeledToday": "Đã dán nhãn hôm nay",
+            "totalLabeled": "Tổng số đã dán nhãn",
+            "avgTime": "Thời gian TB/ảnh",
+            "pendingBatches": "Batch đang chờ"
+        },
+        "quickActions": {
+            "title": "Thao tác nhanh",
+            "startLabeling": {
+                "title": "Bắt đầu dán nhãn",
+                "description": "Tiếp tục từ nơi bạn đang tới hoặc bắt đầu batch mới"
+            },
+            "browseBatches": {
+                "title": "Duyệt Batch",
+                "description": "Xem và quản lý các batch hình ảnh đã được giao cho bạn"
+            },
+            "reviewLabels": {
+                "title": "Xem lại nhãn",
+                "description": "Kiểm tra công việc dán nhãn gần đây và độ chính xác"
+            }
+        },
+        "recentActivity": {
+            "title": "Hoạt động gần đây",
+            "status": {
+                "inProgress": "Đang thực hiện",
+                "completed": "Hoàn thành dán nhãn"
+            }
+        },
+        "cta": {
+            "title": "Sẵn sàng tiếp tục dán nhãn?",
+            "description": "Bạn có {{count}} batch đang chờ xem xét.",
+            "button": "Bắt đầu dán nhãn"
+        }
+    }
+}
