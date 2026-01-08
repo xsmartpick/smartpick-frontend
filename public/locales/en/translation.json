@@ -1,0 +1,48 @@
+{
+    "common": {
+        "defaultName": "there",
+        "getStarted": "Get started",
+        "seeAll": "View all",
+        "greeting": {
+            "morning": "Good morning",
+            "afternoon": "Good afternoon",
+            "evening": "Good evening"
+        }
+    },
+    "dashboard": {
+        "welcomeSubtitle": "Here's your labeling activity overview. Keep up the great work!",
+        "stats": {
+            "labeledToday": "Labeled today",
+            "totalLabeled": "Total labeled",
+            "avgTime": "Avg. time/image",
+            "pendingBatches": "Pending batches"
+        },
+        "quickActions": {
+            "title": "Quick Actions",
+            "startLabeling": {
+                "title": "Start Labeling",
+                "description": "Continue where you left off or start a new batch"
+            },
+            "browseBatches": {
+                "title": "Browse Batches",
+                "description": "View and manage your assigned image batches"
+            },
+            "reviewLabels": {
+                "title": "Review Labels",
+                "description": "Check your recent labeling work and accuracy"
+            }
+        },
+        "recentActivity": {
+            "title": "Recent Activity",
+            "status": {
+                "inProgress": "In progress",
+                "completed": "Completed labeling"
+            }
+        },
+        "cta": {
+            "title": "Ready to continue labeling?",
+            "description": "You have {{count}} batches waiting for your review.",
+            "button": "Start Labeling"
+        }
+    }
+}
