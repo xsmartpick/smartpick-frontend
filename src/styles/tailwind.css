@@ -164,7 +164,35 @@ body {
   --color-primary: var(--color-accent);
   --color-primary-light: var(--color-accent-light);
   --color-primary-dark: var(--color-accent-dark);
+  --color-primary-light: var(--color-accent-light);
+  --color-primary-dark: var(--color-accent-dark);
 }
+
+html[lang='vi'] {
+  --font-sans: 'Be Vietnam Pro', sans-serif;
+  /* Better text rendering for complex scripts */
+  text-rendering: optimizeLegibility;
+  /* Relaxed line-height for stacked Vietnamese diacritics */
+  line-height: 1.7;
+}
+
+/* Override antialiasing for Vietnamese - use grayscale for sharper marks */
+html[lang='vi'] * {
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Reduce font-weight for bold Vietnamese text to prevent marks from touching */
+html[lang='vi'] .font-bold,
+html[lang='vi'] .font-semibold,
+html[lang='vi'] h1,
+html[lang='vi'] h2,
+html[lang='vi'] h3 {
+  /* Normal weight - works better on scaled displays */
+  letter-spacing: 0.01em !important;
+  text-rendering: optimizeLegibility !important;
+}
+
 
 @layer theme {
   #root {
@@ -180,6 +208,7 @@ body {
     margin-right: auto;
     padding: var(--container-padding);
   }
+
   @media (min-width: 1536px) {
     .container {
       max-width: var(--container-max-width-2xl);
@@ -248,6 +277,7 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

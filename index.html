@@ -1,44 +1,52 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SmartPick - AI Cashew Classification</title>
-    <script>
-      function setTheme() {
-        let e = 'color-mode',
-          t = document.documentElement,
-          a = localStorage.getItem(e)
-        function h() {
-          return window.matchMedia
-            ? window.matchMedia('(prefers-color-scheme: dark)').matches
-              ? 'dark'
-              : window.matchMedia('(prefers-color-scheme: light)').matches
-                ? 'light'
-                : void 0
-            : void 0
-        }
-        if (!a) {
-          t.dataset.theme = h() || 'light'
-          return
-        }
-        switch ((a = JSON.parse(a))) {
-          case 'dark':
-            t.dataset.theme = 'dark'
-            break
-          case 'light':
-            t.dataset.theme = 'light'
-            break
-          case 'system':
-            t.dataset.theme = h() || 'light'
-        }
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartPick - AI Cashew Classification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;200;300;400;500;600;700;800;900&display=swap&subset=vietnamese"
+    rel="stylesheet">
+  <script>
+    function setTheme() {
+      let e = 'color-mode',
+        t = document.documentElement,
+        a = localStorage.getItem(e)
+      function h() {
+        return window.matchMedia
+          ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : window.matchMedia('(prefers-color-scheme: light)').matches
+              ? 'light'
+              : void 0
+          : void 0
       }
-      setTheme()
-    </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+      if (!a) {
+        t.dataset.theme = h() || 'light'
+        return
+      }
+      switch ((a = JSON.parse(a))) {
+        case 'dark':
+          t.dataset.theme = 'dark'
+          break
+        case 'light':
+          t.dataset.theme = 'light'
+          break
+        case 'system':
+          t.dataset.theme = h() || 'light'
+      }
+    }
+    setTheme()
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
