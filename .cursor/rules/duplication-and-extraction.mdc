@@ -1,0 +1,145 @@
+---
+description: Guidelines for when to extract components/hooks vs keeping code inline or allowing duplication
+include: ["src/**/*.{ts,tsx}"]
+---
+# Code Duplication and Extraction Guidelines
+
+This document provides decision frameworks for when to extract shared code vs. keeping it inline or even accepting duplication.
+
+## The Rule of Three
+
+**Don't extract on the first duplicate.** Wait until you see a pattern three times before abstracting:
+
+1. **First occurrence**: Just write it inline
+2. **Second occurrence**: Consider if it's truly the same pattern (accept duplication if unclear)
+3. **Third occurrence**: Now extract—you have enough data to design a good abstraction
+
+This avoids premature abstraction and ensures the extracted component/hook actually meets real needs.
+
+## When to Extract into a Component
+
+**✅ Extract when:**
+
+- Reused 3+ times with identical or near-identical structure
+- Has its own state or event handlers (self-contained logic)
+- Conceptually independent (you could explain it in isolation)
+- Over ~50 lines of JSX
+- Would benefit from isolated testing
+- Different team members might work on it simultaneously
+
+**❌ Keep inline when:**
+
+- Used only once and unlikely to be reused
+- Tightly coupled to parent's state/props (would need 5+ props to extract)
+- Under ~20 lines of simple JSX
+- Extraction would create prop drilling or require new context
+- Requirements are still evolving ("premature abstraction")
+
+## When to Extract into a Hook
+
+**✅ Extract when:**
+
+- Same stateful logic used in 2+ components
+- Logic is complex enough to benefit from a descriptive name
+- Hook encapsulates a side effect (event listeners, subscriptions)
+- Testing the logic independently is valuable
+
+**❌ Keep inline when:**
+
+- Simple one-liner state (just use `useState` directly)
+- Logic is specific to one component and unlikely to change
+- Would require many parameters to configure
+
+## When Duplication is Acceptable
+
+Sometimes **intentional duplication is better than wrong abstraction**:
+
+1. **Similar but diverging paths**: Two components look alike now but will evolve differently
+2. **Different domains**: Same UI pattern in different modules may need different behaviors
+3. **Prototyping phase**: During exploration, duplication allows faster iteration
+4. **Simple code**: 5-10 lines of duplicated code is often clearer than a shared utility
+
+> "Duplication is far cheaper than the wrong abstraction." — Sandi Metz
+
+## Shared Component Locations
+
+When you do extract, place components correctly:
+
+| Type | Location | When to Use |
+|------|----------|-------------|
+| Generic UI primitive | `src/components/ui/` | Reusable in any React app |
+| App-shared utility | `src/components/common/` | Used across multiple features |
+| Domain-specific | `src/modules/{domain}/components/` | Specific to one feature |
+
+## Shared Hook Locations
+
+| Type | Location | When to Use |
+|------|----------|-------------|
+| Generic utility | `src/hooks/common/` | DOM, events, state utilities |
+| Domain-specific | `src/modules/{domain}/hooks/` | Feature-specific hooks |
+
+## Existing Shared Utilities
+
+Before creating new utilities, check existing ones:
+
+### Date/Time
+```typescript
+import { formatDate, relativeTime } from '~/lib/date-utils'
+```
+
+### Styling
+```typescript
+import { cn, clsxm } from '~/lib/cn'
+```
+
+### Hooks
+```typescript
+import { useClickOutside, useKeyboardShortcut } from '~/hooks/common'
+```
+
+## Code Review Checklist
+
+When reviewing code with potential duplication:
+
+- [ ] Is this the 3rd+ occurrence? → Consider extraction
+- [ ] Is the abstraction clear and stable? → Safe to extract
+- [ ] Would extraction add complexity? → Maybe keep duplicated
+- [ ] Is it a common UI pattern? → Check `src/components/ui/` first
+- [ ] Is it a common hook pattern? → Check `src/hooks/common/` first
+
+## Examples
+
+### Good Extraction
+
+```typescript
+// Before: useClickOutside duplicated in 3 toolbar files
+// After: Shared hook in src/hooks/common/useClickOutside.ts
+import { useClickOutside } from '~/hooks/common'
+```
+
+### Acceptable Duplication
+
+```typescript
+// DatasetDetails and ProjectDetails have similar layouts
+// but different fields, actions, and will evolve independently.
+// Keep them as separate components—don't force a shared abstraction.
+```
+
+### Wrong Abstraction (Avoid)
+
+```typescript
+// DON'T: Over-generalized component with too many config options
+<GenericDetails
+  type="dataset" | "project" | "labelset"
+  fields={[...]}
+  actions={[...]}
+  customHeader={...}
+  customFooter={...}
+  // 15+ props to handle all cases
+/>
+
+// DO: Keep separate components, share only truly common parts
+<DetailsSidebar header={...} footer={...}>
+  {/* Domain-specific content */}
+</DetailsSidebar>
+```

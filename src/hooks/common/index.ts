@@ -1,3 +1,4 @@
+export * from './useClickOutside'
 export * from './useControlled'
 export * from './useDark'
 export * from './useInputComposition'
