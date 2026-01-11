@@ -3,6 +3,7 @@ import {
   ChevronRight,
   ClipboardList,
   Database,
+  FolderKanban,
   FolderOpen,
   Home,
   Languages,
@@ -63,6 +64,13 @@ export function AppSidebar({
       icon: <Home className="h-5 w-5" />,
       href: '/',
       description: 'Overview & stats',
+    },
+    {
+      id: 'projects',
+      label: 'Projects',
+      icon: <FolderKanban className="h-5 w-5" />,
+      href: '/projects',
+      description: 'Labeling projects',
     },
     {
       id: 'batches',

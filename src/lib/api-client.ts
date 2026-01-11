@@ -1,7 +1,10 @@
 import { ofetch } from 'ofetch'
 
+// In development, use relative path to leverage Vite proxy
+// In production, use VITE_API_BASE_URL env var
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1'
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? '/v1' : 'http://localhost:8080/v1')
 
 export const apiClient = ofetch.create({
   baseURL: API_BASE_URL,
