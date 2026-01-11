@@ -90,22 +90,29 @@ function formatDuration(seconds?: number): string {
 
 function getEventIcon(type: ProjectEvent['type']) {
   switch (type) {
-    case 'created':
+    case 'created': {
       return <FolderKanban className="h-3.5 w-3.5" />
-    case 'updated':
+    }
+    case 'updated': {
       return <Edit3 className="h-3.5 w-3.5" />
-    case 'status_changed':
+    }
+    case 'status_changed': {
       return <CheckCircle className="h-3.5 w-3.5" />
+    }
     case 'batch_added':
-    case 'batch_removed':
+    case 'batch_removed': {
       return <Layers className="h-3.5 w-3.5" />
-    case 'task_completed':
+    }
+    case 'task_completed': {
       return <ListTodo className="h-3.5 w-3.5" />
+    }
     case 'member_added':
-    case 'member_removed':
+    case 'member_removed': {
       return <Users className="h-3.5 w-3.5" />
-    default:
+    }
+    default: {
       return <Clock className="h-3.5 w-3.5" />
+    }
   }
 }
 

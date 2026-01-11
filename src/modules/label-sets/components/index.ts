@@ -12,5 +12,3 @@ export type {
   ViewMode,
 } from './LabelSetsToolbar'
 export { LabelSetsToolbar } from './LabelSetsToolbar'
-export type { SectionTitleProps } from './SectionTitle'
-export { SectionTitle } from './SectionTitle'

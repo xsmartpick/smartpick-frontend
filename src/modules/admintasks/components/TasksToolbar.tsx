@@ -1,10 +1,11 @@
-import { Check, Filter, X } from 'lucide-react'
-import { AnimatePresence, m } from 'motion/react'
+import { Filter, X } from 'lucide-react'
 import * as React from 'react'
-import { useState } from 'react'
 
-import { clsxm } from '~/lib/cn'
-import { Spring } from '~/lib/spring'
+import {
+  ToolbarCheckboxMenuItem,
+  ToolbarDropdown,
+  ToolbarMenuLabel,
+} from '~/components/ui/toolbar-dropdown'
 
 import type { TaskFilters, TaskPriority, TaskStatus } from '../types'
 
@@ -37,119 +38,6 @@ const PRIORITY_OPTIONS: FilterOption[] = [
   { value: 'medium', label: 'Medium' },
   { value: 'high', label: 'High' },
 ]
-
-function useClickOutside<T extends HTMLElement>(
-  open: boolean,
-  onClose: () => void,
-): React.RefObject<T | null> {
-  const ref = React.useRef<T>(null)
-
-  React.useEffect(() => {
-    if (!open) return
-
-    function onDown(e: MouseEvent) {
-      const el = ref.current
-      if (!el) return
-      if (e.target instanceof Node && !el.contains(e.target)) onClose()
-    }
-
-    window.addEventListener('mousedown', onDown)
-    return () => window.removeEventListener('mousedown', onDown)
-  }, [open, onClose])
-
-  return ref
-}
-
-function Dropdown({
-  label,
-  children,
-  align = 'right',
-  badge,
-}: {
-  label: React.ReactNode
-  children: React.ReactNode
-  align?: 'left' | 'right'
-  badge?: number
-}) {
-  const [open, setOpen] = useState(false)
-  const ref = useClickOutside<HTMLDivElement>(open, () => setOpen(false))
-
-  return (
-    <div ref={ref} className="relative inline-block">
-      <button
-        onClick={() => setOpen((v) => !v)}
-        className={clsxm(
-          'inline-flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-sm',
-          'hover:bg-fill focus:outline-none focus:ring-2 focus:ring-accent/20',
-          badge && 'pr-2',
-        )}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        type="button"
-      >
-        {label}
-        {badge ? (
-          <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[10px] font-semibold text-background">
-            {badge}
-          </span>
-        ) : null}
-      </button>
-
-      <AnimatePresence>
-        {open ? (
-          <m.div
-            role="menu"
-            initial={{ opacity: 0, y: 6, scale: 0.99 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.99 }}
-            transition={Spring.presets.smooth}
-            className={clsxm(
-              'absolute z-20 mt-2 min-w-[220px] overflow-hidden rounded-2xl border border-border bg-background shadow-xl',
-              align === 'right' ? 'right-0' : 'left-0',
-            )}
-          >
-            <div className="p-1">{children}</div>
-          </m.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-function CheckboxMenuItem({
-  label,
-  checked,
-  count,
-  onChange,
-}: {
-  label: string
-  checked: boolean
-  count?: number
-  onChange: (checked: boolean) => void
-}) {
-  return (
-    <button
-      role="menuitemcheckbox"
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={clsxm(
-        'flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition',
-        'text-text hover:bg-fill',
-      )}
-      type="button"
-    >
-      <span className="h-4 w-4">
-        {checked ? <Check className="h-4 w-4 text-accent" /> : null}
-      </span>
-      <span className="flex-1">{label}</span>
-      {count !== undefined && (
-        <span className="text-xs text-text-tertiary tabular-nums">
-          ({count})
-        </span>
-      )}
-    </button>
-  )
-}
 
 export function TasksToolbar({
   search,
@@ -209,7 +97,7 @@ export function TasksToolbar({
         {/* Filters */}
         <div className="flex items-center gap-2">
           {/* Status Filter */}
-          <Dropdown
+          <ToolbarDropdown
             label={
               <span className="inline-flex items-center gap-2">
                 <Filter className="h-4 w-4 text-text-secondary" />
@@ -217,12 +105,11 @@ export function TasksToolbar({
               </span>
             }
             badge={statusCount || undefined}
+            showChevron={false}
           >
-            <div className="px-2 pb-2 pt-1 text-xs font-semibold text-text-tertiary">
-              Filter by Status
-            </div>
+            <ToolbarMenuLabel>Filter by Status</ToolbarMenuLabel>
             {STATUS_OPTIONS.map((option) => (
-              <CheckboxMenuItem
+              <ToolbarCheckboxMenuItem
                 key={option.value}
                 label={option.label}
                 checked={
@@ -232,10 +119,10 @@ export function TasksToolbar({
                 onChange={() => handleStatusToggle(option.value as TaskStatus)}
               />
             ))}
-          </Dropdown>
+          </ToolbarDropdown>
 
           {/* Priority Filter */}
-          <Dropdown
+          <ToolbarDropdown
             label={
               <span className="inline-flex items-center gap-2">
                 <Filter className="h-4 w-4 text-text-secondary" />
@@ -243,12 +130,11 @@ export function TasksToolbar({
               </span>
             }
             badge={priorityCount || undefined}
+            showChevron={false}
           >
-            <div className="px-2 pb-2 pt-1 text-xs font-semibold text-text-tertiary">
-              Filter by Priority
-            </div>
+            <ToolbarMenuLabel>Filter by Priority</ToolbarMenuLabel>
             {PRIORITY_OPTIONS.map((option) => (
-              <CheckboxMenuItem
+              <ToolbarCheckboxMenuItem
                 key={option.value}
                 label={option.label}
                 checked={
@@ -261,7 +147,7 @@ export function TasksToolbar({
                 }
               />
             ))}
-          </Dropdown>
+          </ToolbarDropdown>
 
           {/* Clear Filters */}
           {hasFilters && (
