@@ -1,4 +1,5 @@
 import {
+  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   ClipboardList,
@@ -8,17 +9,26 @@ import {
   Home,
   Languages,
   Moon,
+  MoreHorizontal,
   PenTool,
   Sun,
   Tag,
+  User,
 } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { useReadonlyRouteSelector } from '~/atoms/route'
 import { useUserValue } from '~/atoms/user'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog'
 import {
   useIsDark,
   useSetTheme,
@@ -55,6 +65,9 @@ export function AppSidebar({
   const theme = useThemeAtomValue()
   const setTheme = useSetTheme()
   const { i18n } = useTranslation()
+  const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const manualToggleRef = useRef(false)
 
   // Navigation items - labeler focused
   const navItems: NavItem[] = [
@@ -111,8 +124,32 @@ export function AppSidebar({
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
-    return pathname.startsWith(href)
+    // Exact match or starts with href followed by a slash
+    return pathname === href || pathname.startsWith(`${href}/`)
   }
+
+  // Auto-switch to More page if active route is in overflow items (mobile only)
+  // But respect manual user toggles
+  useEffect(() => {
+    if (isMobile && !manualToggleRef.current) {
+      const MAX_MOBILE_VISIBLE = 4
+      const overflowItems = navItems.slice(MAX_MOBILE_VISIBLE)
+      const isActiveInOverflow = overflowItems.some((item) =>
+        isActive(item.href),
+      )
+
+      // This is a legitimate case of syncing URL state with UI state
+      // We need to update the menu visibility based on the current route
+       
+      setShowMoreMenu((current) => {
+        if (isActiveInOverflow && !current) return true
+        if (!isActiveInOverflow && current) return false
+        return current
+      })
+    }
+    // isActive is stable (defined above), so we can safely disable the exhaustive-deps warning
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, isMobile, navItems])
 
   const toggleTheme = () => {
     if (theme === 'system') {
@@ -132,43 +169,215 @@ export function AppSidebar({
 
   // Mobile bottom navigation
   if (isMobile) {
+    const MAX_MOBILE_VISIBLE = 4
+    const visibleItems = navItems.slice(0, MAX_MOBILE_VISIBLE)
+    const overflowItems = navItems.slice(MAX_MOBILE_VISIBLE)
+
     return (
-      <m.nav
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={Spring.presets.smooth}
-        className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-xl"
-      >
-        <div className="flex items-center justify-around px-2 py-2">
-          {navItems.slice(0, 5).map((item) => {
-            const active = isActive(item.href)
-            return (
-              <Link
-                key={item.id}
-                to={item.href}
-                className={cn(
-                  'relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-colors',
-                  active
-                    ? 'text-accent'
-                    : 'text-text-secondary hover:text-text',
-                )}
+      <>
+        <m.nav
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+          transition={Spring.presets.smooth}
+          className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/95 backdrop-blur-xl overflow-hidden"
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {!showMoreMenu ? (
+              <m.div
+                key="main-nav"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -20, opacity: 0 }}
+                transition={Spring.presets.smooth}
+                className="flex items-center justify-around px-2 py-2"
               >
-                {active && (
-                  <m.div
-                    layoutId="mobile-nav-indicator"
-                    className="absolute inset-0 rounded-xl bg-accent/10"
-                    transition={Spring.presets.bouncy}
-                  />
+                {visibleItems.map((item) => {
+                  const active = isActive(item.href)
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.href}
+                      onClick={() => {
+                        manualToggleRef.current = false
+                      }}
+                      className={cn(
+                        'relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-colors',
+                        active
+                          ? 'text-accent'
+                          : 'text-text-secondary hover:text-text',
+                      )}
+                    >
+                      {active && (
+                        <m.div
+                          layoutId="mobile-nav-indicator"
+                          className="absolute inset-0 rounded-xl bg-accent/10"
+                          transition={Spring.presets.bouncy}
+                        />
+                      )}
+                      <span className="relative">{item.icon}</span>
+                      <span className="relative text-[10px] font-medium">
+                        {item.label}
+                      </span>
+                    </Link>
+                  )
+                })}
+
+                {/* More button */}
+                {overflowItems.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      manualToggleRef.current = true
+                      setShowMoreMenu(true)
+                    }}
+                    className="relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-text-secondary transition-colors hover:text-text"
+                  >
+                    <MoreHorizontal className="h-5 w-5" />
+                    <span className="text-[10px] font-medium">More</span>
+                  </button>
                 )}
-                <span className="relative">{item.icon}</span>
-                <span className="relative text-[10px] font-medium">
-                  {item.label}
-                </span>
-              </Link>
-            )
-          })}
-        </div>
-      </m.nav>
+              </m.div>
+            ) : (
+              <m.div
+                key="more-nav"
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                transition={Spring.presets.smooth}
+                className="flex items-center justify-around px-2 py-2"
+              >
+                {/* Back button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    manualToggleRef.current = true
+                    setShowMoreMenu(false)
+                  }}
+                  className="relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-text-secondary transition-colors hover:text-text"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                  <span className="text-[10px] font-medium">Back</span>
+                </button>
+
+                {/* Overflow items */}
+                {overflowItems.map((item) => {
+                  const active = isActive(item.href)
+                  return (
+                    <Link
+                      key={item.id}
+                      to={item.href}
+                      className={cn(
+                        'relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-colors',
+                        active
+                          ? 'text-accent'
+                          : 'text-text-secondary hover:text-text',
+                      )}
+                    >
+                      {active && (
+                        <m.div
+                          layoutId="mobile-nav-indicator"
+                          className="absolute inset-0 rounded-xl bg-accent/10"
+                          transition={Spring.presets.bouncy}
+                        />
+                      )}
+                      <span className="relative">{item.icon}</span>
+                      <span className="relative text-[10px] font-medium">
+                        {item.label}
+                      </span>
+                    </Link>
+                  )
+                })}
+
+                {/* Profile button */}
+                <button
+                  type="button"
+                  onClick={() => setShowProfileModal(true)}
+                  className="relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-text-secondary transition-colors hover:text-text"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="text-[10px] font-medium">Profile</span>
+                </button>
+              </m.div>
+            )}
+          </AnimatePresence>
+        </m.nav>
+
+        {/* Profile Modal */}
+        <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
+          <DialogContent className="max-w-sm" from="bottom">
+            <DialogHeader>
+              <DialogTitle>Profile & Settings</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 pt-2">
+              {/* User Info */}
+              <div className="flex items-center gap-3 rounded-xl bg-fill/50 p-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-background text-sm font-semibold">
+                  {user?.name
+                    ?.split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()
+                    .slice(0, 2) ?? '?'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-text truncate">
+                    {user?.name || 'User'}
+                  </div>
+                  <div className="text-sm text-text-secondary truncate">
+                    {user?.email || 'user@example.com'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Settings */}
+              <div className="space-y-2">
+                {/* Theme Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-fill"
+                >
+                  <span className="shrink-0">
+                    {isDark ? (
+                      <Moon className="h-5 w-5" />
+                    ) : (
+                      <Sun className="h-5 w-5" />
+                    )}
+                  </span>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-text">Theme</div>
+                    <div className="text-xs text-text-tertiary">
+                      {isDark ? 'Dark mode' : 'Light mode'}
+                    </div>
+                  </div>
+                </button>
+
+                {/* Language Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleLanguage}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-fill"
+                >
+                  <span className="shrink-0">
+                    <Languages className="h-5 w-5" />
+                  </span>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-text">
+                      Language
+                    </div>
+                    <div className="text-xs text-text-tertiary">
+                      {i18n.language.startsWith('vi')
+                        ? 'Tiếng Việt'
+                        : 'English'}
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </>
     )
   }
 
