@@ -1,6 +1,7 @@
 import { Loader2, Sparkles, Upload } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
@@ -32,6 +33,7 @@ export function CreateBatchModal({
   onClose,
   onSubmit,
 }: CreateBatchModalProps) {
+  const { t } = useTranslation()
   const [step, setStep] = useState<'details' | 'upload'>('details')
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -105,11 +107,11 @@ export function CreateBatchModal({
     const newErrors: typeof errors = {}
 
     if (!name.trim()) {
-      newErrors.name = 'Batch name is required'
+      newErrors.name = t('batches.modal.validation.nameRequired')
     } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters'
+      newErrors.name = t('batches.modal.validation.nameMin')
     } else if (name.trim().length > 64) {
-      newErrors.name = 'Name must be less than 64 characters'
+      newErrors.name = t('batches.modal.validation.nameMax')
     }
 
     setErrors(newErrors)
@@ -128,7 +130,7 @@ export function CreateBatchModal({
 
   const handleSubmit = async () => {
     if (images.length === 0) {
-      toast.error('Please add at least one image')
+      toast.error(t('batches.modal.errors.noImages'))
       return
     }
 
@@ -161,7 +163,7 @@ export function CreateBatchModal({
         (r) => r.status === 'uploaded',
       ).length
       if (successCount === 0) {
-        toast.error('No files were uploaded successfully')
+        toast.error(t('batches.modal.errors.uploadFailed'))
         return
       }
 
@@ -204,17 +206,20 @@ export function CreateBatchModal({
         <DialogHeader>
           <DialogTitle>
             {step === 'details'
-              ? 'Create New Batch'
+              ? t('batches.modal.title.details')
               : isUploading
-                ? 'Uploading Files...'
-                : 'Upload Images'}
+                ? t('batches.modal.title.uploading')
+                : t('batches.modal.title.upload')}
           </DialogTitle>
           <DialogDescription>
             {step === 'details'
-              ? 'Give your batch a name and optional description. You can add images in the next step.'
+              ? t('batches.modal.description.details')
               : isUploading
-                ? `Uploading ${progress.completed + progress.uploading}/${progress.total} files...`
-                : 'Add images to your batch. You can drag and drop or click to browse.'}
+                ? t('batches.modal.description.uploading', {
+                    current: progress.completed + progress.uploading,
+                    total: progress.total,
+                  })
+                : t('batches.modal.description.upload')}
           </DialogDescription>
         </DialogHeader>
 
@@ -237,7 +242,7 @@ export function CreateBatchModal({
                   : 'text-text-secondary'
               }`}
             >
-              Details
+              {t('batches.modal.steps.details')}
             </span>
           </div>
           <div className="h-px flex-1 bg-border" />
@@ -258,7 +263,7 @@ export function CreateBatchModal({
                   : 'text-text-tertiary'
               }`}
             >
-              Upload
+              {t('batches.modal.steps.upload')}
             </span>
           </div>
         </div>
@@ -276,7 +281,8 @@ export function CreateBatchModal({
               {/* Name Field */}
               <div className="space-y-2">
                 <Label htmlFor="batch-name">
-                  Batch Name <span className="text-red">*</span>
+                  {t('batches.modal.nameLabel')}{' '}
+                  <span className="text-red">*</span>
                 </Label>
                 <Input
                   id="batch-name"
@@ -287,7 +293,7 @@ export function CreateBatchModal({
                       setErrors((prev) => ({ ...prev, name: undefined }))
                     }
                   }}
-                  placeholder="e.g. Product Photos - January 2024"
+                  placeholder={t('batches.modal.namePlaceholder')}
                   maxLength={64}
                   hasError={!!errors.name}
                   aria-invalid={!!errors.name}
@@ -299,25 +305,27 @@ export function CreateBatchModal({
                   </p>
                 ) : (
                   <p className="text-xs text-text-tertiary">
-                    A descriptive name helps you identify this batch later.
+                    {t('batches.modal.nameHint')}
                   </p>
                 )}
               </div>
 
               {/* Description Field */}
               <div className="space-y-2">
-                <Label htmlFor="batch-description">Description</Label>
+                <Label htmlFor="batch-description">
+                  {t('batches.modal.descriptionLabel')}
+                </Label>
                 <Textarea
                   id="batch-description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="What's in this batch? Any special notes or context?"
+                  placeholder={t('batches.modal.descriptionPlaceholder')}
                   rows={4}
                   maxLength={500}
                 />
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-text-tertiary">
-                    Optional. Add context about these images.
+                    {t('batches.modal.descriptionHint')}
                   </p>
                   <p className="text-xs text-text-tertiary">
                     {description.length}/500
@@ -332,11 +340,11 @@ export function CreateBatchModal({
                     <Sparkles className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-text">Pro tip</p>
+                    <p className="text-sm font-medium text-text">
+                      {t('batches.modal.tips.title')}
+                    </p>
                     <p className="mt-1 text-xs text-text-secondary">
-                      Use descriptive names like "Product A - Side Views" or
-                      "Quality Inspection - Batch 42" to easily find and manage
-                      your batches later.
+                      {t('batches.modal.tips.content')}
                     </p>
                   </div>
                 </div>
@@ -361,7 +369,7 @@ export function CreateBatchModal({
                 >
                   <div className="mb-2 flex items-center justify-between text-sm">
                     <span className="font-medium text-text">
-                      Uploading files...
+                      {t('batches.modal.upload.progress')}
                     </span>
                     <span className="text-text-secondary">
                       {progress.completed + progress.uploading}/{progress.total}
@@ -382,16 +390,26 @@ export function CreateBatchModal({
                     />
                   </div>
                   <div className="mt-2 flex items-center gap-4 text-xs text-text-secondary">
-                    <span>✓ {progress.completed} completed</span>
+                    <span>
+                      ✓{' '}
+                      {t('batches.modal.upload.completed', {
+                        count: progress.completed,
+                      })}
+                    </span>
                     {progress.uploading > 0 && (
                       <span className="flex items-center gap-1">
                         <Loader2 className="h-3 w-3 animate-spin" />
-                        {progress.uploading} uploading
+                        {t('batches.modal.upload.uploading', {
+                          count: progress.uploading,
+                        })}
                       </span>
                     )}
                     {progress.failed > 0 && (
                       <span className="text-red">
-                        ✗ {progress.failed} failed
+                        ✗{' '}
+                        {t('batches.modal.upload.failed', {
+                          count: progress.failed,
+                        })}
                       </span>
                     )}
                   </div>
@@ -413,16 +431,16 @@ export function CreateBatchModal({
           {step === 'details' ? (
             <>
               <Button variant="ghost" onClick={handleClose}>
-                Cancel
+                {t('batches.modal.buttons.cancel')}
               </Button>
               <Button onClick={handleNext} variant="primary">
-                Continue to Upload
+                {t('batches.modal.buttons.continue')}
               </Button>
             </>
           ) : (
             <>
               <Button variant="ghost" onClick={handleBack}>
-                Back
+                {t('batches.modal.buttons.back')}
               </Button>
               <Button
                 onClick={handleSubmit}
@@ -432,13 +450,14 @@ export function CreateBatchModal({
                 {isUploading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading...
+                    {t('batches.modal.buttons.uploading')}
                   </>
                 ) : (
                   <>
                     <Upload className="mr-2 h-4 w-4" />
-                    Upload & Create Batch ({images.length}{' '}
-                    {images.length === 1 ? 'image' : 'images'})
+                    {t('batches.modal.buttons.uploadCreate', {
+                      count: images.length,
+                    })}
                   </>
                 )}
               </Button>

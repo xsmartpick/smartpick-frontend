@@ -9,6 +9,52 @@
             "evening": "Good evening"
         }
     },
+    "navigation": {
+        "home": {
+            "label": "Dashboard",
+            "description": "Overview & stats"
+        },
+        "projects": {
+            "label": "Projects",
+            "description": "Labeling projects"
+        },
+        "batches": {
+            "label": "Batches",
+            "description": "Image batches"
+        },
+        "adminTasks": {
+            "label": "Admin Tasks",
+            "description": "Admin task overview"
+        },
+        "label": {
+            "label": "Label",
+            "description": "Start labeling"
+        },
+        "datasets": {
+            "label": "Datasets",
+            "description": "Data collections"
+        },
+        "labelSets": {
+            "label": "Label Sets",
+            "description": "Manage labels"
+        },
+        "more": "More",
+        "back": "Back",
+        "profile": "Profile"
+    },
+    "profile": {
+        "title": "Profile & Settings",
+        "theme": {
+            "title": "Theme",
+            "light": "Light mode",
+            "dark": "Dark mode"
+        },
+        "language": {
+            "title": "Language",
+            "english": "English",
+            "vietnamese": "Tiếng Việt"
+        }
+    },
     "dashboard": {
         "welcomeSubtitle": "Here's your labeling activity overview. Keep up the great work!",
         "stats": {
@@ -44,5 +90,297 @@
             "description": "You have {{count}} batches waiting for your review.",
             "button": "Start Labeling"
         }
+    },
+    "projects": {
+        "title": "Projects",
+        "subtitle": "Organize and manage your labeling projects",
+        "loading": "Loading projects...",
+        "newProject": "New project",
+        "search": "Search projects...",
+        "shortcuts": {
+            "label": "Shortcuts",
+            "new": "new"
+        },
+        "stats": {
+            "totalProjects": "Total Projects",
+            "totalBatches": "Total Batches",
+            "totalImages": "Total Images",
+            "completed": "Completed"
+        },
+        "empty": {
+            "title": "No projects yet",
+            "message": "Create your first project to start organizing batches and managing labeling tasks.",
+            "button": "Create your first project"
+        },
+        "noResults": {
+            "title": "No matching projects",
+            "message": "No projects found matching \"{{query}}\"",
+            "button": "Clear search"
+        },
+        "error": {
+            "title": "Failed to load projects"
+        },
+        "toast": {
+            "createSuccess": "Project created successfully!",
+            "createSuccessDesc": "{{name}} has been created.",
+            "createError": "Failed to create project",
+            "createErrorDesc": "An error occurred while creating the project.",
+            "deleteSuccess": "Project deleted successfully",
+            "deleteError": "Failed to delete project",
+            "deleteErrorDesc": "An error occurred while deleting the project.",
+            "updateSuccess": "Project updated successfully",
+            "archiveSuccess": "Project archived successfully",
+            "updateError": "Failed to update project",
+            "updateErrorDesc": "An error occurred while updating the project."
+        },
+        "modal": {
+            "title": "Create New Project",
+            "description": "Set up a new project to organize your labeling work.",
+            "nameLabel": "Project Name",
+            "namePlaceholder": "e.g. Product Classification 2024",
+            "nameHint": "Choose a descriptive name for your project.",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "What is this project about? Add any relevant context...",
+            "descriptionHint": "Optional. Describe the project goals.",
+            "validation": {
+                "nameRequired": "Project name is required",
+                "nameMin": "Name must be at least 2 characters",
+                "nameMax": "Name must be less than 64 characters"
+            },
+            "tips": {
+                "title": "Getting started",
+                "content": "After creating a project, you can add batches of images and start labeling. Projects help you organize related batches and track progress across your labeling work."
+            },
+            "cancel": "Cancel",
+            "createButton": "Create Project",
+            "creating": "Creating..."
+        }
+    },
+    "batches": {
+        "title": "Batches",
+        "subtitle": "Upload and manage image batches",
+        "loading": "Loading batches...",
+        "newBatch": "New batch",
+        "search": "Search batches...",
+        "shortcuts": {
+            "label": "Shortcuts",
+            "new": "new"
+        },
+        "stats": {
+            "totalBatches": "Total Batches",
+            "totalImages": "Total Images",
+            "completed": "Completed"
+        },
+        "empty": {
+            "title": "No batches yet",
+            "message": "Create your first batch to start uploading and organizing images.",
+            "button": "Create your first batch"
+        },
+        "noResults": {
+            "title": "No matching batches",
+            "message": "No batches found matching \"{{query}}\"",
+            "button": "Clear search"
+        },
+        "error": {
+            "title": "Failed to load batches"
+        },
+        "toast": {
+            "createSuccess": "Batch created successfully!",
+            "createSuccessDesc": "{{name}} with {{count}} images has been created.",
+            "createError": "Failed to create batch",
+            "createErrorDesc": "An error occurred while creating the batch.",
+            "deleteSuccess": "Batch deleted successfully",
+            "deleteError": "Failed to delete batch",
+            "deleteErrorDesc": "An error occurred while deleting the batch."
+        },
+        "modal": {
+            "title": {
+                "details": "Create New Batch",
+                "uploading": "Uploading Files...",
+                "upload": "Upload Images"
+            },
+            "description": {
+                "details": "Give your batch a name and optional description. You can add images in the next step.",
+                "uploading": "Uploading {{current}}/{{total}} files...",
+                "upload": "Add images to your batch. You can drag and drop or click to browse."
+            },
+            "steps": {
+                "details": "Details",
+                "upload": "Upload"
+            },
+            "nameLabel": "Batch Name",
+            "namePlaceholder": "e.g. Product Photos - January 2024",
+            "nameHint": "A descriptive name helps you identify this batch later.",
+            "descriptionLabel": "Description",
+            "descriptionPlaceholder": "What's in this batch? Any special notes or context?",
+            "descriptionHint": "Optional. Add context about these images.",
+            "validation": {
+                "nameRequired": "Batch name is required",
+                "nameMin": "Name must be at least 2 characters",
+                "nameMax": "Name must be less than 64 characters"
+            },
+            "tips": {
+                "title": "Pro tip",
+                "content": "Use descriptive names like 'Product A - Side Views' or 'Quality Inspection - Batch 42' to easily find and manage your batches later."
+            },
+            "upload": {
+                "progress": "Uploading files...",
+                "completed": "{{count}} completed",
+                "uploading": "{{count}} uploading",
+                "failed": "{{count}} failed"
+            },
+            "buttons": {
+                "cancel": "Cancel",
+                "continue": "Continue to Upload",
+                "back": "Back",
+                "uploading": "Uploading...",
+                "uploadCreate": "Upload & Create Batch ({{count}} {{count, plural, one {image} other {images}}})"
+            },
+            "errors": {
+                "noImages": "Please add at least one image",
+                "uploadFailed": "No files were uploaded successfully"
+            }
+        },
+        "card": {
+            "status": {
+                "completed": "Completed",
+                "processing": "Processing",
+                "failed": "Failed",
+                "draft": "Draft"
+            },
+            "noImages": "No images",
+            "actions": {
+                "split": "Split into Tasks",
+                "delete": "Delete batch"
+            }
+        },
+        "split": {
+            "title": "Split Batch into Tasks",
+            "description": "Split \"{{name}}\" ({{count}} {{count, plural, one {image} other {images}}}) into multiple labeling tasks",
+            "summary": {
+                "title": "Batch Summary",
+                "description": "{{count}} total {{count, plural, one {image} other {images}}} available for splitting",
+                "images": "Images"
+            },
+            "method": {
+                "label": "Split Method",
+                "equal": {
+                    "title": "Equal Split",
+                    "description": "Divide images equally across tasks"
+                },
+                "custom": {
+                    "title": "Custom Split",
+                    "description": "Set custom image count per task"
+                }
+            },
+            "equal": {
+                "taskCount": "Number of Tasks",
+                "hint": "Each task will have approximately {{images}} images{{remainder, select, 0{} other{ (with {{remainder}} remainder {{remainder, plural, one {image} other {images}}} in the last task)}}}"
+            },
+            "custom": {
+                "label": "Custom Task Configuration",
+                "addTask": "Add Task",
+                "placeholder": "Images per task",
+                "totalAllocated": "Total Allocated:",
+                "remaining": "Remaining:",
+                "remainingCount": "{{sign}}{{count}} {{count, plural, one {image} other {images}}}"
+            },
+            "validation": {
+                "errors": "Validation Errors",
+                "warnings": "Warnings"
+            },
+            "preview": {
+                "title": "Preview ({{count}} {{count, plural, one {task} other {tasks}}})",
+                "allAllocated": "All images allocated",
+                "table": {
+                    "task": "Task",
+                    "images": "Images",
+                    "range": "Range",
+                    "status": "Status",
+                    "taskNumber": "Task #{{number}}",
+                    "imageRange": "Images {{start}}-{{end}}",
+                    "noImages": "No images",
+                    "ready": "Ready",
+                    "empty": "Empty"
+                }
+            },
+            "buttons": {
+                "cancel": "Cancel",
+                "creating": "Creating Tasks...",
+                "create": "Create {{count}} {{count, plural, one {Task} other {Tasks}}}"
+            },
+            "toast": {
+                "validationError": "Please fix validation errors before creating tasks",
+                "success": "Tasks created successfully!",
+                "successDesc": "Created {{count}} {{count, plural, one {task} other {tasks}}} from batch \"{{name}}\"",
+                "error": "Failed to create tasks",
+                "errorDesc": "An error occurred while creating tasks."
+            }
+        },
+        "dropzone": {
+            "dragDrop": "Drag and drop images here",
+            "dropHere": "Drop images here",
+            "or": "or",
+            "clickBrowse": "click to browse",
+            "acceptedFormats": "JPEG, PNG, WebP, GIF",
+            "maxSize": "Max {{size}}MB each",
+            "maxFiles": "Up to {{max}} files",
+            "selected": "{{count}} {{count, plural, one {image} other {images}}} selected",
+            "total": "total",
+            "clearAll": "Clear all",
+            "errors": {
+                "maxFiles": "Maximum {{max}} files allowed",
+                "invalidType": "{{name}}: Invalid file type",
+                "tooLarge": "{{name}}: File too large (max {{max}}MB)",
+                "duplicate": "{{name}}: File already added"
+            }
+        },
+        "details": {
+            "status": {
+                "completed": "Completed",
+                "processing": "Processing",
+                "failed": "Failed",
+                "draft": "Draft"
+            },
+            "toast": {
+                "deleteSuccess": "Batch deleted successfully",
+                "deleteError": "Failed to delete batch",
+                "deleteErrorDesc": "An error occurred while deleting the batch."
+            },
+            "actions": {
+                "split": "Split into Tasks",
+                "export": "Export batch",
+                "delete": "Delete batch"
+            },
+            "stats": {
+                "totalImages": "Total Images",
+                "uploaded": "Uploaded",
+                "processing": "Processing",
+                "failed": "Failed"
+            },
+            "info": {
+                "title": "Batch Information",
+                "created": "Created",
+                "updated": "Last Updated"
+            },
+            "gallery": {
+                "title": "Images",
+                "noImages": "No images in this batch",
+                "imageCount": "{{count}} {{count, plural, one {image} other {images}}}",
+                "empty": "This batch doesn't have any images yet."
+            }
+        }
+    },
+    "time": {
+        "invalidDate": "Invalid date",
+        "justNow": "just now",
+        "future": "in the future",
+        "secondsAgo": "{{count}}s ago",
+        "minutesAgo": "{{count}}m ago",
+        "hoursAgo": "{{count}}h ago",
+        "daysAgo": "{{count}}d ago",
+        "weeksAgo": "{{count}}w ago",
+        "monthsAgo": "{{count}}mo ago",
+        "yearsAgo": "{{count}}y ago"
     }
 }

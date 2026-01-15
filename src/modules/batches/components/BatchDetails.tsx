@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
@@ -48,19 +49,19 @@ function getStatusColor(status: Batch['status']) {
   }
 }
 
-function getStatusLabel(status: Batch['status']) {
+function getStatusLabel(status: Batch['status'], t: (key: string) => string) {
   switch (status) {
     case 'completed': {
-      return 'Completed'
+      return t('batches.details.status.completed')
     }
     case 'processing': {
-      return 'Processing'
+      return t('batches.details.status.processing')
     }
     case 'failed': {
-      return 'Failed'
+      return t('batches.details.status.failed')
     }
     default: {
-      return 'Draft'
+      return t('batches.details.status.draft')
     }
   }
 }
@@ -83,6 +84,7 @@ function formatFileSize(bytes: number): string {
 }
 
 export function BatchDetails({ batch }: BatchDetailsProps) {
+  const { t } = useTranslation()
   const navigate = getStableRouterNavigate()
   const isMobile = useMobile()
   const deleteBatchMutation = useDeleteBatch()
@@ -98,19 +100,19 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
   const handleDelete = useCallback(async () => {
     try {
       await deleteBatchMutation.mutateAsync(batch.id)
-      toast.success('Batch deleted successfully')
+      toast.success(t('batches.details.toast.deleteSuccess'))
       // Navigate back to batches list after successful delete
       if (navigate) navigate('/batches', { replace: true })
     } catch (error) {
       console.error('Failed to delete batch:', error)
-      toast.error('Failed to delete batch', {
+      toast.error(t('batches.details.toast.deleteError'), {
         description:
           error instanceof Error
             ? error.message
-            : 'An error occurred while deleting the batch.',
+            : t('batches.details.toast.deleteErrorDesc'),
       })
     }
-  }, [batch.id, deleteBatchMutation, navigate])
+  }, [batch.id, deleteBatchMutation, navigate, t])
 
   const images = batch.images || []
 
@@ -190,7 +192,7 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                     getStatusColor(batch.status),
                   )}
                 >
-                  {getStatusLabel(batch.status)}
+                  {getStatusLabel(batch.status, t)}
                 </span>
               )}
 
@@ -207,18 +209,18 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setIsSplitModalOpen(true)}>
                     <Scissors className="mr-2 h-4 w-4" />
-                    Split into Tasks
+                    {t('batches.details.actions.split')}
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Download className="mr-2 h-4 w-4" />
-                    Export batch
+                    {t('batches.details.actions.export')}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleDelete}
                     className="text-red focus:text-red"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete batch
+                    {t('batches.details.actions.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -249,7 +251,9 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                   <p className="text-2xl font-bold text-text">
                     {batch.imageCount}
                   </p>
-                  <p className="text-xs text-text-secondary">Total Images</p>
+                  <p className="text-xs text-text-secondary">
+                    {t('batches.details.stats.totalImages')}
+                  </p>
                 </div>
               </div>
             </m.div>
@@ -268,7 +272,9 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                   <p className="text-2xl font-bold text-text">
                     {imageStats.uploaded}
                   </p>
-                  <p className="text-xs text-text-secondary">Uploaded</p>
+                  <p className="text-xs text-text-secondary">
+                    {t('batches.details.stats.uploaded')}
+                  </p>
                 </div>
               </div>
             </m.div>
@@ -287,7 +293,9 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                   <p className="text-2xl font-bold text-text">
                     {imageStats.processing}
                   </p>
-                  <p className="text-xs text-text-secondary">Processing</p>
+                  <p className="text-xs text-text-secondary">
+                    {t('batches.details.stats.processing')}
+                  </p>
                 </div>
               </div>
             </m.div>
@@ -306,7 +314,9 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                   <p className="text-2xl font-bold text-text">
                     {imageStats.failed}
                   </p>
-                  <p className="text-xs text-text-secondary">Failed</p>
+                  <p className="text-xs text-text-secondary">
+                    {t('batches.details.stats.failed')}
+                  </p>
                 </div>
               </div>
             </m.div>
@@ -315,14 +325,14 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
           {/* Metadata */}
           <div className="mb-8 rounded-2xl border border-border bg-background p-6">
             <h2 className="mb-4 text-base font-semibold text-text">
-              Batch Information
+              {t('batches.details.info.title')}
             </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex items-start gap-3">
                 <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-text-tertiary" />
                 <div>
                   <p className="text-xs font-medium text-text-secondary">
-                    Created
+                    {t('batches.details.info.created')}
                   </p>
                   <p className="mt-0.5 text-sm text-text">
                     {formatDate(batch.createdAt)}
@@ -333,7 +343,7 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                 <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-text-tertiary" />
                 <div>
                   <p className="text-xs font-medium text-text-secondary">
-                    Last Updated
+                    {t('batches.details.info.updated')}
                   </p>
                   <p className="mt-0.5 text-sm text-text">
                     {formatDate(batch.updatedAt)}
@@ -346,11 +356,15 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
           {/* Image Gallery */}
           <div className="rounded-2xl border border-border bg-background">
             <div className="border-b border-border p-6">
-              <h2 className="text-base font-semibold text-text">Images</h2>
+              <h2 className="text-base font-semibold text-text">
+                {t('batches.details.gallery.title')}
+              </h2>
               <p className="mt-1 text-sm text-text-secondary">
                 {images.length === 0
-                  ? 'No images in this batch'
-                  : `${images.length} image${images.length === 1 ? '' : 's'}`}
+                  ? t('batches.details.gallery.noImages')
+                  : t('batches.details.gallery.imageCount', {
+                      count: images.length,
+                    })}
               </p>
             </div>
 
@@ -360,7 +374,7 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                   <ImageIcon className="h-8 w-8" />
                 </div>
                 <p className="mt-4 text-sm text-text-secondary">
-                  This batch doesn't have any images yet.
+                  {t('batches.details.gallery.empty')}
                 </p>
               </div>
             ) : (

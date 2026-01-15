@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -46,19 +47,19 @@ function getStatusColor(status: Batch['status']) {
   }
 }
 
-function getStatusLabel(status: Batch['status']) {
+function getStatusLabel(status: Batch['status'], t: (key: string) => string) {
   switch (status) {
     case 'completed': {
-      return 'Completed'
+      return t('batches.card.status.completed')
     }
     case 'processing': {
-      return 'Processing'
+      return t('batches.card.status.processing')
     }
     case 'failed': {
-      return 'Failed'
+      return t('batches.card.status.failed')
     }
     default: {
-      return 'Draft'
+      return t('batches.card.status.draft')
     }
   }
 }
@@ -70,6 +71,7 @@ export function BatchCard({
   onClick,
   className,
 }: BatchCardProps) {
+  const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
 
   return (
@@ -119,7 +121,7 @@ export function BatchCard({
           <div className="flex h-full w-full items-center justify-center">
             <div className="flex flex-col items-center gap-2 text-text-tertiary">
               <ImageIcon className="h-8 w-8" />
-              <span className="text-xs">No images</span>
+              <span className="text-xs">{t('batches.card.noImages')}</span>
             </div>
           </div>
         )}
@@ -177,7 +179,7 @@ export function BatchCard({
                   }}
                 >
                   <Scissors className="mr-2 h-4 w-4" />
-                  Split into Tasks
+                  {t('batches.card.actions.split')}
                 </DropdownMenuItem>
               )}
               {onDelete && (
@@ -189,7 +191,7 @@ export function BatchCard({
                   className="text-red focus:text-red"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete batch
+                  {t('batches.card.actions.delete')}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -204,7 +206,7 @@ export function BatchCard({
               getStatusColor(batch.status),
             )}
           >
-            {getStatusLabel(batch.status)}
+            {getStatusLabel(batch.status, t)}
           </span>
 
           <div
@@ -212,7 +214,7 @@ export function BatchCard({
             title={formatDate(batch.createdAt)}
           >
             <Calendar className="h-3.5 w-3.5" />
-            {relativeTime(batch.createdAt)}
+            {relativeTime(batch.createdAt, t)}
           </div>
         </div>
       </div>

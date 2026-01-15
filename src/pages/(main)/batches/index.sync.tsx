@@ -1,6 +1,7 @@
 import { FolderPlus, ImageIcon, Plus, Search } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
@@ -25,6 +26,7 @@ import {
 } from '~/modules/batches'
 
 export const Component = () => {
+  const { t } = useTranslation()
   const { data: batches = [], isLoading, error, refetch } = useBatches()
   const createBatchMutation = useCreateBatch()
   const deleteBatchMutation = useDeleteBatch()
@@ -69,20 +71,23 @@ export const Component = () => {
         })
 
         setIsCreateModalOpen(false)
-        toast.success('Batch created successfully!', {
-          description: `${data.name} with ${fileIds.length} images has been created.`,
+        toast.success(t('batches.toast.createSuccess'), {
+          description: t('batches.toast.createSuccessDesc', {
+            name: data.name,
+            count: fileIds.length,
+          }),
         })
       } catch (error) {
         console.error('Failed to create batch:', error)
-        toast.error('Failed to create batch', {
+        toast.error(t('batches.toast.createError'), {
           description:
             error instanceof Error
               ? error.message
-              : 'An error occurred while creating the batch.',
+              : t('batches.toast.createErrorDesc'),
         })
       }
     },
-    [createBatchMutation, setIsCreateModalOpen],
+    [createBatchMutation, setIsCreateModalOpen, t],
   )
 
   // Handle delete batch
@@ -90,18 +95,18 @@ export const Component = () => {
     async (id: string) => {
       try {
         await deleteBatchMutation.mutateAsync(id)
-        toast.success('Batch deleted successfully')
+        toast.success(t('batches.toast.deleteSuccess'))
       } catch (error) {
         console.error('Failed to delete batch:', error)
-        toast.error('Failed to delete batch', {
+        toast.error(t('batches.toast.deleteError'), {
           description:
             error instanceof Error
               ? error.message
-              : 'An error occurred while deleting the batch.',
+              : t('batches.toast.deleteErrorDesc'),
         })
       }
     },
-    [deleteBatchMutation],
+    [deleteBatchMutation, t],
   )
 
   // Handle split batch
@@ -136,25 +141,29 @@ export const Component = () => {
               <FolderPlus className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Batches</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('batches.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
-                Upload and manage image batches
+                {t('batches.subtitle')}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-border bg-fill/50 px-3 py-2 text-xs text-text-tertiary md:flex">
-              <span className="font-medium text-text">Shortcuts</span>
+              <span className="font-medium text-text">
+                {t('batches.shortcuts.label')}
+              </span>
               <span className="rounded-md bg-fill px-1.5 py-0.5">N</span>
-              <span>new</span>
+              <span>{t('batches.shortcuts.new')}</span>
             </div>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               variant="primary"
             >
               <Plus className="mr-2 h-4 w-4" />
-              New batch
+              {t('batches.newBatch')}
             </Button>
           </div>
         </div>
@@ -162,10 +171,10 @@ export const Component = () => {
 
       <div className="mx-auto max-w-5xl px-6 py-8">
         {isLoading ? (
-          <LoadingState message="Loading batches..." />
+          <LoadingState message={t('batches.loading')} />
         ) : error ? (
           <ErrorState
-            title="Failed to load batches"
+            title={t('batches.error.title')}
             message={error.message}
             onRetry={() => refetch()}
           />
@@ -181,21 +190,21 @@ export const Component = () => {
                 icon={<FolderPlus className="h-5 w-5" />}
                 iconClassName="bg-accent/10 text-accent"
                 value={batches.length}
-                label="Total Batches"
+                label={t('batches.stats.totalBatches')}
                 delay={0.05}
               />
               <StatsCard
                 icon={<ImageIcon className="h-5 w-5" />}
                 iconClassName="bg-violet-500/10 text-violet-500"
                 value={totalImages}
-                label="Total Images"
+                label={t('batches.stats.totalImages')}
                 delay={0.1}
               />
               <StatsCard
                 icon={<i className="i-mingcute-check-circle-fill h-5 w-5" />}
                 iconClassName="bg-green/10 text-green"
                 value={batches.filter((b) => b.status === 'completed').length}
-                label="Completed"
+                label={t('batches.stats.completed')}
                 delay={0.15}
               />
             </div>
@@ -205,7 +214,7 @@ export const Component = () => {
               <div className="relative flex-1">
                 <Input
                   type="search"
-                  placeholder="Search batches..."
+                  placeholder={t('batches.search')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -229,8 +238,8 @@ export const Component = () => {
                         <FolderPlus className="h-8 w-8" />
                       </div>
                     }
-                    title="No batches yet"
-                    message="Create your first batch to start uploading and organizing images."
+                    title={t('batches.empty.title')}
+                    message={t('batches.empty.message')}
                     action={
                       <Button
                         onClick={() => setIsCreateModalOpen(true)}
@@ -238,7 +247,7 @@ export const Component = () => {
                         className="mt-4"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        Create your first batch
+                        {t('batches.empty.button')}
                       </Button>
                     }
                   />
@@ -249,15 +258,17 @@ export const Component = () => {
                         <Search className="h-8 w-8" />
                       </div>
                     }
-                    title="No matching batches"
-                    message={`No batches found matching "${searchQuery}"`}
+                    title={t('batches.noResults.title')}
+                    message={t('batches.noResults.message', {
+                      query: searchQuery,
+                    })}
                     action={
                       <Button
                         onClick={() => setSearchQuery('')}
                         variant="secondary"
                         className="mt-4"
                       >
-                        Clear search
+                        {t('batches.noResults.button')}
                       </Button>
                     }
                   />

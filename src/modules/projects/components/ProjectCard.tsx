@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -82,6 +83,7 @@ export function ProjectCard({
   onClick,
   className,
 }: ProjectCardProps) {
+  const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
 
   const { stats } = project
@@ -262,7 +264,7 @@ export function ProjectCard({
             title={formatDate(project.createdAt)}
           >
             <Calendar className="h-3.5 w-3.5" />
-            {relativeTime(project.createdAt)}
+            {relativeTime(project.createdAt, t)}
           </div>
           {stats.pendingTasks > 0 && (
             <span className="text-xs text-amber">

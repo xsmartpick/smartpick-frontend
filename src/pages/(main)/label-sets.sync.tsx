@@ -1,6 +1,7 @@
 import { Plus, Tag } from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { EmptyState, ErrorState, LoadingState } from '~/components/common'
@@ -31,6 +32,7 @@ import {
 import { useCreateLabelSet, useLabelSets } from '~/modules/label-sets/hooks'
 
 export const Component = () => {
+  const { t } = useTranslation()
   const { data: labelSets = [], isLoading, error, refetch } = useLabelSets()
   const createLabelSetMutation = useCreateLabelSet()
   const [view, setView] = useState<ViewMode>('table')
@@ -231,13 +233,13 @@ export const Component = () => {
                           className="text-text-secondary"
                           title={formatDate(labelSet.createdAt)}
                         >
-                          {relativeTime(labelSet.createdAt)}
+                          {relativeTime(labelSet.createdAt, t)}
                         </TableCell>
                         <TableCell
                           className="text-text-secondary"
                           title={formatDate(labelSet.updatedAt)}
                         >
-                          {relativeTime(labelSet.updatedAt)}
+                          {relativeTime(labelSet.updatedAt, t)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -296,10 +298,10 @@ export const Component = () => {
                       </div>
                       <div className="flex items-center justify-between text-xs text-text-tertiary">
                         <span title={formatDate(labelSet.createdAt)}>
-                          Created: {relativeTime(labelSet.createdAt)}
+                          Created: {relativeTime(labelSet.createdAt, t)}
                         </span>
                         <span title={formatDate(labelSet.updatedAt)}>
-                          Updated: {relativeTime(labelSet.updatedAt)}
+                          Updated: {relativeTime(labelSet.updatedAt, t)}
                         </span>
                       </div>
                     </div>

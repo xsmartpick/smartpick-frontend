@@ -1,6 +1,7 @@
 import { Database, Plus } from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { EmptyState, ErrorState, LoadingState } from '~/components/common'
@@ -42,6 +43,7 @@ function formatDate(dateString: string): string {
 }
 
 export const Component = () => {
+  const { t } = useTranslation()
   const { data: datasets = [], isLoading, error, refetch } = useDatasets()
   const createDatasetMutation = useCreateDataset()
   const [view, setView] = useState<ViewMode>('table')
@@ -219,13 +221,13 @@ export const Component = () => {
                           className="text-text-secondary"
                           title={formatDate(dataset.createdAt)}
                         >
-                          {relativeTime(dataset.createdAt)}
+                          {relativeTime(dataset.createdAt, t)}
                         </TableCell>
                         <TableCell
                           className="text-text-secondary"
                           title={formatDate(dataset.updatedAt)}
                         >
-                          {relativeTime(dataset.updatedAt)}
+                          {relativeTime(dataset.updatedAt, t)}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -254,10 +256,10 @@ export const Component = () => {
                       </div>
                       <div className="flex items-center justify-between text-xs text-text-tertiary">
                         <span title={formatDate(dataset.createdAt)}>
-                          Created: {relativeTime(dataset.createdAt)}
+                          Created: {relativeTime(dataset.createdAt, t)}
                         </span>
                         <span title={formatDate(dataset.updatedAt)}>
-                          Updated: {relativeTime(dataset.updatedAt)}
+                          Updated: {relativeTime(dataset.updatedAt, t)}
                         </span>
                       </div>
                     </div>
