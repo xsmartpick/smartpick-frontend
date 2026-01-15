@@ -85,7 +85,15 @@ export function UserInfo() {
         >
           <span className="sr-only">Open user menu</span>
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-background text-xs font-semibold">
-            {getInitials(displayName)}
+            {user.avatar ? (
+              <img
+                src={user.avatar}
+                alt={displayName}
+                className="h-full w-full rounded-full object-cover"
+              />
+            ) : (
+              getInitials(displayName)
+            )}
           </div>
           <div className="hidden items-center gap-1.5 text-left sm:flex">
             <div className="max-w-[140px]">
@@ -116,7 +124,15 @@ export function UserInfo() {
             </div>
             <div className="shrink-0">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-background text-sm font-semibold shadow-md ring-2 ring-accent/20">
-                {getInitials(displayName)}
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={displayName}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  getInitials(displayName)
+                )}
               </div>
             </div>
           </div>
