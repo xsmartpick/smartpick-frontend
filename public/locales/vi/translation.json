@@ -9,6 +9,52 @@
             "evening": "Chào buổi tối"
         }
     },
+    "navigation": {
+        "home": {
+            "label": "Trang chủ",
+            "description": "Tổng quan & thống kê"
+        },
+        "projects": {
+            "label": "Dự án",
+            "description": "Dự án gán nhãn"
+        },
+        "batches": {
+            "label": "Lô hàng",
+            "description": "Lô hình ảnh"
+        },
+        "adminTasks": {
+            "label": "Quản trị tác vụ",
+            "description": "Tổng quan quản trị tác vụ"
+        },
+        "label": {
+            "label": "Gán nhãn",
+            "description": "Bắt đầu gán nhãn"
+        },
+        "datasets": {
+            "label": "Bộ dữ liệu",
+            "description": "Bộ sưu tập dữ liệu"
+        },
+        "labelSets": {
+            "label": "Bộ nhãn",
+            "description": "Quản lý nhãn"
+        },
+        "more": "Thêm",
+        "back": "Quay lại",
+        "profile": "Hồ sơ"
+    },
+    "profile": {
+        "title": "Hồ sơ & Cài đặt",
+        "theme": {
+            "title": "Giao diện",
+            "light": "Chế độ sáng",
+            "dark": "Chế độ tối"
+        },
+        "language": {
+            "title": "Ngôn ngữ",
+            "english": "English",
+            "vietnamese": "Tiếng Việt"
+        }
+    },
     "dashboard": {
         "welcomeSubtitle": "Đây là tổng quan hoạt động dán nhãn của bạn. Tiếp tục phát huy nhé!",
         "stats": {
@@ -44,5 +90,297 @@
             "description": "Bạn có {{count}} batch đang chờ xem xét.",
             "button": "Bắt đầu dán nhãn"
         }
+    },
+    "projects": {
+        "title": "Dự án",
+        "subtitle": "Tổ chức và quản lý các dự án gán nhãn của bạn",
+        "loading": "Đang tải dự án...",
+        "newProject": "Dự án mới",
+        "search": "Tìm kiếm dự án...",
+        "shortcuts": {
+            "label": "Phím tắt",
+            "new": "mới"
+        },
+        "stats": {
+            "totalProjects": "Tổng số dự án",
+            "totalBatches": "Tổng số batch",
+            "totalImages": "Tổng số hình ảnh",
+            "completed": "Đã hoàn thành"
+        },
+        "empty": {
+            "title": "Chưa có dự án nào",
+            "message": "Tạo dự án đầu tiên của bạn để bắt đầu tổ chức các batch và quản lý tác vụ gán nhãn.",
+            "button": "Tạo dự án đầu tiên"
+        },
+        "noResults": {
+            "title": "Không tìm thấy dự án",
+            "message": "Không tìm thấy dự án nào khớp với \"{{query}}\"",
+            "button": "Xóa tìm kiếm"
+        },
+        "error": {
+            "title": "Không thể tải dự án"
+        },
+        "toast": {
+            "createSuccess": "Tạo dự án thành công!",
+            "createSuccessDesc": "{{name}} đã được tạo.",
+            "createError": "Không thể tạo dự án",
+            "createErrorDesc": "Đã xảy ra lỗi khi tạo dự án.",
+            "deleteSuccess": "Xóa dự án thành công",
+            "deleteError": "Không thể xóa dự án",
+            "deleteErrorDesc": "Đã xảy ra lỗi khi xóa dự án.",
+            "updateSuccess": "Cập nhật dự án thành công",
+            "archiveSuccess": "Lưu trữ dự án thành công",
+            "updateError": "Không thể cập nhật dự án",
+            "updateErrorDesc": "Đã xảy ra lỗi khi cập nhật dự án."
+        },
+        "modal": {
+            "title": "Tạo Dự Án Mới",
+            "description": "Thiết lập dự án mới để tổ chức công việc gán nhãn của bạn.",
+            "nameLabel": "Tên Dự Án",
+            "namePlaceholder": "Ví dụ: Phân Loại Sản Phẩm 2024",
+            "nameHint": "Chọn tên mô tả cho dự án của bạn.",
+            "descriptionLabel": "Mô tả",
+            "descriptionPlaceholder": "Dự án này về gì? Thêm bất kỳ ngữ cảnh liên quan nào...",
+            "descriptionHint": "Tùy chọn. Mô tả mục tiêu của dự án.",
+            "validation": {
+                "nameRequired": "Tên dự án là bắt buộc",
+                "nameMin": "Tên phải có ít nhất 2 ký tự",
+                "nameMax": "Tên phải ít hơn 64 ký tự"
+            },
+            "tips": {
+                "title": "Bắt đầu",
+                "content": "Sau khi tạo dự án, bạn có thể thêm các batch hình ảnh và bắt đầu gán nhãn. Dự án giúp bạn tổ chức các batch liên quan và theo dõi tiến độ công việc gán nhãn của bạn."
+            },
+            "cancel": "Hủy",
+            "createButton": "Tạo Dự Án",
+            "creating": "Đang tạo..."
+        }
+    },
+    "batches": {
+        "title": "Lô hàng",
+        "subtitle": "Tải lên và quản lý các lô hình ảnh",
+        "loading": "Đang tải lô hàng...",
+        "newBatch": "Lô hàng mới",
+        "search": "Tìm kiếm lô hàng...",
+        "shortcuts": {
+            "label": "Phím tắt",
+            "new": "mới"
+        },
+        "stats": {
+            "totalBatches": "Tổng số batch",
+            "totalImages": "Tổng số hình ảnh",
+            "completed": "Đã hoàn thành"
+        },
+        "empty": {
+            "title": "Chưa có batch nào",
+            "message": "Tạo batch đầu tiên của bạn để bắt đầu tải lên và tổ chức hình ảnh.",
+            "button": "Tạo batch đầu tiên"
+        },
+        "noResults": {
+            "title": "Không tìm thấy batch",
+            "message": "Không tìm thấy batch nào khớp với \"{{query}}\"",
+            "button": "Xóa tìm kiếm"
+        },
+        "error": {
+            "title": "Không thể tải batch"
+        },
+        "toast": {
+            "createSuccess": "Tạo batch thành công!",
+            "createSuccessDesc": "{{name}} với {{count}} hình ảnh đã được tạo.",
+            "createError": "Không thể tạo batch",
+            "createErrorDesc": "Đã xảy ra lỗi khi tạo batch.",
+            "deleteSuccess": "Xóa batch thành công",
+            "deleteError": "Không thể xóa batch",
+            "deleteErrorDesc": "Đã xảy ra lỗi khi xóa batch."
+        },
+        "modal": {
+            "title": {
+                "details": "Tạo Batch Mới",
+                "uploading": "Đang Tải Lên...",
+                "upload": "Tải Lên Hình Ảnh"
+            },
+            "description": {
+                "details": "Đặt tên và mô tả tùy chọn cho batch của bạn. Bạn có thể thêm hình ảnh ở bước tiếp theo.",
+                "uploading": "Đang tải lên {{current}}/{{total}} tệp...",
+                "upload": "Thêm hình ảnh vào batch của bạn. Bạn có thể kéo thả hoặc nhấp để duyệt."
+            },
+            "steps": {
+                "details": "Chi tiết",
+                "upload": "Tải lên"
+            },
+            "nameLabel": "Tên Batch",
+            "namePlaceholder": "Ví dụ: Ảnh Sản Phẩm - Tháng 1 2024",
+            "nameHint": "Tên mô tả giúp bạn nhận diện batch này sau này.",
+            "descriptionLabel": "Mô tả",
+            "descriptionPlaceholder": "Batch này về gì? Thêm ghi chú hoặc ngữ cảnh đặc biệt?",
+            "descriptionHint": "Tùy chọn. Thêm ngữ cảnh về các hình ảnh này.",
+            "validation": {
+                "nameRequired": "Tên batch là bắt buộc",
+                "nameMin": "Tên phải có ít nhất 2 ký tự",
+                "nameMax": "Tên phải ít hơn 64 ký tự"
+            },
+            "tips": {
+                "title": "Mẹo chuyên nghiệp",
+                "content": "Sử dụng tên mô tả như 'Sản Phẩm A - Góc Cạnh' hoặc 'Kiểm Tra Chất Lượng - Batch 42' để dễ dàng tìm và quản lý batch của bạn sau này."
+            },
+            "upload": {
+                "progress": "Đang tải lên tệp...",
+                "completed": "{{count}} hoàn thành",
+                "uploading": "{{count}} đang tải",
+                "failed": "{{count}} thất bại"
+            },
+            "buttons": {
+                "cancel": "Hủy",
+                "continue": "Tiếp tục Tải Lên",
+                "back": "Quay lại",
+                "uploading": "Đang tải lên...",
+                "uploadCreate": "Tải Lên & Tạo Batch ({{count}} {{count, plural, one {hình ảnh} other {hình ảnh}}})"
+            },
+            "errors": {
+                "noImages": "Vui lòng thêm ít nhất một hình ảnh",
+                "uploadFailed": "Không có tệp nào được tải lên thành công"
+            }
+        },
+        "card": {
+            "status": {
+                "completed": "Đã hoàn thành",
+                "processing": "Đang xử lý",
+                "failed": "Thất bại",
+                "draft": "Bản nháp"
+            },
+            "noImages": "Không có hình ảnh",
+            "actions": {
+                "split": "Tách thành Tác Vụ",
+                "delete": "Xóa batch"
+            }
+        },
+        "split": {
+            "title": "Tách Batch thành Tác Vụ",
+            "description": "Tách \"{{name}}\" ({{count}} hình ảnh) thành nhiều tác vụ gán nhãn",
+            "summary": {
+                "title": "Tóm Tắt Batch",
+                "description": "Tổng cộng {{count}} hình ảnh có sẵn để tách",
+                "images": "Hình ảnh"
+            },
+            "method": {
+                "label": "Phương Thức Tách",
+                "equal": {
+                    "title": "Tách Đều",
+                    "description": "Chia hình ảnh đều cho các tác vụ"
+                },
+                "custom": {
+                    "title": "Tách Tùy Chỉnh",
+                    "description": "Đặt số lượng hình ảnh tùy chỉnh cho mỗi tác vụ"
+                }
+            },
+            "equal": {
+                "taskCount": "Số Lượng Tác Vụ",
+                "hint": "Mỗi tác vụ sẽ có khoảng {{images}} hình ảnh{{remainder, select, 0{} other{ (với {{remainder}} hình ảnh dư trong tác vụ cuối cùng)}}}"
+            },
+            "custom": {
+                "label": "Cấu Hình Tác Vụ Tùy Chỉnh",
+                "addTask": "Thêm Tác Vụ",
+                "placeholder": "Số hình ảnh cho mỗi tác vụ",
+                "totalAllocated": "Tổng Số Đã Phân Bổ:",
+                "remaining": "Còn Lại:",
+                "remainingCount": "{{sign}}{{count}} hình ảnh"
+            },
+            "validation": {
+                "errors": "Lỗi Xác Thực",
+                "warnings": "Cảnh Báo"
+            },
+            "preview": {
+                "title": "Xem Trước ({{count}} tác vụ)",
+                "allAllocated": "Tất cả hình ảnh đã được phân bổ",
+                "table": {
+                    "task": "Tác Vụ",
+                    "images": "Hình Ảnh",
+                    "range": "Phạm Vi",
+                    "status": "Trạng Thái",
+                    "taskNumber": "Tác Vụ #{{number}}",
+                    "imageRange": "Hình ảnh {{start}}-{{end}}",
+                    "noImages": "Không có hình ảnh",
+                    "ready": "Sẵn sàng",
+                    "empty": "Trống"
+                }
+            },
+            "buttons": {
+                "cancel": "Hủy",
+                "creating": "Đang Tạo Tác Vụ...",
+                "create": "Tạo {{count}} Tác Vụ"
+            },
+            "toast": {
+                "validationError": "Vui lòng sửa lỗi xác thực trước khi tạo tác vụ",
+                "success": "Tạo tác vụ thành công!",
+                "successDesc": "Đã tạo {{count}} tác vụ từ batch \"{{name}}\"",
+                "error": "Không thể tạo tác vụ",
+                "errorDesc": "Đã xảy ra lỗi khi tạo tác vụ."
+            }
+        },
+        "dropzone": {
+            "dragDrop": "Kéo và thả hình ảnh vào đây",
+            "dropHere": "Thả hình ảnh vào đây",
+            "or": "hoặc",
+            "clickBrowse": "nhấp để duyệt",
+            "acceptedFormats": "JPEG, PNG, WebP, GIF",
+            "maxSize": "Tối đa {{size}}MB mỗi tệp",
+            "maxFiles": "Tối đa {{max}} tệp",
+            "selected": "{{count}} hình ảnh đã chọn",
+            "total": "tổng cộng",
+            "clearAll": "Xóa tất cả",
+            "errors": {
+                "maxFiles": "Tối đa {{max}} tệp được phép",
+                "invalidType": "{{name}}: Loại tệp không hợp lệ",
+                "tooLarge": "{{name}}: Tệp quá lớn (tối đa {{max}}MB)",
+                "duplicate": "{{name}}: Tệp đã được thêm"
+            }
+        },
+        "details": {
+            "status": {
+                "completed": "Đã hoàn thành",
+                "processing": "Đang xử lý",
+                "failed": "Thất bại",
+                "draft": "Bản nháp"
+            },
+            "toast": {
+                "deleteSuccess": "Xóa batch thành công",
+                "deleteError": "Không thể xóa batch",
+                "deleteErrorDesc": "Đã xảy ra lỗi khi xóa batch."
+            },
+            "actions": {
+                "split": "Tách thành Tác Vụ",
+                "export": "Xuất batch",
+                "delete": "Xóa batch"
+            },
+            "stats": {
+                "totalImages": "Tổng Số Hình Ảnh",
+                "uploaded": "Đã Tải Lên",
+                "processing": "Đang Xử Lý",
+                "failed": "Thất Bại"
+            },
+            "info": {
+                "title": "Thông Tin Batch",
+                "created": "Đã Tạo",
+                "updated": "Cập Nhật Lần Cuối"
+            },
+            "gallery": {
+                "title": "Hình Ảnh",
+                "noImages": "Không có hình ảnh trong batch này",
+                "imageCount": "{{count}} hình ảnh",
+                "empty": "Batch này chưa có hình ảnh nào."
+            }
+        }
+    },
+    "time": {
+        "invalidDate": "Ngày không hợp lệ",
+        "justNow": "vừa xong",
+        "future": "trong tương lai",
+        "secondsAgo": "{{count}} giây trước",
+        "minutesAgo": "{{count}} phút trước",
+        "hoursAgo": "{{count}} giờ trước",
+        "daysAgo": "{{count}} ngày trước",
+        "weeksAgo": "{{count}} tuần trước",
+        "monthsAgo": "{{count}} tháng trước",
+        "yearsAgo": "{{count}} năm trước"
     }
 }

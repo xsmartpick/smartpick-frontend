@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
@@ -32,6 +33,7 @@ import {
 } from '~/modules/projects'
 
 export const Component = () => {
+  const { t } = useTranslation()
   const { data: projects = [], isLoading, error, refetch } = useProjects()
   const createProjectMutation = useCreateProject()
   const deleteProjectMutation = useDeleteProject()
@@ -66,20 +68,22 @@ export const Component = () => {
         })
 
         setIsCreateModalOpen(false)
-        toast.success('Project created successfully!', {
-          description: `${data.name} has been created.`,
+        toast.success(t('projects.toast.createSuccess'), {
+          description: t('projects.toast.createSuccessDesc', {
+            name: data.name,
+          }),
         })
       } catch (error) {
         console.error('Failed to create project:', error)
-        toast.error('Failed to create project', {
+        toast.error(t('projects.toast.createError'), {
           description:
             error instanceof Error
               ? error.message
-              : 'An error occurred while creating the project.',
+              : t('projects.toast.createErrorDesc'),
         })
       }
     },
-    [createProjectMutation],
+    [createProjectMutation, t],
   )
 
   // Handle delete project
@@ -87,18 +91,18 @@ export const Component = () => {
     async (id: string) => {
       try {
         await deleteProjectMutation.mutateAsync(id)
-        toast.success('Project deleted successfully')
+        toast.success(t('projects.toast.deleteSuccess'))
       } catch (error) {
         console.error('Failed to delete project:', error)
-        toast.error('Failed to delete project', {
+        toast.error(t('projects.toast.deleteError'), {
           description:
             error instanceof Error
               ? error.message
-              : 'An error occurred while deleting the project.',
+              : t('projects.toast.deleteErrorDesc'),
         })
       }
     },
-    [deleteProjectMutation],
+    [deleteProjectMutation, t],
   )
 
   // Handle status change
@@ -106,18 +110,24 @@ export const Component = () => {
     async (id: string, status: ProjectStatus) => {
       try {
         await updateProjectMutation.mutateAsync({ id, data: { status } })
-        toast.success(`Project ${status === 'archived' ? 'archived' : 'updated'} successfully`)
+        toast.success(
+          t(
+            status === 'archived'
+              ? 'projects.toast.archiveSuccess'
+              : 'projects.toast.updateSuccess',
+          ),
+        )
       } catch (error) {
         console.error('Failed to update project:', error)
-        toast.error('Failed to update project', {
+        toast.error(t('projects.toast.updateError'), {
           description:
             error instanceof Error
               ? error.message
-              : 'An error occurred while updating the project.',
+              : t('projects.toast.updateErrorDesc'),
         })
       }
     },
-    [updateProjectMutation],
+    [updateProjectMutation, t],
   )
 
   // Stats
@@ -153,25 +163,29 @@ export const Component = () => {
               <FolderKanban className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Projects</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('projects.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
-                Organize and manage your labeling projects
+                {t('projects.subtitle')}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-border bg-fill/50 px-3 py-2 text-xs text-text-tertiary md:flex">
-              <span className="font-medium text-text">Shortcuts</span>
+              <span className="font-medium text-text">
+                {t('projects.shortcuts.label')}
+              </span>
               <span className="rounded-md bg-fill px-1.5 py-0.5">N</span>
-              <span>new</span>
+              <span>{t('projects.shortcuts.new')}</span>
             </div>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               variant="primary"
             >
               <Plus className="mr-2 h-4 w-4" />
-              New project
+              {t('projects.newProject')}
             </Button>
           </div>
         </div>
@@ -179,10 +193,10 @@ export const Component = () => {
 
       <div className="mx-auto max-w-5xl px-6 py-8">
         {isLoading ? (
-          <LoadingState message="Loading projects..." />
+          <LoadingState message={t('projects.loading')} />
         ) : error ? (
           <ErrorState
-            title="Failed to load projects"
+            title={t('projects.error.title')}
             message={error.message}
             onRetry={() => refetch()}
           />
@@ -198,28 +212,28 @@ export const Component = () => {
                 icon={<FolderKanban className="h-5 w-5" />}
                 iconClassName="bg-accent/10 text-accent"
                 value={projects.length}
-                label="Total Projects"
+                label={t('projects.stats.totalProjects')}
                 delay={0.05}
               />
               <StatsCard
                 icon={<Layers className="h-5 w-5" />}
                 iconClassName="bg-violet-500/10 text-violet-500"
                 value={stats.totalBatches}
-                label="Total Batches"
+                label={t('projects.stats.totalBatches')}
                 delay={0.1}
               />
               <StatsCard
                 icon={<ImageIcon className="h-5 w-5" />}
                 iconClassName="bg-fuchsia-500/10 text-fuchsia-500"
                 value={stats.totalImages}
-                label="Total Images"
+                label={t('projects.stats.totalImages')}
                 delay={0.15}
               />
               <StatsCard
                 icon={<CheckCircle className="h-5 w-5" />}
                 iconClassName="bg-green/10 text-green"
                 value={stats.completedProjects}
-                label="Completed"
+                label={t('projects.stats.completed')}
                 delay={0.2}
               />
             </div>
@@ -229,7 +243,7 @@ export const Component = () => {
               <div className="relative flex-1">
                 <Input
                   type="search"
-                  placeholder="Search projects..."
+                  placeholder={t('projects.search')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -253,8 +267,8 @@ export const Component = () => {
                         <FolderKanban className="h-8 w-8" />
                       </div>
                     }
-                    title="No projects yet"
-                    message="Create your first project to start organizing batches and managing labeling tasks."
+                    title={t('projects.empty.title')}
+                    message={t('projects.empty.message')}
                     action={
                       <Button
                         onClick={() => setIsCreateModalOpen(true)}
@@ -262,7 +276,7 @@ export const Component = () => {
                         className="mt-4"
                       >
                         <Plus className="mr-2 h-4 w-4" />
-                        Create your first project
+                        {t('projects.empty.button')}
                       </Button>
                     }
                   />
@@ -273,15 +287,17 @@ export const Component = () => {
                         <Search className="h-8 w-8" />
                       </div>
                     }
-                    title="No matching projects"
-                    message={`No projects found matching "${searchQuery}"`}
+                    title={t('projects.noResults.title')}
+                    message={t('projects.noResults.message', {
+                      query: searchQuery,
+                    })}
                     action={
                       <Button
                         onClick={() => setSearchQuery('')}
                         variant="secondary"
                         className="mt-4"
                       >
-                        Clear search
+                        {t('projects.noResults.button')}
                       </Button>
                     }
                   />

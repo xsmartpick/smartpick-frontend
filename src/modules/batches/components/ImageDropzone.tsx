@@ -1,6 +1,7 @@
 import { CloudUpload, FileImage, X } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
@@ -42,6 +43,7 @@ export function ImageDropzone({
   className,
   disabled = false,
 }: ImageDropzoneProps) {
+  const { t } = useTranslation()
   const [isDragging, setIsDragging] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -52,7 +54,7 @@ export function ImageDropzone({
 
       // Check file limit
       if (images.length + fileArray.length > maxFiles) {
-        setError(`Maximum ${maxFiles} files allowed`)
+        setError(t('batches.dropzone.errors.maxFiles', { max: maxFiles }))
         return
       }
 
@@ -62,13 +64,20 @@ export function ImageDropzone({
       for (const file of fileArray) {
         // Check file type
         if (!acceptedTypes.includes(file.type)) {
-          errors.push(`${file.name}: Invalid file type`)
+          errors.push(
+            t('batches.dropzone.errors.invalidType', { name: file.name }),
+          )
           continue
         }
 
         // Check file size
         if (file.size > maxSizeMB * 1024 * 1024) {
-          errors.push(`${file.name}: File too large (max ${maxSizeMB}MB)`)
+          errors.push(
+            t('batches.dropzone.errors.tooLarge', {
+              name: file.name,
+              max: maxSizeMB,
+            }),
+          )
           continue
         }
 
@@ -77,7 +86,9 @@ export function ImageDropzone({
           (img) => img.name === file.name && img.size === file.size,
         )
         if (isDuplicate) {
-          errors.push(`${file.name}: File already added`)
+          errors.push(
+            t('batches.dropzone.errors.duplicate', { name: file.name }),
+          )
           continue
         }
 
@@ -101,7 +112,7 @@ export function ImageDropzone({
         onImagesChange([...images, ...validFiles])
       }
     },
-    [images, onImagesChange, maxFiles, maxSizeMB, acceptedTypes],
+    [images, onImagesChange, maxFiles, maxSizeMB, acceptedTypes, t],
   )
 
   const handleDragEnter = useCallback((e: React.DragEvent) => {
@@ -218,12 +229,14 @@ export function ImageDropzone({
 
           <div className="text-center">
             <p className="text-base font-medium text-text">
-              {isDragging ? 'Drop images here' : 'Drag and drop images here'}
+              {isDragging
+                ? t('batches.dropzone.dropHere')
+                : t('batches.dropzone.dragDrop')}
             </p>
             <p className="mt-1 text-sm text-text-secondary">
-              or{' '}
+              {t('batches.dropzone.or')}{' '}
               <span className="text-accent font-medium hover:underline">
-                click to browse
+                {t('batches.dropzone.clickBrowse')}
               </span>
             </p>
           </div>
@@ -231,13 +244,13 @@ export function ImageDropzone({
           <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-text-tertiary">
             <span className="inline-flex items-center gap-1.5 rounded-lg bg-fill px-2 py-1">
               <FileImage className="h-3.5 w-3.5" />
-              JPEG, PNG, WebP, GIF
+              {t('batches.dropzone.acceptedFormats')}
             </span>
             <span className="rounded-lg bg-fill px-2 py-1">
-              Max {maxSizeMB}MB each
+              {t('batches.dropzone.maxSize', { size: maxSizeMB })}
             </span>
             <span className="rounded-lg bg-fill px-2 py-1">
-              Up to {maxFiles} files
+              {t('batches.dropzone.maxFiles', { max: maxFiles })}
             </span>
           </div>
         </label>
@@ -282,15 +295,14 @@ export function ImageDropzone({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-text">
-                  {images.length} {images.length === 1 ? 'image' : 'images'}{' '}
-                  selected
+                  {t('batches.dropzone.selected', { count: images.length })}
                 </span>
                 <span className="text-xs text-text-tertiary">
                   (
                   {formatFileSize(
                     images.reduce((sum, img) => sum + img.size, 0),
                   )}{' '}
-                  total)
+                  {t('batches.dropzone.total')})
                 </span>
               </div>
               <button
@@ -298,7 +310,7 @@ export function ImageDropzone({
                 onClick={clearAll}
                 className="text-xs text-text-secondary hover:text-red transition-colors"
               >
-                Clear all
+                {t('batches.dropzone.clearAll')}
               </button>
             </div>
 

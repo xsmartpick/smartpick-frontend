@@ -1,6 +1,7 @@
 import { ArrowDown, ArrowUp, ChevronsUpDown, ClipboardList } from 'lucide-react'
 import { m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { EmptyState, ErrorState, LoadingState } from '~/components/common'
@@ -120,6 +121,7 @@ const DEFAULT_SORT: TaskSort = {
 }
 
 export const Component = () => {
+  const { t } = useTranslation()
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [filters, setFilters] = useState<TaskFilters>({})
@@ -303,7 +305,7 @@ export const Component = () => {
                             )}
                           </TableCell>
                           <TableCell className="text-muted-foreground font-medium">
-                            {task.dueDate ? relativeTime(task.dueDate) : '—'}
+                            {task.dueDate ? relativeTime(task.dueDate, t) : '—'}
                           </TableCell>
                         </TableRow>
                       ))}

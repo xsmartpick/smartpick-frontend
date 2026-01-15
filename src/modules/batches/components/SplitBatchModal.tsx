@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
@@ -55,6 +56,7 @@ export function SplitBatchModal({
   onClose,
   onSubmit,
 }: SplitBatchModalProps) {
+  const { t } = useTranslation()
   const [mode, setMode] = useState<SplitMode>('equal')
   const [taskCount, setTaskCount] = useState<number>(1)
   const [customTasks, setCustomTasks] = useState<
@@ -111,15 +113,18 @@ export function SplitBatchModal({
 
   const handleSubmit = useCallback(async () => {
     if (!validation.isValid) {
-      toast.error('Please fix validation errors before creating tasks')
+      toast.error(t('batches.split.toast.validationError'))
       return
     }
 
     setIsCreating(true)
     try {
       await onSubmit(generatedTasks)
-      toast.success('Tasks created successfully!', {
-        description: `Created ${generatedTasks.length} task${generatedTasks.length === 1 ? '' : 's'} from batch "${batch.name}"`,
+      toast.success(t('batches.split.toast.success'), {
+        description: t('batches.split.toast.successDesc', {
+          count: generatedTasks.length,
+          name: batch.name,
+        }),
       })
       onClose()
       // Reset form
@@ -128,11 +133,11 @@ export function SplitBatchModal({
       setCustomTasks([{ id: '1', imageCount: 0 }])
     } catch (error) {
       console.error('Failed to create tasks:', error)
-      toast.error('Failed to create tasks', {
+      toast.error(t('batches.split.toast.error'), {
         description:
           error instanceof Error
             ? error.message
-            : 'An error occurred while creating tasks.',
+            : t('batches.split.toast.errorDesc'),
       })
     } finally {
       setIsCreating(false)
@@ -162,11 +167,13 @@ export function SplitBatchModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Scissors className="h-5 w-5 text-accent" />
-            Split Batch into Tasks
+            {t('batches.split.title')}
           </DialogTitle>
           <DialogDescription>
-            Split "{batch.name}" ({totalImages} image
-            {totalImages === 1 ? '' : 's'}) into multiple labeling tasks
+            {t('batches.split.description', {
+              name: batch.name,
+              count: totalImages,
+            })}
           </DialogDescription>
         </DialogHeader>
 
@@ -180,15 +187,20 @@ export function SplitBatchModal({
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-text">Batch Summary</p>
+                <p className="text-sm font-medium text-text">
+                  {t('batches.split.summary.title')}
+                </p>
                 <p className="mt-1 text-xs text-text-secondary">
-                  {totalImages} total image{totalImages === 1 ? '' : 's'}{' '}
-                  available for splitting
+                  {t('batches.split.summary.description', {
+                    count: totalImages,
+                  })}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-2xl font-bold text-text">{totalImages}</p>
-                <p className="text-xs text-text-secondary">Images</p>
+                <p className="text-xs text-text-secondary">
+                  {t('batches.split.summary.images')}
+                </p>
               </div>
             </div>
           </m.div>
@@ -196,7 +208,7 @@ export function SplitBatchModal({
           {/* Split Mode Selector */}
           <div className="space-y-3">
             <Label className="text-sm font-medium text-text">
-              Split Method
+              {t('batches.split.method.label')}
             </Label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -222,10 +234,12 @@ export function SplitBatchModal({
                       <div className="h-full w-full rounded-full bg-accent" />
                     )}
                   </div>
-                  <span className="font-medium text-text">Equal Split</span>
+                  <span className="font-medium text-text">
+                    {t('batches.split.method.equal.title')}
+                  </span>
                 </div>
                 <p className="mt-2 text-xs text-text-secondary">
-                  Divide images equally across tasks
+                  {t('batches.split.method.equal.description')}
                 </p>
               </button>
 
@@ -252,10 +266,12 @@ export function SplitBatchModal({
                       <div className="h-full w-full rounded-full bg-accent" />
                     )}
                   </div>
-                  <span className="font-medium text-text">Custom Split</span>
+                  <span className="font-medium text-text">
+                    {t('batches.split.method.custom.title')}
+                  </span>
                 </div>
                 <p className="mt-2 text-xs text-text-secondary">
-                  Set custom image count per task
+                  {t('batches.split.method.custom.description')}
                 </p>
               </button>
             </div>
@@ -272,7 +288,8 @@ export function SplitBatchModal({
             {mode === 'equal' ? (
               <div className="space-y-2">
                 <Label htmlFor="task-count">
-                  Number of Tasks <span className="text-red">*</span>
+                  {t('batches.split.equal.taskCount')}{' '}
+                  <span className="text-red">*</span>
                 </Label>
                 <Input
                   id="task-count"
@@ -291,19 +308,10 @@ export function SplitBatchModal({
                 />
                 {taskCount > 0 && (
                   <p className="text-xs text-text-secondary">
-                    Each task will have approximately{' '}
-                    <span className="font-medium text-text">
-                      {Math.floor(totalImages / taskCount)}
-                    </span>{' '}
-                    images
-                    {totalImages % taskCount !== 0 && (
-                      <span className="text-amber">
-                        {' '}
-                        (with {totalImages % taskCount} remainder image
-                        {totalImages % taskCount === 1 ? '' : 's'} in the last
-                        task)
-                      </span>
-                    )}
+                    {t('batches.split.equal.hint', {
+                      images: Math.floor(totalImages / taskCount),
+                      remainder: totalImages % taskCount,
+                    })}
                   </p>
                 )}
               </div>
@@ -311,7 +319,7 @@ export function SplitBatchModal({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-medium text-text">
-                    Custom Task Configuration
+                    {t('batches.split.custom.label')}
                   </Label>
                   <Button
                     type="button"
@@ -321,7 +329,7 @@ export function SplitBatchModal({
                     className="h-8"
                   >
                     <Plus className="mr-1.5 h-3.5 w-3.5" />
-                    Add Task
+                    {t('batches.split.custom.addTask')}
                   </Button>
                 </div>
 
@@ -350,7 +358,7 @@ export function SplitBatchModal({
                               handleCustomTaskChange(task.id, value)
                             }
                           }}
-                          placeholder="Images per task"
+                          placeholder={t('batches.split.custom.placeholder')}
                           className="w-full"
                           enableStepper
                         />
@@ -373,7 +381,7 @@ export function SplitBatchModal({
                 <div className="rounded-lg border border-border bg-fill/50 p-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-text-secondary">
-                      Total Allocated:
+                      {t('batches.split.custom.totalAllocated')}
                     </span>
                     <span
                       className={cn(
@@ -390,15 +398,18 @@ export function SplitBatchModal({
                   </div>
                   {remainingImages !== 0 && (
                     <div className="mt-1 flex items-center justify-between text-xs">
-                      <span className="text-text-tertiary">Remaining:</span>
+                      <span className="text-text-tertiary">
+                        {t('batches.split.custom.remaining')}
+                      </span>
                       <span
                         className={cn(
                           remainingImages > 0 ? 'text-amber' : 'text-red',
                         )}
                       >
-                        {remainingImages > 0 ? '+' : ''}
-                        {remainingImages} image
-                        {Math.abs(remainingImages) === 1 ? '' : 's'}
+                        {t('batches.split.custom.remainingCount', {
+                          count: Math.abs(remainingImages),
+                          sign: remainingImages > 0 ? '+' : '',
+                        })}
                       </span>
                     </div>
                   )}
@@ -418,7 +429,7 @@ export function SplitBatchModal({
                 <XCircle className="h-4 w-4 shrink-0 text-red mt-0.5" />
                 <div className="flex-1 space-y-1">
                   <p className="text-sm font-medium text-red">
-                    Validation Errors
+                    {t('batches.split.validation.errors')}
                   </p>
                   <ul className="list-disc list-inside space-y-0.5 text-xs text-red/80">
                     {validation.errors.map((error, idx) => (
@@ -439,7 +450,9 @@ export function SplitBatchModal({
               <div className="flex items-start gap-2">
                 <div className="h-4 w-4 shrink-0 rounded-full bg-amber mt-0.5" />
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium text-amber">Warnings</p>
+                  <p className="text-sm font-medium text-amber">
+                    {t('batches.split.validation.warnings')}
+                  </p>
                   <ul className="list-disc list-inside space-y-0.5 text-xs text-amber/80">
                     {validation.warnings.map((warning, idx) => (
                       <li key={idx}>{warning}</li>
@@ -455,13 +468,14 @@ export function SplitBatchModal({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-text">
-                  Preview ({generatedTasks.length} task
-                  {generatedTasks.length === 1 ? '' : 's'})
+                  {t('batches.split.preview.title', {
+                    count: generatedTasks.length,
+                  })}
                 </Label>
                 {validation.isValid && totalAllocated === totalImages && (
                   <div className="flex items-center gap-1.5 text-xs text-green">
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    <span>All images allocated</span>
+                    <span>{t('batches.split.preview.allAllocated')}</span>
                   </div>
                 )}
               </div>
@@ -472,16 +486,16 @@ export function SplitBatchModal({
                     <thead className="sticky top-0 bg-fill/50 backdrop-blur-sm border-b border-border">
                       <tr>
                         <th className="px-4 py-2.5 text-left text-xs font-medium text-text-secondary">
-                          Task
+                          {t('batches.split.preview.table.task')}
                         </th>
                         <th className="px-4 py-2.5 text-left text-xs font-medium text-text-secondary">
-                          Images
+                          {t('batches.split.preview.table.images')}
                         </th>
                         <th className="px-4 py-2.5 text-left text-xs font-medium text-text-secondary">
-                          Range
+                          {t('batches.split.preview.table.range')}
                         </th>
                         <th className="px-4 py-2.5 text-left text-xs font-medium text-text-secondary">
-                          Status
+                          {t('batches.split.preview.table.status')}
                         </th>
                       </tr>
                     </thead>
@@ -498,25 +512,30 @@ export function SplitBatchModal({
                           className="border-b border-border last:border-0 hover:bg-fill/30 transition-colors"
                         >
                           <td className="px-4 py-3 text-sm font-medium text-text">
-                            Task #{task.taskNumber}
+                            {t('batches.split.preview.table.taskNumber', {
+                              number: task.taskNumber,
+                            })}
                           </td>
                           <td className="px-4 py-3 text-sm text-text">
                             {task.imageCount}
                           </td>
                           <td className="px-4 py-3 text-sm text-text-secondary">
                             {task.imageCount > 0
-                              ? `Images ${task.startIndex + 1}-${task.endIndex + 1}`
-                              : 'No images'}
+                              ? t('batches.split.preview.table.imageRange', {
+                                  start: task.startIndex + 1,
+                                  end: task.endIndex + 1,
+                                })
+                              : t('batches.split.preview.table.noImages')}
                           </td>
                           <td className="px-4 py-3">
                             {task.imageCount > 0 ? (
                               <span className="inline-flex items-center gap-1 rounded-full bg-green/10 px-2 py-0.5 text-xs font-medium text-green">
                                 <CheckCircle2 className="h-3 w-3" />
-                                Ready
+                                {t('batches.split.preview.table.ready')}
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 rounded-full bg-fill px-2 py-0.5 text-xs font-medium text-text-tertiary">
-                                Empty
+                                {t('batches.split.preview.table.empty')}
                               </span>
                             )}
                           </td>
@@ -532,7 +551,7 @@ export function SplitBatchModal({
 
         <DialogFooter className="gap-2">
           <Button variant="ghost" onClick={handleClose} disabled={isCreating}>
-            Cancel
+            {t('batches.split.buttons.cancel')}
           </Button>
           <Button
             variant="primary"
@@ -542,13 +561,14 @@ export function SplitBatchModal({
             {isCreating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating Tasks...
+                {t('batches.split.buttons.creating')}
               </>
             ) : (
               <>
                 <Scissors className="mr-2 h-4 w-4" />
-                Create {generatedTasks.length} Task
-                {generatedTasks.length === 1 ? '' : 's'}
+                {t('batches.split.buttons.create', {
+                  count: generatedTasks.length,
+                })}
               </>
             )}
           </Button>

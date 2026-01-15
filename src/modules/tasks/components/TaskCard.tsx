@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next'
+
 import { relativeTime } from '~/lib/date-utils'
 
 import type { Task } from '../types'
 
 export function TaskCard({ task }: { task: Task }) {
+  const { t } = useTranslation()
   return (
     <div className="rounded-2xl border border-border bg-background p-4 space-y-3">
       {/* Title */}
@@ -33,7 +36,7 @@ export function TaskCard({ task }: { task: Task }) {
 
       {/* Time updated */}
       <div className="text-xs text-text-tertiary">
-        Updated {relativeTime(task.updatedAt)}
+        Updated {relativeTime(task.updatedAt, t)}
       </div>
     </div>
   )

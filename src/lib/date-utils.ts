@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next'
+
 /**
  * Format a date string to a readable format
  * @param dateString - ISO date string
@@ -38,16 +40,17 @@ export function formatDate(
 /**
  * Get a human-readable relative time string (e.g., "2 hours ago", "3 days ago")
  * @param dateString - ISO date string
+ * @param t - Translation function from i18next
  * @returns Relative time string
  */
-export function relativeTime(dateString: string): string {
+export function relativeTime(dateString: string, t: TFunction): string {
   try {
     const date = new Date(dateString)
     const now = new Date()
 
     // Check if date is valid
     if (Number.isNaN(date.getTime())) {
-      return 'Invalid date'
+      return t('time.invalidDate')
     }
 
     const diffMs = now.getTime() - date.getTime()
@@ -61,34 +64,34 @@ export function relativeTime(dateString: string): string {
 
     // Handle future dates
     if (diffMs < 0) {
-      return 'in the future'
+      return t('time.future')
     }
 
     // Seconds
-    if (diffSec < 10) return 'just now'
-    if (diffSec < 60) return `${diffSec}s ago`
+    if (diffSec < 10) return t('time.justNow')
+    if (diffSec < 60) return t('time.secondsAgo', { count: diffSec })
 
     // Minutes
-    if (diffMin < 60) return `${diffMin}m ago`
+    if (diffMin < 60) return t('time.minutesAgo', { count: diffMin })
 
     // Hours
-    if (diffHour < 24) return `${diffHour}h ago`
+    if (diffHour < 24) return t('time.hoursAgo', { count: diffHour })
 
     // Days
-    if (diffDay < 7) return `${diffDay}d ago`
+    if (diffDay < 7) return t('time.daysAgo', { count: diffDay })
 
     // Weeks
-    if (diffWeek < 4) return `${diffWeek}w ago`
+    if (diffWeek < 4) return t('time.weeksAgo', { count: diffWeek })
 
     // Months
-    if (diffMonth < 12) return `${diffMonth}mo ago`
+    if (diffMonth < 12) return t('time.monthsAgo', { count: diffMonth })
 
     // Years
-    if (diffYear >= 1) return `${diffYear}y ago`
+    if (diffYear >= 1) return t('time.yearsAgo', { count: diffYear })
 
     // Fallback to formatted date
     return formatDate(dateString)
   } catch {
-    return 'Invalid date'
+    return t('time.invalidDate')
   }
 }

@@ -1,6 +1,7 @@
 import { FolderKanban, Loader2, Sparkles } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -31,6 +32,7 @@ export function CreateProjectModal({
   onSubmit,
   isLoading = false,
 }: CreateProjectModalProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [errors, setErrors] = useState<{ name?: string }>({})
@@ -50,11 +52,11 @@ export function CreateProjectModal({
     const newErrors: typeof errors = {}
 
     if (!name.trim()) {
-      newErrors.name = 'Project name is required'
+      newErrors.name = t('projects.modal.validation.nameRequired')
     } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters'
+      newErrors.name = t('projects.modal.validation.nameMin')
     } else if (name.trim().length > 64) {
-      newErrors.name = 'Name must be less than 64 characters'
+      newErrors.name = t('projects.modal.validation.nameMax')
     }
 
     setErrors(newErrors)
@@ -88,10 +90,7 @@ export function CreateProjectModal({
         }
       }}
     >
-      <DialogContent
-        className="max-w-lg"
-        onKeyDown={handleKeyDown}
-      >
+      <DialogContent className="max-w-lg" onKeyDown={handleKeyDown}>
         <DialogHeader>
           <div className="flex items-center gap-3">
             <m.div
@@ -103,9 +102,9 @@ export function CreateProjectModal({
               <FolderKanban className="h-5 w-5" />
             </m.div>
             <div>
-              <DialogTitle>Create New Project</DialogTitle>
+              <DialogTitle>{t('projects.modal.title')}</DialogTitle>
               <DialogDescription>
-                Set up a new project to organize your labeling work.
+                {t('projects.modal.description')}
               </DialogDescription>
             </div>
           </div>
@@ -120,7 +119,8 @@ export function CreateProjectModal({
           {/* Name Field */}
           <div className="space-y-2">
             <Label htmlFor="project-name">
-              Project Name <span className="text-red">*</span>
+              {t('projects.modal.nameLabel')}{' '}
+              <span className="text-red">*</span>
             </Label>
             <Input
               id="project-name"
@@ -131,7 +131,7 @@ export function CreateProjectModal({
                   setErrors((prev) => ({ ...prev, name: undefined }))
                 }
               }}
-              placeholder="e.g. Product Classification 2024"
+              placeholder={t('projects.modal.namePlaceholder')}
               maxLength={64}
               hasError={!!errors.name}
               aria-invalid={!!errors.name}
@@ -144,26 +144,28 @@ export function CreateProjectModal({
               </p>
             ) : (
               <p className="text-xs text-text-tertiary">
-                Choose a descriptive name for your project.
+                {t('projects.modal.nameHint')}
               </p>
             )}
           </div>
 
           {/* Description Field */}
           <div className="space-y-2">
-            <Label htmlFor="project-description">Description</Label>
+            <Label htmlFor="project-description">
+              {t('projects.modal.descriptionLabel')}
+            </Label>
             <Textarea
               id="project-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What is this project about? Add any relevant context..."
+              placeholder={t('projects.modal.descriptionPlaceholder')}
               rows={3}
               maxLength={500}
               disabled={isLoading}
             />
             <div className="flex items-center justify-between">
               <p className="text-xs text-text-tertiary">
-                Optional. Describe the project goals.
+                {t('projects.modal.descriptionHint')}
               </p>
               <p className="text-xs text-text-tertiary">
                 {description.length}/500
@@ -178,11 +180,11 @@ export function CreateProjectModal({
                 <Sparkles className="h-4 w-4" />
               </div>
               <div>
-                <p className="text-sm font-medium text-text">Getting started</p>
+                <p className="text-sm font-medium text-text">
+                  {t('projects.modal.tips.title')}
+                </p>
                 <p className="mt-1 text-xs text-text-secondary">
-                  After creating a project, you can add batches of images and
-                  start labeling. Projects help you organize related batches
-                  and track progress across your labeling work.
+                  {t('projects.modal.tips.content')}
                 </p>
               </div>
             </div>
@@ -191,22 +193,18 @@ export function CreateProjectModal({
 
         <DialogFooter className="gap-2">
           <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
-            Cancel
+            {t('projects.modal.cancel')}
           </Button>
-          <Button
-            onClick={handleSubmit}
-            variant="primary"
-            disabled={isLoading}
-          >
+          <Button onClick={handleSubmit} variant="primary" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
+                {t('projects.modal.creating')}
               </>
             ) : (
               <>
                 <FolderKanban className="mr-2 h-4 w-4" />
-                Create Project
+                {t('projects.modal.createButton')}
               </>
             )}
           </Button>

@@ -73,52 +73,52 @@ export function AppSidebar({
   const navItems: NavItem[] = [
     {
       id: 'home',
-      label: 'Dashboard',
+      label: i18n.t('navigation.home.label'),
       icon: <Home className="h-5 w-5" />,
       href: '/',
-      description: 'Overview & stats',
+      description: i18n.t('navigation.home.description'),
     },
     {
       id: 'projects',
-      label: 'Projects',
+      label: i18n.t('navigation.projects.label'),
       icon: <FolderKanban className="h-5 w-5" />,
       href: '/projects',
-      description: 'Labeling projects',
+      description: i18n.t('navigation.projects.description'),
     },
     {
       id: 'batches',
-      label: 'Batches',
+      label: i18n.t('navigation.batches.label'),
       icon: <FolderOpen className="h-5 w-5" />,
       href: '/batches',
-      description: 'Image batches',
+      description: i18n.t('navigation.batches.description'),
     },
     {
       id: 'admin-tasks',
-      label: 'Admin Tasks',
+      label: i18n.t('navigation.adminTasks.label'),
       icon: <ClipboardList className="h-5 w-5" />,
       href: '/admintasks',
-      description: 'Admin task overview',
+      description: i18n.t('navigation.adminTasks.description'),
     },
     {
       id: 'label',
-      label: 'Label',
+      label: i18n.t('navigation.label.label'),
       icon: <PenTool className="h-5 w-5" />,
       href: '/label',
-      description: 'Start labeling',
+      description: i18n.t('navigation.label.description'),
     },
     {
       id: 'datasets',
-      label: 'Datasets',
+      label: i18n.t('navigation.datasets.label'),
       icon: <Database className="h-5 w-5" />,
       href: '/datasets',
-      description: 'Data collections',
+      description: i18n.t('navigation.datasets.description'),
     },
     {
       id: 'label-sets',
-      label: 'Label Sets',
+      label: i18n.t('navigation.labelSets.label'),
       icon: <Tag className="h-5 w-5" />,
       href: '/label-sets',
-      description: 'Manage labels',
+      description: i18n.t('navigation.labelSets.description'),
     },
   ]
 
@@ -140,7 +140,7 @@ export function AppSidebar({
 
       // This is a legitimate case of syncing URL state with UI state
       // We need to update the menu visibility based on the current route
-       
+
       setShowMoreMenu((current) => {
         if (isActiveInOverflow && !current) return true
         if (!isActiveInOverflow && current) return false
@@ -233,7 +233,9 @@ export function AppSidebar({
                     className="relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-text-secondary transition-colors hover:text-text"
                   >
                     <MoreHorizontal className="h-5 w-5" />
-                    <span className="text-[10px] font-medium">More</span>
+                    <span className="text-[10px] font-medium">
+                      {i18n.t('navigation.more')}
+                    </span>
                   </button>
                 )}
               </m.div>
@@ -256,7 +258,9 @@ export function AppSidebar({
                   className="relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-text-secondary transition-colors hover:text-text"
                 >
                   <ArrowLeft className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Back</span>
+                  <span className="text-[10px] font-medium">
+                    {i18n.t('navigation.back')}
+                  </span>
                 </button>
 
                 {/* Overflow items */}
@@ -295,7 +299,9 @@ export function AppSidebar({
                   className="relative flex flex-col items-center gap-1 rounded-xl px-3 py-2 text-text-secondary transition-colors hover:text-text"
                 >
                   <User className="h-5 w-5" />
-                  <span className="text-[10px] font-medium">Profile</span>
+                  <span className="text-[10px] font-medium">
+                    {i18n.t('navigation.profile')}
+                  </span>
                 </button>
               </m.div>
             )}
@@ -306,7 +312,7 @@ export function AppSidebar({
         <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
           <DialogContent className="max-w-sm" from="bottom">
             <DialogHeader>
-              <DialogTitle>Profile & Settings</DialogTitle>
+              <DialogTitle>{i18n.t('profile.title')}</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4 pt-2">
@@ -346,9 +352,13 @@ export function AppSidebar({
                     )}
                   </span>
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-text">Theme</div>
+                    <div className="text-sm font-medium text-text">
+                      {i18n.t('profile.theme.title')}
+                    </div>
                     <div className="text-xs text-text-tertiary">
-                      {isDark ? 'Dark mode' : 'Light mode'}
+                      {isDark
+                        ? i18n.t('profile.theme.dark')
+                        : i18n.t('profile.theme.light')}
                     </div>
                   </div>
                 </button>
