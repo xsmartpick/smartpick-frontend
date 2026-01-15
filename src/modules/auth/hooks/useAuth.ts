@@ -3,7 +3,7 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
-import { isAuthenticatedAtom,tokenAtom, userAtom } from '~/atoms/auth'
+import { isAuthenticatedAtom, tokenAtom, userAtom } from '~/atoms/auth'
 
 export const useAuth = () => {
   const user = useAtomValue(userAtom)
@@ -19,6 +19,7 @@ export const useAuth = () => {
 
     // Clear localStorage
     localStorage.removeItem('smartpick_token')
+    localStorage.removeItem('smartpick_user')
 
     // Show message
     toast.info('Logged out successfully')
