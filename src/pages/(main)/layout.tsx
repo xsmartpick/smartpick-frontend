@@ -23,20 +23,23 @@ export const Component = () => {
 
   const isLoginPage = location.pathname === '/login'
 
-  // Redirect to login if not authenticated and not on login page
+  // Handle authentication redirects
   useEffect(() => {
-    if (!isAuthenticated && !isLoginPage) {
+    if (isAuthenticated && isLoginPage) {
+      // Redirect authenticated users away from login page
+      navigate('/', { replace: true })
+    } else if (!isAuthenticated && !isLoginPage) {
+      // Redirect unauthenticated users to login
       navigate('/login', { replace: true })
     }
   }, [isAuthenticated, isLoginPage, navigate])
-
+  
   // Login page has its own full layout, no sidebar needed
-  i
-f (isLoginPage) {
+  if (isLoginPage) {
     return <Outlet />
   }
-
-  // Show nothing while redirecting to login
+  
+  // Don't render protected content while redirecting
   if (!isAuthenticated) {
     return null
   }
