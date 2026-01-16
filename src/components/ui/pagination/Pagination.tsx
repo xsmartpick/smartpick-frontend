@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react'
 import * as React from 'react'
 
+import { useSmallScreen } from '~/hooks/common/useSmallScreen'
 import { cn } from '~/lib/cn'
 
 /* -------------------------------------------------------------------------- */
@@ -61,10 +62,13 @@ export function Pagination({
   totalPages,
   currentPage,
   onPageChange,
-  siblingCount = 1,
+  siblingCount: userSiblingCount,
   className,
   ...props
 }: PaginationProps) {
+  const isSmallScreen = useSmallScreen()
+  const siblingCount = userSiblingCount ?? (isSmallScreen ? 0 : 1)
+
   const paginationRange = generatePagination(
     currentPage,
     totalPages,
