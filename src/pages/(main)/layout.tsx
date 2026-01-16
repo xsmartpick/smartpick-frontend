@@ -1,12 +1,12 @@
 import { m } from 'motion/react'
 import { useState } from 'react'
 import { Outlet } from 'react-router'
-
 import { AppSidebar } from '~/components/common/AppSidebar'
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
-
+import { useAtomValue } from 'jotai'
+import { isAuthenticatedAtom } from '~/atoms/auth'
 /**
  * Main layout with sidebar navigation
  * Wraps all pages in the (main) route group
@@ -14,6 +14,16 @@ import { Spring } from '~/lib/spring'
 export const Component = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const isMobile = useMobile()
+  const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+
+  // Don't show sidebar if not authenticated (e.g., on login page)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Outlet />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-background">

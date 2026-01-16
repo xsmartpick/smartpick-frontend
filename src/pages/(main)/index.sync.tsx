@@ -10,7 +10,7 @@ import { m } from 'motion/react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
-import { useUserValue } from '~/atoms/user'
+import { useUserValue } from '~/atoms/auth'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
@@ -157,7 +157,8 @@ export const Component = () => {
           <div className="mb-10">
             <h1 className="text-3xl font-bold text-text tracking-normal ">
               {getGreeting()},{' '}
-              {user?.name?.split(' ')[0] ?? t('common.defaultName')}
+              {(user?.fullName ?? user?.username)?.split(' ')[0] ??
+                t('common.defaultName')}
             </h1>
             <p className="mt-2 text-text-secondary">
               {t('dashboard.welcomeSubtitle')}
