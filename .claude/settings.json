@@ -1,0 +1,35 @@
+{
+  "$schema": "https://raw.githubusercontent.com/anthropics/claude-code/main/schemas/settings.schema.json",
+  "project": {
+    "name": "SmartPick Axon UI",
+    "description": "Modern web application for AI-powered cashew classification",
+    "type": "web-frontend"
+  },
+  "context": {
+    "include": [
+      "agents.md",
+      "readme.md",
+      ".claude/CLAUDE.md",
+      ".cursor/rules/*.mdc"
+    ],
+    "exclude": [
+      "node_modules",
+      "dist",
+      "pnpm-lock.yaml",
+      "src/generated-routes.ts"
+    ]
+  },
+  "commands": {
+    "dev": "pnpm dev",
+    "build": "pnpm build",
+    "lint": "pnpm lint",
+    "format": "pnpm format",
+    "serve": "pnpm serve"
+  },
+  "preferences": {
+    "packageManager": "pnpm",
+    "importAlias": "~/",
+    "testFramework": null,
+    "componentStyle": "functional"
+  }
+}

@@ -17,6 +17,7 @@ import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/input/Textarea'
 import { Label } from '~/components/ui/label'
 import { Spring } from '~/lib/spring'
+import { UPLOAD_CONFIG } from '~/lib/upload-config'
 
 import { useBulkUpload } from '../hooks/useBulkUpload'
 import type { CreateBatchFormData, UploadedImage } from '../types'
@@ -419,8 +420,8 @@ export function CreateBatchModal({
               <ImageDropzone
                 images={images}
                 onImagesChange={setImages}
-                maxFiles={50}
-                maxSizeMB={10}
+                maxFiles={UPLOAD_CONFIG.MAX_FILES_PER_BATCH}
+                maxSizeMB={UPLOAD_CONFIG.MAX_FILE_SIZE_MB}
                 disabled={isUploading}
               />
             </m.div>
