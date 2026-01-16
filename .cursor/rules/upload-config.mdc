@@ -1,0 +1,61 @@
+---
+description: File upload configuration and limits
+globs: ["**/upload*.ts", "**/dropzone*.tsx", "**/ImageDropzone*"]
+---
+
+# File Upload Configuration
+
+All file upload constraints are centralized in `src/lib/upload-config.ts`.
+
+## Configuration Location
+
+```ts
+// src/lib/upload-config.ts
+export const UPLOAD_CONFIG = {
+  MAX_FILE_SIZE_MB: 200,      // Max size per file
+  MAX_FILES_PER_BATCH: 50,    // Max files per batch
+  ACCEPTED_IMAGE_TYPES: [...], // Accepted MIME types
+}
+```
+
+## Changing Max File Size
+
+To change the maximum file size limit:
+
+1. Open `src/lib/upload-config.ts`
+2. Update the `MAX_FILE_SIZE_MB` value:
+   ```ts
+   MAX_FILE_SIZE_MB: 500, // Example: increase to 500MB
+   ```
+3. Consider updating related backend/infrastructure limits
+
+## Important Considerations
+
+When increasing file size limits, also consider:
+
+- **Server limits**: nginx (`client_max_body_size`), Cloudflare (100MB free tier), etc.
+- **Backend limits**: API payload size limits
+- **Memory usage**: Large images decompress to significant raw pixel data
+- **Network**: Upload time and timeout settings
+- **Storage costs**: Higher limits = more storage usage
+
+## Usage in Components
+
+Components should import from the config:
+
+```tsx
+import { UPLOAD_CONFIG } from '~/lib/upload-config'
+
+// Use config values
+<ImageDropzone
+  maxSizeMB={UPLOAD_CONFIG.MAX_FILE_SIZE_MB}
+  maxFiles={UPLOAD_CONFIG.MAX_FILES_PER_BATCH}
+/>
+```
+
+## Related Files
+
+- `src/lib/upload-config.ts` - Configuration source
+- `src/modules/batches/components/ImageDropzone.tsx` - Main dropzone component
+- `src/modules/batches/components/CreateBatchModal.tsx` - Uses ImageDropzone
+- `public/locales/*/translation.json` - Error messages for upload validation

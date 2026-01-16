@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
+import { UPLOAD_CONFIG } from '~/lib/upload-config'
 
 import type { UploadedImage } from '../types'
 
@@ -37,9 +38,9 @@ interface ImageDropzoneProps {
 export function ImageDropzone({
   images,
   onImagesChange,
-  maxFiles = 50,
-  maxSizeMB = 10,
-  acceptedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  maxFiles = UPLOAD_CONFIG.MAX_FILES_PER_BATCH,
+  maxSizeMB = UPLOAD_CONFIG.MAX_FILE_SIZE_MB,
+  acceptedTypes = UPLOAD_CONFIG.ACCEPTED_IMAGE_TYPES as unknown as string[],
   className,
   disabled = false,
 }: ImageDropzoneProps) {
