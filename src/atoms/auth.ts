@@ -14,9 +14,9 @@ export const [
   setToken,
 ] = createAtomHooks(atomWithStorage<string | null>('smartpick_token', null))
 
-// User state (stored after login)
+// User state (persisted in localStorage)
 export const [userAtom, useUser, useUserValue, useSetUser, getUser, setUser] =
-  createAtomHooks(atom<User | null>(null))
+  createAtomHooks(atomWithStorage<User | null>('smartpick_user', null))
 
 // Computed: isAuthenticated (token exists AND user exists)
 export const isAuthenticatedAtom = atom((get) => {

@@ -315,7 +315,7 @@ export const Component = () => {
                   {/* Pagination */}
                   <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                     <p className="text-sm text-text-secondary">
-                      Page {page} of {totalPages} ({totalCount} total)
+                      Page {page} of {totalPages}
                     </p>
                     <Pagination
                       currentPage={page}

@@ -6,6 +6,7 @@ import {
   ToolbarDropdown,
   ToolbarMenuLabel,
 } from '~/components/ui/toolbar-dropdown'
+import { useSmallScreen } from '~/hooks/common/useSmallScreen'
 
 import type { TaskFilters, TaskPriority, TaskStatus } from '../types'
 
@@ -47,6 +48,7 @@ export function TasksToolbar({
   totalResults,
   facets,
 }: TasksToolbarProps) {
+  const isSmallScreen = useSmallScreen()
   const statusCount = filters.status?.length ?? 0
   const priorityCount = filters.priority?.length ?? 0
   const hasFilters =
@@ -101,9 +103,10 @@ export function TasksToolbar({
             label={
               <span className="inline-flex items-center gap-2">
                 <Filter className="h-4 w-4 text-text-secondary" />
-                <span className="hidden sm:inline">Status</span>
+                <span>Status</span>
               </span>
             }
+            align={isSmallScreen ? 'left' : 'right'}
             badge={statusCount || undefined}
             showChevron={false}
           >
@@ -126,9 +129,10 @@ export function TasksToolbar({
             label={
               <span className="inline-flex items-center gap-2">
                 <Filter className="h-4 w-4 text-text-secondary" />
-                <span className="hidden sm:inline">Priority</span>
+                <span>Priority</span>
               </span>
             }
+            align={isSmallScreen ? 'left' : 'right'}
             badge={priorityCount || undefined}
             showChevron={false}
           >

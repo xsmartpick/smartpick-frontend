@@ -21,8 +21,8 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { useUserValue } from '~/atoms/auth'
 import { useReadonlyRouteSelector } from '~/atoms/route'
-import { useUserValue } from '~/atoms/user'
 import {
   Dialog,
   DialogContent,
@@ -319,7 +319,7 @@ export function AppSidebar({
               {/* User Info */}
               <div className="flex items-center gap-3 rounded-xl bg-fill/50 p-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-background text-sm font-semibold">
-                  {user?.name
+                  {(user?.fullName ?? user?.username)
                     ?.split(' ')
                     .map((n) => n[0])
                     .join('')
@@ -328,7 +328,7 @@ export function AppSidebar({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-text truncate">
-                    {user?.name || 'User'}
+                    {user?.fullName ?? user?.username ?? 'User'}
                   </div>
                   <div className="text-sm text-text-secondary truncate">
                     {user?.email || 'user@example.com'}
@@ -610,7 +610,7 @@ export function AppSidebar({
         >
           {collapsed ? (
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-background text-xs font-semibold">
-              {user?.name
+              {(user?.fullName ?? user?.username)
                 ?.split(' ')
                 .map((n) => n[0])
                 .join('')

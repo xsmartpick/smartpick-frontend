@@ -8,7 +8,8 @@ import { AppSidebar } from '~/components/common/AppSidebar'
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
-
+import { useAtomValue } from 'jotai'
+import { isAuthenticatedAtom } from '~/atoms/auth'
 /**
  * Main layout with sidebar navigation
  * Wraps all pages in the (main) route group
@@ -30,7 +31,8 @@ export const Component = () => {
   }, [isAuthenticated, isLoginPage, navigate])
 
   // Login page has its own full layout, no sidebar needed
-  if (isLoginPage) {
+  i
+f (isLoginPage) {
     return <Outlet />
   }
 
@@ -38,7 +40,6 @@ export const Component = () => {
   if (!isAuthenticated) {
     return null
   }
-
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar
