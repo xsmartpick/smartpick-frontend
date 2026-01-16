@@ -8,8 +8,7 @@ import { AppSidebar } from '~/components/common/AppSidebar'
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
-import { useAtomValue } from 'jotai'
-import { isAuthenticatedAtom } from '~/atoms/auth'
+
 /**
  * Main layout with sidebar navigation
  * Wraps all pages in the (main) route group
