@@ -1,5 +1,6 @@
 ---
-description: write a component
+description: Color system guidelines for components and pages
+globs: ["src/**/*.{ts,tsx}"]
 alwaysApply: false
 ---
 
@@ -7,13 +8,40 @@ alwaysApply: false
 
 You should use @https://github.com/Innei/Pastel Pastel color system with kawaii-inspired OKLCH colors and TailwindCSS v4 integration.
 
+## ⚠️ CRITICAL: Forbidden Color Patterns
+
+**NEVER use standard Tailwind color utilities with numeric scales.** These break the design system:
+
+```typescript
+// ❌ FORBIDDEN - Standard Tailwind colors with scales
+text-gray-700, text-gray-200, text-gray-400, text-gray-500, text-gray-600
+bg-gray-50, bg-gray-100, bg-gray-200, bg-gray-700, bg-gray-800, bg-gray-900
+border-gray-200, border-gray-600, border-gray-700
+text-blue-500, text-blue-600, bg-blue-500, bg-blue-600, bg-blue-700
+text-purple-500, bg-purple-500, bg-purple-600
+text-red-500, text-red-400, bg-red-500, bg-red-600
+text-green-500, bg-green-500, bg-green-600
+text-yellow-500, bg-yellow-500
+
+// ❌ FORBIDDEN - Gradient colors with scales
+from-blue-50, from-blue-500, from-blue-600
+to-purple-50, to-purple-500, to-purple-600
+via-white, via-gray-800
+
+// ❌ FORBIDDEN - Dark mode variants with raw colors
+dark:text-gray-200, dark:bg-gray-700, dark:border-gray-600
+dark:from-gray-900, dark:via-gray-800, dark:to-blue-900
+```
+
+## ✅ Correct: Use Pastel Semantic Colors
+
 Use Pastel color system with Tailwind classes. **Important**: Always use the correct Tailwind prefix for each color category:
 
-**Regular Colors**: `text-blue`, `bg-pink`, `border-purple` (same for `green`, `orange`, `yellow`, `sky`, `red`, `brown`, `gray`, `neutral`, `black`, `white`)
+**Regular Colors** (no numeric scales): `text-blue`, `bg-pink`, `border-purple` (same for `green`, `orange`, `yellow`, `sky`, `red`, `brown`, `gray`, `neutral`, `black`, `white`)
 
 **Semantic Colors**:
 
-- **Text**: `text-text`, `text-placeholder-text`, `text-link`, `text-disabled-text`
+- **Text**: `text-text`, `text-text-secondary`, `text-text-tertiary`, `text-placeholder-text`, `text-link`, `text-disabled-text`
 - **Background**: `bg-background`, `bg-background-secondary`, `bg-background-tertiary`, `bg-background-quaternary`, `bg-background-quinary`
 - **Border**: `border-border`, `border-separator`
 - **Fill**: `bg-fill`, `bg-fill-secondary`, `bg-fill-tertiary`, `bg-fill-quaternary`, `bg-fill-quinary`
@@ -43,55 +71,89 @@ Use Pastel color system with Tailwind classes. **Important**: Always use the cor
 - **High contrast (accessible)**: Add `-hc` suffix: `bg-background-hc`, `text-text-hc`
 - **Light/Dark specific**: Add `-light` or `-dark` suffix: `bg-background-light`, `text-text-dark`
 
-**Dark Mode & Variants Control**:
+## Dark Mode & Variants Control
 
-- **Dark mode**: Use `dark:` prefix with TailwindCSS v4 built-in support
+- **Dark mode**: The Pastel system handles dark mode automatically. You do NOT need `dark:` prefixes for semantic colors.
 - **Color variants**: Use `data-contrast="low"` for kawaii or `data-contrast="high"` for high-contrast on HTML element
 - **Automatic adaptation**: All color variants work seamlessly with dark mode
 
-**Usage Examples**:
+## Conversion Guide: Raw Tailwind → Pastel
 
-```html
-<!-- Regular usage with automatic dark mode -->
-<div class="bg-background text-text border border-border">
+| Raw Tailwind | Pastel Equivalent |
+|--------------|-------------------|
+| `text-gray-900`, `text-gray-800` | `text-text` |
+| `text-gray-700`, `text-gray-600` | `text-text-secondary` |
+| `text-gray-500`, `text-gray-400` | `text-text-tertiary` |
+| `text-gray-300` | `text-placeholder-text` |
+| `bg-white`, `bg-gray-50` | `bg-background` |
+| `bg-gray-100`, `bg-gray-200` | `bg-fill` |
+| `bg-gray-800`, `bg-gray-900` | `bg-background` (auto dark) |
+| `border-gray-200`, `border-gray-300` | `border-border` |
+| `text-blue-600`, `text-blue-500` | `text-accent` |
+| `bg-blue-600`, `bg-blue-500` | `bg-accent` |
+| `text-red-500`, `text-red-600` | `text-red` |
+| `bg-red-500`, `bg-red-600` | `bg-red` |
+| `text-green-500`, `text-green-600` | `text-green` |
+| `bg-green-500`, `bg-green-600` | `bg-green` |
+
+## Usage Examples
+
+```tsx
+// ✅ Correct - Semantic colors
+<div className="bg-background text-text border border-border">
   Content with default colors
 </div>
 
-<!-- Kawaii variant -->
-<html data-contrast="low">
-  <div class="bg-background text-text">Kawaii colors with auto dark mode</div>
-</html>
+// ✅ Correct - Fill colors for interactive elements
+<button className="bg-fill hover:bg-fill-secondary text-text">
+  Secondary Button
+</button>
 
-<!-- High contrast variant -->
-<html data-contrast="high">
-  <div class="bg-background text-text">High contrast colors</div>
-</html>
-
-<!-- Fixed kawaii colors (no dark mode switching) -->
-<div class="bg-background-kawaii text-text-kawaii">Always kawaii colors</div>
-
-<!-- Dark mode with regular colors -->
-<div class="bg-background dark:bg-background text-text dark:text-text">
-  Responsive dark mode
-</div>
-
-<!-- Fill colors for interactive elements -->
-<button class="bg-fill hover:bg-fill-secondary text-text">
+// ✅ Correct - Accent for primary actions
+<button className="bg-accent text-background">
   Primary Button
 </button>
+
+// ✅ Correct - Input styling
 <input
-  class="bg-fill-tertiary border border-border text-text placeholder:text-placeholder-text"
+  className="bg-fill border border-border text-text placeholder:text-placeholder-text"
   placeholder="Input field"
 />
 
-<!-- Material colors for glass morphism -->
-<div class="bg-material-medium backdrop-blur border border-border">
+// ✅ Correct - Status colors (no scales)
+<span className="text-red">Error message</span>
+<span className="text-green">Success message</span>
+<span className="text-yellow">Warning message</span>
+
+// ✅ Correct - Material colors for glass morphism
+<div className="bg-material-medium backdrop-blur border border-border">
   Glass card with medium opacity
 </div>
-<div class="bg-material-opaque">Solid modal background</div>
-<div class="bg-material-thin hover:bg-material-medium transition-colors">
-  Interactive glass surface
+
+// ✅ Correct - Subtle backgrounds with opacity
+<div className="bg-accent/10 text-accent">
+  Accent tinted background
 </div>
+<div className="bg-green/10 text-green">
+  Success indicator
+</div>
+```
+
+## Gradient Alternatives
+
+Instead of raw Tailwind gradients, use semantic colors with opacity:
+
+```tsx
+// ❌ FORBIDDEN
+<div className="bg-gradient-to-br from-blue-50 via-white to-purple-50">
+
+// ✅ Correct - Use subtle accent backgrounds
+<div className="bg-background">
+  <div className="absolute inset-0 bg-accent/5 blur-3xl" />
+</div>
+
+// ✅ Correct - Accent gradient using semantic colors
+<div className="bg-gradient-to-br from-accent to-accent/70">
 ```
 
 These colors use OKLCH color space with sRGB and P3 fallbacks, providing modern color rendering with kawaii aesthetic and accessibility support. The system automatically adapts to light/dark mode following TailwindCSS v4 conventions.
