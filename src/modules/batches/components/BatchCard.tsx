@@ -1,5 +1,6 @@
 import {
   Calendar,
+  ClipboardList,
   ImageIcon,
   MoreHorizontal,
   Scissors,
@@ -19,8 +20,11 @@ import {
 import { cn } from '~/lib/cn'
 import { formatDate, relativeTime } from '~/lib/date-utils'
 import { Spring } from '~/lib/spring'
+import { useBatchSegmentationSummary } from '~/modules/segmentation'
+import { useBatchTaskCount } from '~/modules/tasks/hooks'
 
 import type { Batch } from '../types'
+import { SegmentStats } from './SegmentStats'
 
 interface BatchCardProps {
   batch: Batch
@@ -73,6 +77,9 @@ export function BatchCard({
 }: BatchCardProps) {
   const { t } = useTranslation()
   const [isHovered, setIsHovered] = useState(false)
+  const { data: segmentSummary, isLoading: isLoadingSummary } =
+    useBatchSegmentationSummary(batch.id)
+  const { data: taskCount = 0 } = useBatchTaskCount(batch.id)
 
   return (
     <m.div
@@ -130,10 +137,18 @@ export function BatchCard({
         <m.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-lg bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm"
+          className="absolute bottom-2 right-2 flex items-center gap-2 rounded-lg bg-black/70 px-2 py-1 text-xs font-medium text-white backdrop-blur-sm"
         >
-          <ImageIcon className="h-3.5 w-3.5" />
-          {batch.imageCount}
+          <span className="flex items-center gap-1">
+            <ImageIcon className="h-3.5 w-3.5" />
+            {batch.imageCount}
+          </span>
+          {taskCount > 0 && (
+            <span className="flex items-center gap-1 border-l border-white/30 pl-2">
+              <ClipboardList className="h-3.5 w-3.5" />
+              {taskCount}
+            </span>
+          )}
         </m.div>
 
         {/* Hover overlay gradient */}
@@ -197,6 +212,17 @@ export function BatchCard({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        {/* Segment Stats */}
+        {(segmentSummary?.totalSegments ?? 0) > 0 && (
+          <div className="mt-3 border-t border-border pt-3">
+            <SegmentStats
+              summary={segmentSummary}
+              isLoading={isLoadingSummary}
+              variant="compact"
+            />
+          </div>
+        )}
 
         {/* Meta info */}
         <div className="mt-3 flex items-center justify-between">

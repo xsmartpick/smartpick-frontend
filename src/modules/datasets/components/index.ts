@@ -1,3 +1,4 @@
+export { CreateDatasetFromBatchesModal } from './CreateDatasetFromBatchesModal'
 export type {
   CreateDatasetFormData,
   CreateDatasetModalProps,
@@ -13,3 +14,4 @@ export type {
   ViewMode,
 } from './DatasetsToolbar'
 export { DatasetsToolbar } from './DatasetsToolbar'
+export { ExportDatasetModal } from './ExportDatasetModal'

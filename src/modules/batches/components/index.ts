@@ -1,5 +1,7 @@
+export { AddImagesModal } from './AddImagesModal'
 export { BatchCard } from './BatchCard'
 export { BatchDetails } from './BatchDetails'
 export { CreateBatchModal } from './CreateBatchModal'
 export { ImageDropzone } from './ImageDropzone'
+export { SegmentStats } from './SegmentStats'
 export { SplitBatchModal } from './SplitBatchModal'

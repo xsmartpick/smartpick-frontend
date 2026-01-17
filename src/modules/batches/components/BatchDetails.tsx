@@ -1,15 +1,23 @@
 import {
   ArrowLeft,
   Calendar,
+  CheckCircle2,
+  Circle,
+  ClipboardList,
   Download,
   ImageIcon,
   MoreHorizontal,
+  Plus,
+  ScanSearch,
   Scissors,
+  Tag,
   Trash2,
+  XCircle,
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
@@ -23,9 +31,16 @@ import {
 import { useMobile } from '~/hooks/common'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
+import {
+  SegmentationPanel,
+  useBatchSegmentationSummary,
+} from '~/modules/segmentation'
+import { createTask } from '~/modules/tasks/api'
+import { useBatchTaskCount } from '~/modules/tasks/hooks'
 
 import { useDeleteBatch } from '../hooks'
 import type { Batch } from '../types'
+import { AddImagesModal } from './AddImagesModal'
 import { SplitBatchModal } from './SplitBatchModal'
 
 interface BatchDetailsProps {
@@ -92,6 +107,13 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
     null,
   )
   const [isSplitModalOpen, setIsSplitModalOpen] = useState(false)
+  const [isAddImagesModalOpen, setIsAddImagesModalOpen] = useState(false)
+
+  // Fetch segment summary for this batch
+  const { data: segmentSummary } = useBatchSegmentationSummary(batch.id)
+
+  // Fetch task count for this batch
+  const { data: taskCount = 0 } = useBatchTaskCount(batch.id)
 
   const handleBack = useCallback(() => {
     if (navigate) navigate('/batches', { replace: false })
@@ -196,6 +218,22 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                 </span>
               )}
 
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setIsAddImagesModalOpen(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Images
+              </Button>
+
+              <Link to={`/label/${batch.id}`}>
+                <Button variant="primary" size="sm">
+                  <Tag className="mr-2 h-4 w-4" />
+                  Start Labeling
+                </Button>
+              </Link>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -235,91 +273,242 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={Spring.presets.smooth}
         >
-          {/* Stats Grid */}
-          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.05 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
-                  <ImageIcon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">
-                    {batch.imageCount}
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {t('batches.details.stats.totalImages')}
-                  </p>
-                </div>
-              </div>
-            </m.div>
+          {/* Stats Grid - Organized by Category */}
+          <div className="mb-8 space-y-6">
+            {/* Overview Stats */}
+            <div>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                {t('batches.details.stats.overview', {
+                  defaultValue: 'Overview',
+                })}
+              </h3>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <m.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...Spring.presets.smooth, delay: 0.05 }}
+                  className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 text-accent">
+                      <ImageIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-text">
+                        {batch.imageCount}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.details.stats.totalImages')}
+                      </p>
+                    </div>
+                  </div>
+                </m.div>
 
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.1 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green/10 text-green">
-                  <i className="i-mingcute-check-circle-fill h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">
-                    {imageStats.uploaded}
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {t('batches.details.stats.uploaded')}
-                  </p>
-                </div>
-              </div>
-            </m.div>
+                <m.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...Spring.presets.smooth, delay: 0.07 }}
+                  className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple/10 text-purple">
+                      <ClipboardList className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-text">
+                        {taskCount}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.details.stats.tasks', {
+                          defaultValue: 'Tasks',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </m.div>
 
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.15 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
-                  <i className="i-mingcute-loading-line h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">
-                    {imageStats.processing}
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {t('batches.details.stats.processing')}
-                  </p>
-                </div>
+                {segmentSummary && segmentSummary.totalSegments > 0 && (
+                  <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...Spring.presets.smooth, delay: 0.09 }}
+                    className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue/10 text-blue">
+                        <ScanSearch className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-text">
+                          {segmentSummary.totalSegments}
+                        </p>
+                        <p className="text-xs text-text-secondary">
+                          {t('batches.details.stats.totalSegments', {
+                            defaultValue: 'Segments',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </m.div>
+                )}
               </div>
-            </m.div>
+            </div>
 
-            <m.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ ...Spring.presets.smooth, delay: 0.2 }}
-              className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red/10 text-red">
-                  <i className="i-mingcute-close-circle-fill h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-text">
-                    {imageStats.failed}
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {t('batches.details.stats.failed')}
-                  </p>
+            {/* Image Upload Status */}
+            <div>
+              <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                {t('batches.details.stats.imageUploadStatus', {
+                  defaultValue: 'Image Upload Status',
+                })}
+              </h3>
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <m.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...Spring.presets.smooth, delay: 0.1 }}
+                  className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green/10 text-green">
+                      <i className="i-mingcute-check-circle-fill h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-text">
+                        {imageStats.uploaded}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.details.stats.uploaded')}
+                      </p>
+                    </div>
+                  </div>
+                </m.div>
+
+                <m.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...Spring.presets.smooth, delay: 0.12 }}
+                  className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                      <i className="i-mingcute-loading-line h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-text">
+                        {imageStats.processing}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.details.stats.processing')}
+                      </p>
+                    </div>
+                  </div>
+                </m.div>
+
+                <m.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ ...Spring.presets.smooth, delay: 0.14 }}
+                  className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red/10 text-red">
+                      <i className="i-mingcute-close-circle-fill h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-text">
+                        {imageStats.failed}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.details.stats.uploadFailed', {
+                          defaultValue: 'Upload Failed',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                </m.div>
+              </div>
+            </div>
+
+            {/* Segment Review Status */}
+            {segmentSummary && segmentSummary.totalSegments > 0 && (
+              <div>
+                <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-text-tertiary">
+                  {t('batches.details.stats.segmentReviewStatus', {
+                    defaultValue: 'Segment Review Status',
+                  })}
+                </h3>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                  <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...Spring.presets.smooth, delay: 0.16 }}
+                    className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green/10 text-green">
+                        <CheckCircle2 className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-text">
+                          {segmentSummary.approvedSegments}
+                        </p>
+                        <p className="text-xs text-text-secondary">
+                          {t('batches.details.stats.approved', {
+                            defaultValue: 'Approved',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </m.div>
+
+                  <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...Spring.presets.smooth, delay: 0.18 }}
+                    className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber/10 text-amber">
+                        <Circle className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-text">
+                          {segmentSummary.pendingSegments}
+                        </p>
+                        <p className="text-xs text-text-secondary">
+                          {t('batches.details.stats.pendingReview', {
+                            defaultValue: 'Pending Review',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </m.div>
+
+                  <m.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ ...Spring.presets.smooth, delay: 0.2 }}
+                    className="rounded-2xl border border-border bg-gradient-to-br from-fill/50 to-transparent p-5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red/10 text-red">
+                        <XCircle className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <p className="text-2xl font-bold text-text">
+                          {segmentSummary.rejectedSegments}
+                        </p>
+                        <p className="text-xs text-text-secondary">
+                          {t('batches.details.stats.rejected', {
+                            defaultValue: 'Rejected',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                  </m.div>
                 </div>
               </div>
-            </m.div>
+            )}
           </div>
 
           {/* Metadata */}
@@ -352,6 +541,9 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
               </div>
             </div>
           </div>
+
+          {/* Segmentation Panel - Auto split images into objects */}
+          <SegmentationPanel batchId={batch.id} className="mb-8" />
 
           {/* Image Gallery */}
           <div className="rounded-2xl border border-border bg-background">
@@ -468,12 +660,38 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
         open={isSplitModalOpen}
         batch={batch}
         onClose={() => setIsSplitModalOpen(false)}
-        onSubmit={async (_) => {
-          // UI-only implementation
-          // TODO: BE integration
+        onSubmit={async (tasks) => {
+          // Create each task sequentially via API
+          for (const task of tasks) {
+            // Skip empty tasks
+            const hasItems =
+              task.segmentIds.length > 0 || task.imageIds.length > 0
+            if (!hasItems) continue
 
-          // Simulate API call delay
-          await new Promise((resolve) => setTimeout(resolve, 1000))
+            const isSegmentBased = task.segmentIds.length > 0
+            const description = isSegmentBased
+              ? `Task ${task.taskNumber} of ${tasks.length} (${task.segmentCount} segments from ${task.imageCount} images)`
+              : `Task ${task.taskNumber} of ${tasks.length} (${task.imageCount} images)`
+
+            await createTask({
+              batchId: batch.id,
+              name: `${batch.name} - Task ${task.taskNumber}`,
+              description,
+              batchItemIds: task.imageIds,
+              segmentIds: isSegmentBased ? task.segmentIds : undefined,
+            })
+          }
+        }}
+      />
+
+      {/* Add Images Modal */}
+      <AddImagesModal
+        open={isAddImagesModalOpen}
+        batchId={batch.id}
+        batchName={batch.name}
+        onClose={() => setIsAddImagesModalOpen(false)}
+        onSuccess={() => {
+          // Refresh will happen automatically via query invalidation
         }}
       />
     </div>

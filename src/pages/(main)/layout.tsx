@@ -10,11 +10,28 @@ import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
 
 /**
+ * Check if localStorage has auth data (synchronous check to avoid flash)
+ * This handles the hydration delay from atomWithStorage
+ */
+function hasStoredAuth(): boolean {
+  try {
+    const token = localStorage.getItem('smartpick_token')
+    const user = localStorage.getItem('smartpick_user')
+    // Check if both exist and are not 'null' (JSON string)
+    return !!token && token !== 'null' && !!user && user !== 'null'
+  } catch {
+    return false
+  }
+}
+
+/**
  * Main layout with sidebar navigation
  * Wraps all pages in the (main) route group
  */
 export const Component = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  // Track if we've finished checking auth state (to avoid flash redirects)
+  const [isHydrated, setIsHydrated] = useState(false)
   const isMobile = useMobile()
   const location = useLocation()
   const navigate = useNavigate()
@@ -22,24 +39,42 @@ export const Component = () => {
 
   const isLoginPage = location.pathname === '/login'
 
-  // Handle authentication redirects
+  // Check hydration state on mount
   useEffect(() => {
-    if (isAuthenticated && isLoginPage) {
+    // Small delay to allow atomWithStorage to hydrate
+    const timer = setTimeout(() => setIsHydrated(true), 50)
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Handle authentication redirects (only after hydration)
+  useEffect(() => {
+    if (!isHydrated) return
+
+    // Double-check with localStorage for extra safety
+    const hasAuth = hasStoredAuth()
+    const actuallyAuthenticated = isAuthenticated || hasAuth
+
+    if (actuallyAuthenticated && isLoginPage) {
       // Redirect authenticated users away from login page
       navigate('/', { replace: true })
-    } else if (!isAuthenticated && !isLoginPage) {
+    } else if (!actuallyAuthenticated && !isLoginPage) {
       // Redirect unauthenticated users to login
       navigate('/login', { replace: true })
     }
-  }, [isAuthenticated, isLoginPage, navigate])
-  
+  }, [isAuthenticated, isLoginPage, navigate, isHydrated])
+
   // Login page has its own full layout, no sidebar needed
   if (isLoginPage) {
     return <Outlet />
   }
-  
+
+  // Show nothing while hydrating (to avoid flash)
+  if (!isHydrated) {
+    return null
+  }
+
   // Don't render protected content while redirecting
-  if (!isAuthenticated) {
+  if (!isAuthenticated && !hasStoredAuth()) {
     return null
   }
   return (

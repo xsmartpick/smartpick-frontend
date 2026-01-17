@@ -1,7 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { CreateBatchRequest } from './api'
-import { createBatch, deleteBatch, getBatch, getBatches } from './api'
+import type { AddImagesToBatchRequest, CreateBatchRequest } from './api'
+import {
+  addImagesToBatch,
+  createBatch,
+  deleteBatch,
+  getBatch,
+  getBatches,
+} from './api'
 import type { Batch } from './types'
 
 export const batchKeys = {
@@ -84,6 +90,30 @@ export function useDeleteBatch() {
     mutationFn: (id: string) => deleteBatch(id),
     onSuccess: () => {
       // Invalidate and refetch batches list
+      queryClient.invalidateQueries({ queryKey: batchKeys.lists() })
+    },
+  })
+}
+
+/**
+ * Add images to an existing batch
+ */
+export function useAddImagesToBatch() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      batchId,
+      request,
+    }: {
+      batchId: string
+      request: AddImagesToBatchRequest
+    }) => addImagesToBatch(batchId, request),
+    onSuccess: (_, variables) => {
+      // Invalidate batch detail and list
+      queryClient.invalidateQueries({
+        queryKey: batchKeys.detail(variables.batchId),
+      })
       queryClient.invalidateQueries({ queryKey: batchKeys.lists() })
     },
   })

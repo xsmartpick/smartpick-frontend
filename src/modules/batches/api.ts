@@ -150,3 +150,35 @@ export async function deleteBatch(id: string): Promise<void> {
     method: 'DELETE',
   })
 }
+
+/**
+ * Request to add images to an existing batch
+ */
+export interface AddImagesToBatchRequest {
+  fileIds: string[]
+}
+
+/**
+ * Response from adding images to a batch
+ */
+export interface AddImagesToBatchResponse {
+  message: string
+  batchId: string
+  addedCount: number
+}
+
+/**
+ * Add images to an existing batch
+ */
+export async function addImagesToBatch(
+  batchId: string,
+  request: AddImagesToBatchRequest,
+): Promise<AddImagesToBatchResponse> {
+  return apiClient<AddImagesToBatchResponse>(
+    API_ENDPOINTS.BATCHES.ADD_IMAGES(batchId),
+    {
+      method: 'POST',
+      body: request,
+    },
+  )
+}

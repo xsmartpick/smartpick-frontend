@@ -1,0 +1,145 @@
+# UI/UX Patterns and Best Practices
+
+## Modal and Dialog Layout
+
+When creating modals with dynamic content (tables, lists, forms that can grow):
+
+### Required Pattern
+
+```tsx
+<DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+  <DialogHeader className="shrink-0">
+    {/* Header - fixed at top */}
+  </DialogHeader>
+
+  <div className="flex-1 min-h-0 overflow-y-auto py-4">
+    {/* Scrollable content area */}
+  </div>
+
+  <DialogFooter className="shrink-0">
+    {/* Footer with buttons - always visible */}
+  </DialogFooter>
+</DialogContent>
+```
+
+### Key CSS Classes
+
+- `flex flex-col` on DialogContent - enables flex layout
+- `shrink-0` on header/footer - prevents shrinking
+- `flex-1 min-h-0 overflow-y-auto` on content - allows scrolling
+- `max-h-[90vh]` - prevents modal from exceeding viewport
+
+### Why This Matters
+
+Without proper layout, action buttons can be pushed off-screen when content grows, making the modal unusable.
+
+## Image Display
+
+### Always Validate URLs
+
+```tsx
+// Before rendering images, check for valid URLs
+if (!imageUrl) {
+  console.warn(`Missing image URL for ${itemId}`)
+  return <Placeholder />
+}
+return <img src={imageUrl} alt={altText} />
+```
+
+### API Data Transformation
+
+When converting API responses to UI models:
+
+```tsx
+export function apiToUIModel(data: APIData): UIModel {
+  // Check required fields
+  if (!data.imageUrl) {
+    console.warn(`Item ${data.id} has no image URL`)
+    return {
+      id: data.id,
+      url: '', // Empty string prevents src="" errors
+      name: `Item ${data.id.slice(0, 8)}`,
+    }
+  }
+  
+  return {
+    id: data.id,
+    url: data.imageUrl,
+    name: data.name || `Item ${data.id.slice(0, 8)}`,
+  }
+}
+```
+
+## Statistics and Counts
+
+### Fetch Related Data Separately
+
+Don't assume parent entities contain child counts. Fetch them explicitly:
+
+```tsx
+function EntityCard({ entity }: Props) {
+  // Fetch related count
+  const { data: childCount = 0 } = useEntityChildCount(entity.id)
+  
+  return (
+    <Card>
+      <span>{childCount} items</span>
+    </Card>
+  )
+}
+```
+
+### Create Dedicated Hooks
+
+```tsx
+// In hooks.ts
+export function useEntityChildCount(entityId: string | undefined) {
+  return useQuery({
+    queryKey: ['entity-child-count', entityId],
+    queryFn: async () => {
+      if (!entityId) return 0
+      const children = await getChildren({ entityId })
+      return children.length
+    },
+    enabled: !!entityId,
+    staleTime: 60 * 1000,
+  })
+}
+```
+
+## Navigation Patterns
+
+### Provide View Mode Toggles
+
+When users might want to see data from different perspectives:
+
+```tsx
+function HubPage() {
+  const [viewMode, setViewMode] = useState<'primary' | 'secondary'>('primary')
+  
+  return (
+    <>
+      <ViewToggle value={viewMode} onChange={setViewMode} />
+      {viewMode === 'primary' ? <PrimaryView /> : <SecondaryView />}
+    </>
+  )
+}
+```
+
+### Consider User Workflows
+
+- What do users want to see first?
+- What's the most common action?
+- How do users navigate between related entities?
+
+## Error Prevention Checklist
+
+Before submitting UI code, verify:
+
+- [ ] Modals with dynamic content have proper scroll handling
+- [ ] Image URLs are validated before rendering
+- [ ] API data transformations handle null/undefined
+- [ ] Statistics are fetched, not assumed
+- [ ] Loading states are shown while data loads
+- [ ] Zero values are displayed correctly (not hidden)
+- [ ] Navigation provides appropriate context

@@ -9,6 +9,10 @@ export interface LabelingImage {
   url: string
   width: number
   height: number
+  // Pre-existing label info (from API)
+  labelId?: string
+  labelName?: string
+  labelColor?: string
 }
 
 /**

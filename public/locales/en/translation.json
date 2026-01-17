@@ -3,6 +3,8 @@
         "defaultName": "there",
         "getStarted": "Get started",
         "seeAll": "View all",
+        "filter": "Filter",
+        "default": "default",
         "greeting": {
             "morning": "Good morning",
             "afternoon": "Good afternoon",
@@ -60,8 +62,11 @@
         "stats": {
             "labeledToday": "Labeled today",
             "totalLabeled": "Total labeled",
-            "avgTime": "Avg. time/image",
-            "pendingBatches": "Pending batches"
+            "avgTime": "Avg. time/label",
+            "pendingBatches": "Pending batches",
+            "totalBatches": "Total batches",
+            "totalImages": "Total images",
+            "totalSegments": "Total segments"
         },
         "quickActions": {
             "title": "Quick Actions",
@@ -80,6 +85,7 @@
         },
         "recentActivity": {
             "title": "Recent Activity",
+            "empty": "No recent activity yet. Create a batch to get started!",
             "status": {
                 "inProgress": "In progress",
                 "completed": "Completed labeling"
@@ -234,7 +240,7 @@
                 "continue": "Continue to Upload",
                 "back": "Back",
                 "uploading": "Uploading...",
-                "uploadCreate": "Upload & Create Batch ({{count}} {{count, plural, one {image} other {images}}})"
+                "uploadCreate": "Upload & Create Batch ({{count}} images)"
             },
             "errors": {
                 "noImages": "Please add at least one image",
@@ -256,10 +262,10 @@
         },
         "split": {
             "title": "Split Batch into Tasks",
-            "description": "Split \"{{name}}\" ({{count}} {{count, plural, one {image} other {images}}}) into multiple labeling tasks",
+            "description": "Split \"{{name}}\" ({{count}} images) into multiple labeling tasks",
             "summary": {
                 "title": "Batch Summary",
-                "description": "{{count}} total {{count, plural, one {image} other {images}}} available for splitting",
+                "description": "{{count}} total images available for splitting",
                 "images": "Images"
             },
             "method": {
@@ -275,7 +281,8 @@
             },
             "equal": {
                 "taskCount": "Number of Tasks",
-                "hint": "Each task will have approximately {{images}} images{{remainder, select, 0{} other{ (with {{remainder}} remainder {{remainder, plural, one {image} other {images}}} in the last task)}}}"
+                "hint": "Each task will have approximately {{images}} images",
+                "hintWithRemainder": "Each task will have approximately {{images}} images (with {{remainder}} extra in the last task)"
             },
             "custom": {
                 "label": "Custom Task Configuration",
@@ -283,14 +290,15 @@
                 "placeholder": "Images per task",
                 "totalAllocated": "Total Allocated:",
                 "remaining": "Remaining:",
-                "remainingCount": "{{sign}}{{count}} {{count, plural, one {image} other {images}}}"
+                "remainingCount": "{{sign}}{{count}} images"
             },
             "validation": {
                 "errors": "Validation Errors",
                 "warnings": "Warnings"
             },
             "preview": {
-                "title": "Preview ({{count}} {{count, plural, one {task} other {tasks}}})",
+                "title": "Preview ({{count}} tasks)",
+                "title_one": "Preview (1 task)",
                 "allAllocated": "All images allocated",
                 "table": {
                     "task": "Task",
@@ -307,15 +315,17 @@
             "buttons": {
                 "cancel": "Cancel",
                 "creating": "Creating Tasks...",
-                "create": "Create {{count}} {{count, plural, one {Task} other {Tasks}}}"
+                "create": "Create {{count}} Tasks",
+                "create_one": "Create 1 Task"
             },
             "toast": {
                 "validationError": "Please fix validation errors before creating tasks",
                 "success": "Tasks created successfully!",
-                "successDesc": "Created {{count}} {{count, plural, one {task} other {tasks}}} from batch \"{{name}}\"",
+                "successDesc": "Created {{count}} tasks from batch \"{{name}}\"",
                 "error": "Failed to create tasks",
                 "errorDesc": "An error occurred while creating tasks."
-            }
+            },
+            "taskDescription": "Auto-generated task from {{batchName}} - Part {{taskNumber}}"
         },
         "dropzone": {
             "dragDrop": "Drag and drop images here",
@@ -325,7 +335,8 @@
             "acceptedFormats": "JPEG, PNG, WebP, GIF",
             "maxSize": "Max {{size}}MB each",
             "maxFiles": "Up to {{max}} files",
-            "selected": "{{count}} {{count, plural, one {image} other {images}}} selected",
+            "selected": "{{count}} images selected",
+            "selected_one": "1 image selected",
             "total": "total",
             "clearAll": "Clear all",
             "errors": {
@@ -366,7 +377,7 @@
             "gallery": {
                 "title": "Images",
                 "noImages": "No images in this batch",
-                "imageCount": "{{count}} {{count, plural, one {image} other {images}}}",
+                "imageCount": "{{count}} images",
                 "empty": "This batch doesn't have any images yet."
             }
         }
@@ -382,5 +393,57 @@
         "weeksAgo": "{{count}}w ago",
         "monthsAgo": "{{count}}mo ago",
         "yearsAgo": "{{count}}y ago"
+    },
+    "segmentation": {
+        "title": "Auto-Segmentation",
+        "description": "Automatically detect and extract individual objects from images",
+        "selectPreset": "Select preset",
+        "start": "Start Segmentation",
+        "startSegmentation": "Start Auto-Segmentation",
+        "rerun": "Re-run Segmentation",
+        "processing": "Processing...",
+        "processingBatch": "Processing batch images",
+        "progressInfo": "{{processed}} of {{total}} images processed",
+        "jobStarted": "Segmentation job started",
+        "jobCompleted": "Segmentation completed successfully",
+        "jobFailed": "Segmentation failed",
+        "startFailed": "Failed to start segmentation",
+        "completedInfo": "Processed {{processed}} images ({{failed}} failed)",
+        "error": "An error occurred during segmentation",
+        "notStarted": "Segmentation not started",
+        "notStartedDescription": "Run auto-segmentation to automatically detect and extract individual objects (e.g., cashew kernels) from your batch images.",
+        "noSegmentsFound": "No segments found in this batch",
+        "noSegmentsWithFilter": "No segments match the selected filter",
+        "status": {
+            "pendingReview": "Pending Review",
+            "approved": "Approved",
+            "rejected": "Rejected",
+            "manual": "Manual"
+        },
+        "filter": {
+            "all": "All segments",
+            "pendingReview": "Pending review",
+            "approved": "Approved",
+            "rejected": "Rejected",
+            "manual": "Manual"
+        },
+        "actions": {
+            "approve": "Approve",
+            "reject": "Reject",
+            "edit": "Edit",
+            "delete": "Delete"
+        },
+        "approved": "Segment approved",
+        "rejected": "Segment rejected",
+        "approveFailed": "Failed to approve segment",
+        "rejectFailed": "Failed to reject segment",
+        "approveAll": "Approve all ({{count}})",
+        "bulkApproved": "{{count}} segments approved",
+        "bulkApproveFailed": "Failed to approve segments",
+        "approval": {
+            "auto": "Auto-approved",
+            "manual": "Manually reviewed",
+            "thresholdInfo": "Confidence ≥ {{threshold}}% threshold"
+        }
     }
 }

@@ -1,5 +1,6 @@
 import { ImageIcon } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
+import { useState } from 'react'
 
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
@@ -14,6 +15,7 @@ import {
 import { useLabeling } from '../hooks'
 import type { ImageLabel, LabelingImage } from '../types'
 import { ImageViewer } from './ImageViewer'
+import { LabelingComplete } from './LabelingComplete'
 import { LabelingHeader } from './LabelingHeader'
 import { LabelPanel } from './LabelPanel'
 
@@ -22,6 +24,13 @@ interface LabelingPageProps {
   labels: Label[]
   initialAssignments?: ImageLabel[]
   onSave?: (assignments: ImageLabel[]) => void
+  onLabelChange?: (
+    imageId: string,
+    labelId: string,
+    labelName: string,
+    isAdding: boolean,
+  ) => void
+  onComplete?: () => void // Called when user confirms completion at 100%
 }
 
 /**
@@ -32,8 +41,11 @@ export function LabelingPage({
   labels,
   initialAssignments = [],
   onSave,
+  onLabelChange,
+  onComplete,
 }: LabelingPageProps) {
   const isMobile = useMobile()
+  const [showCompleteOverlay, setShowCompleteOverlay] = useState(false)
 
   const {
     currentIndex,
@@ -52,8 +64,22 @@ export function LabelingPage({
     labels,
     initialAssignments,
     onSave,
+    onLabelChange,
+    onComplete: () => setShowCompleteOverlay(true), // Show overlay when 100%
     autoAdvance: true, // Auto-advance when label is selected
   })
+
+  // Handle save from complete overlay - saves and navigates back
+  const handleCompleteSave = () => {
+    handleSave()
+    setShowCompleteOverlay(false)
+    onComplete?.()
+  }
+
+  // Handle review from complete overlay - just close overlay to review
+  const handleCompleteReview = () => {
+    setShowCompleteOverlay(false)
+  }
 
   // Setup keyboard shortcuts
   useLabelingKeyboardShortcuts({
@@ -142,6 +168,17 @@ export function LabelingPage({
         isVisible={isCurrentImageLabeled}
         labelCount={selectedLabelIds.length}
       />
+
+      {/* Completion overlay */}
+      <AnimatePresence>
+        {showCompleteOverlay && (
+          <LabelingComplete
+            totalLabeled={progress.labeled}
+            onSave={handleCompleteSave}
+            onReview={handleCompleteReview}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

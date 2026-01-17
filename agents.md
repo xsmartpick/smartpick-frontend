@@ -256,6 +256,56 @@ References:
 - vite-plugin-route-builder: https://github.com/Innei/vite-plugin-route-builder
 - Pastel color system: https://github.com/Innei/Pastel
 
+Testing requirements (CRITICAL):
+
+**Always test implementations - never just implement and leave without testing!**
+
+Testing framework: Vitest with @testing-library/react
+- Run tests: `pnpm test` (watch mode) or `pnpm test:run` (single run)
+- Coverage: `pnpm test:coverage`
+- Test files: `src/**/__tests__/*.test.ts` or `src/**/*.test.ts`
+
+1. After implementing a feature:
+   - Run `pnpm lint` and fix any errors
+   - Run `pnpm build` to ensure TypeScript compiles
+   - Start dev server with `pnpm dev`
+   - Use browser tools to navigate and test the UI
+   - Test all user interactions manually
+   - Check browser console for errors
+
+2. For complex logic or utilities:
+   - Write unit tests in `__tests__/` directories
+   - Test edge cases and error states
+   - Test with mocked data when needed
+
+3. For API integrations:
+   - Test with real backend when possible
+   - Verify error handling works correctly
+   - Test loading and empty states
+
+4. Before marking task complete:
+   - All lint errors fixed
+   - Build succeeds
+   - Manual testing in browser completed
+   - No console errors
+
+5. **MANDATORY verification after writing tests:**
+   - Run `pnpm test:run` to verify all tests pass
+   - Run `npx tsc --noEmit` to check for TypeScript errors (pnpm lint only checks ESLint rules!)
+   - Fix any failing tests before marking complete
+   - Never assume tests pass without running them
+
+6. **MANDATORY verification after writing any code:**
+   - Run `npx tsc --noEmit` to catch TypeScript compilation errors
+   - Run `pnpm lint` for ESLint rules (but NOT sufficient for TS type errors)
+   - Run `pnpm build` to verify full compilation
+   - For UI changes, test in browser with dev server
+   - For bug fixes, verify the bug is actually fixed
+   - For new features, verify all acceptance criteria are met
+
+**IMPORTANT: `pnpm lint` does NOT catch all TypeScript errors!**
+Always run `npx tsc --noEmit` or `pnpm build` to verify TypeScript compilation.
+
 Change checklist (agents):
 
 - Imports use ~/ alias
@@ -266,3 +316,7 @@ Change checklist (agents):
 - Atoms created via createAtomHooks; selectors stable
 - No edits to auto-generated files
 - Code passes pnpm lint, pnpm format, and pnpm build
+- **Implementation tested in browser (UI) or with unit tests (logic)**
+- **All TypeScript errors resolved**
+- **No console errors during testing**
+- **Tests written AND verified to pass (pnpm test:run)**
