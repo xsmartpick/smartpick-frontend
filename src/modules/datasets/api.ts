@@ -1,16 +1,30 @@
-// In development, use relative path to leverage Vite proxy
-// In production, use VITE_API_URL env var or default to localhost:8080
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? '' : 'http://localhost:8080')
+import { apiClient } from '~/lib/api-client'
+import { API_ENDPOINTS } from '~/lib/endpoints'
 
 export type MediaType = 'image' | 'video' | 'audio' | 'text'
+export type ExportFormat = 'yolo' | 'coco' | 'pascal_voc' | 'csv' | 'json'
+
+export interface DatasetBatch {
+  id: string
+  name: string
+  imageCount: number
+  segmentCount: number
+  labeledCount: number
+  addedAt: string
+}
 
 export interface Dataset {
   id: string
   name: string
   description: string
   mediaType: MediaType
+  status: 'draft' | 'ready' | 'exported'
+  totalImages: number
+  totalSegments: number
+  labeledSegments: number
+  batches?: DatasetBatch[]
+  exportFormats?: ExportFormat[]
+  lastExportedAt?: string
   createdAt: string
   createdBy: string
   updatedAt: string
@@ -33,34 +47,32 @@ export class ApiError extends Error {
 }
 
 export async function getDatasets(): Promise<Dataset[]> {
-  const response = await fetch(`${API_BASE_URL}/v1/datasets`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new ApiError(
-      `Failed to fetch datasets: ${response.status} ${errorText}`,
-      response.status,
-      response.statusText,
+  try {
+    const response = await apiClient<Dataset[] | { datasets: Dataset[] }>(
+      API_ENDPOINTS.DATASETS.LIST,
+      { method: 'GET' },
     )
+
+    // Handle both array response and object with datasets property
+    if (Array.isArray(response)) {
+      return response
+    }
+
+    if (response?.datasets && Array.isArray(response.datasets)) {
+      return response.datasets
+    }
+
+    return []
+  } catch (error) {
+    console.error('Failed to fetch datasets:', error)
+    return []
   }
+}
 
-  const data = await response.json()
-
-  // Handle both array response and object with datasets property
-  if (Array.isArray(data)) {
-    return data
-  }
-
-  if (data?.datasets && Array.isArray(data.datasets)) {
-    return data.datasets
-  }
-
-  return []
+export async function getDataset(id: string): Promise<Dataset> {
+  return apiClient<Dataset>(API_ENDPOINTS.DATASETS.DETAIL(id), {
+    method: 'GET',
+  })
 }
 
 export interface CreateDatasetRequest {
@@ -78,64 +90,119 @@ export interface UpdateDatasetRequest {
 export async function createDataset(
   request: CreateDatasetRequest,
 ): Promise<Dataset> {
-  const response = await fetch(`${API_BASE_URL}/v1/datasets`, {
+  return apiClient<Dataset>(API_ENDPOINTS.DATASETS.CREATE, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
+    body: request,
   })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new ApiError(
-      `Failed to create dataset: ${response.status} ${errorText}`,
-      response.status,
-      response.statusText,
-    )
-  }
-
-  return response.json()
 }
 
 export async function updateDataset(
   id: string,
   request: UpdateDatasetRequest,
 ): Promise<Dataset> {
-  const response = await fetch(`${API_BASE_URL}/v1/datasets/${id}`, {
+  return apiClient<Dataset>(API_ENDPOINTS.DATASETS.UPDATE(id), {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(request),
+    body: request,
   })
-
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new ApiError(
-      `Failed to update dataset: ${response.status} ${errorText}`,
-      response.status,
-      response.statusText,
-    )
-  }
-
-  return response.json()
 }
 
 export async function deleteDataset(id: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/v1/datasets/${id}`, {
+  return apiClient<void>(API_ENDPOINTS.DATASETS.DELETE(id), {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
+  })
+}
+
+/**
+ * Add batches to a dataset
+ */
+export interface AddBatchesToDatasetRequest {
+  batchIds: string[]
+}
+
+export async function addBatchesToDataset(
+  datasetId: string,
+  batchIds: string[],
+): Promise<{ message: string; addedCount: number }> {
+  return apiClient<{ message: string; addedCount: number }>(
+    API_ENDPOINTS.DATASETS.ADD_BATCHES(datasetId),
+    {
+      method: 'POST',
+      body: { batchIds },
     },
+  )
+}
+
+/**
+ * Create dataset from batches (shortcut)
+ */
+export interface CreateDatasetFromBatchesRequest {
+  name: string
+  description?: string
+  batchIds: string[]
+}
+
+export async function createDatasetFromBatches(
+  request: CreateDatasetFromBatchesRequest,
+): Promise<Dataset> {
+  // First create the dataset
+  const dataset = await createDataset({
+    name: request.name,
+    description: request.description || '',
+    mediaType: 'image',
   })
 
-  if (!response.ok) {
-    const errorText = await response.text()
-    throw new ApiError(
-      `Failed to delete dataset: ${response.status} ${errorText}`,
-      response.status,
-      response.statusText,
-    )
+  // Then add batches to it
+  if (request.batchIds.length > 0) {
+    await addBatchesToDataset(dataset.id, request.batchIds)
   }
+
+  return dataset
+}
+
+/**
+ * Export dataset in specified format
+ */
+export interface ExportDatasetRequest {
+  format: ExportFormat
+  includeImages?: boolean
+  splitRatio?: {
+    train: number
+    val: number
+    test: number
+  }
+}
+
+export interface ExportDatasetResponse {
+  jobId: string
+  downloadUrl?: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+  message: string
+}
+
+export async function exportDataset(
+  datasetId: string,
+  request: ExportDatasetRequest,
+): Promise<ExportDatasetResponse> {
+  return apiClient<ExportDatasetResponse>(
+    API_ENDPOINTS.DATASETS.EXPORT(datasetId),
+    {
+      method: 'POST',
+      body: request,
+    },
+  )
+}
+
+/**
+ * Get export job status
+ */
+export async function getExportStatus(
+  datasetId: string,
+  jobId: string,
+): Promise<ExportDatasetResponse> {
+  return apiClient<ExportDatasetResponse>(
+    `${API_ENDPOINTS.DATASETS.EXPORT(datasetId)}/${jobId}`,
+    {
+      method: 'GET',
+    },
+  )
 }

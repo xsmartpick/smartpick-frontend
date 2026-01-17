@@ -49,6 +49,7 @@ export const Component = () => {
     )
   }
 
+  // BatchDetails has its own sticky header with back button, so we don't need the outer wrapper
   return (
     <m.div
       initial={{ opacity: 0 }}
@@ -56,9 +57,6 @@ export const Component = () => {
       transition={Spring.presets.smooth}
       className="min-h-screen bg-background"
     >
-      <div className="border-b border-border bg-background/50 px-6 py-4 backdrop-blur-sm">
-        <BackLink />
-      </div>
       <BatchDetails batch={batch} />
     </m.div>
   )

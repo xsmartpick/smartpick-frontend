@@ -1,4 +1,5 @@
 import {
+  AlertTriangle,
   CheckCircle2,
   Loader2,
   Plus,
@@ -24,6 +25,8 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
+import { useBatchSegments } from '~/modules/segmentation/hooks'
+import type { ImageSegment } from '~/modules/segmentation/types'
 
 import type { Batch } from '../types'
 
@@ -35,13 +38,16 @@ interface SplitBatchModalProps {
 }
 
 type SplitMode = 'equal' | 'custom'
+type SplitBy = 'images' | 'segments'
 
 interface TaskSplit {
   taskNumber: number
   imageCount: number
+  segmentCount: number
   startIndex: number
   endIndex: number
   imageIds: string[]
+  segmentIds: string[]
 }
 
 interface ValidationResult {
@@ -58,23 +64,43 @@ export function SplitBatchModal({
 }: SplitBatchModalProps) {
   const { t } = useTranslation()
   const [mode, setMode] = useState<SplitMode>('equal')
+  // Default to 'images' since segments may not be available
+  const [splitBy, setSplitBy] = useState<SplitBy>('images')
   const [taskCount, setTaskCount] = useState<number>(1)
   const [customTasks, setCustomTasks] = useState<
-    Array<{ id: string; imageCount: number }>
-  >([{ id: '1', imageCount: 0 }])
+    Array<{ id: string; count: number }>
+  >([{ id: '1', count: 0 }])
   const [isCreating, setIsCreating] = useState(false)
 
+  // Fetch segments for the batch to enable split by segments
+  // Use a high limit to get all approved segments (max 1000 per API)
+  const {
+    data: segmentsData,
+    isLoading: isLoadingSegments,
+    error: segmentsError,
+  } = useBatchSegments(open ? batch.id : undefined, {
+    status: 'approved',
+    limit: 1000, // Fetch all approved segments, not default 50
+  })
+
+  const segments = segmentsData?.segments || []
+  // Track if segments failed to load (e.g., 500 error from backend)
+  const segmentsLoadFailed = !!segmentsError
   const totalImages = batch.imageCount
+  const totalSegments = segments.length
   const images = batch.images || []
+
+  // Total items depends on split mode
+  const totalItems = splitBy === 'segments' ? totalSegments : totalImages
 
   // Generate tasks based on current configuration
   const generatedTasks = useMemo(() => {
     if (mode === 'equal') {
-      return generateEqualSplitTasks(images, taskCount)
+      return generateEqualSplitTasks(images, segments, taskCount, splitBy)
     } else {
-      return generateCustomSplitTasks(images, customTasks)
+      return generateCustomSplitTasks(images, segments, customTasks, splitBy)
     }
-  }, [mode, images, taskCount, customTasks])
+  }, [mode, images, segments, taskCount, customTasks, splitBy])
 
   // Validate split configuration
   const validation = useMemo<ValidationResult>(() => {
@@ -82,34 +108,27 @@ export function SplitBatchModal({
       mode,
       taskCount,
       customTasks,
-      totalImages,
+      totalItems,
       generatedTasks,
+      splitBy,
     )
-  }, [mode, taskCount, customTasks, totalImages, generatedTasks])
+  }, [mode, taskCount, customTasks, totalItems, generatedTasks, splitBy])
 
   const handleAddCustomTask = useCallback(() => {
-    setCustomTasks((prev) => [
-      ...prev,
-      { id: Date.now().toString(), imageCount: 0 },
-    ])
+    setCustomTasks((prev) => [...prev, { id: Date.now().toString(), count: 0 }])
   }, [])
 
   const handleRemoveCustomTask = useCallback((id: string) => {
     setCustomTasks((prev) => prev.filter((task) => task.id !== id))
   }, [])
 
-  const handleCustomTaskChange = useCallback(
-    (id: string, imageCount: number) => {
-      setCustomTasks((prev) =>
-        prev.map((task) =>
-          task.id === id
-            ? { ...task, imageCount: Math.max(0, imageCount) }
-            : task,
-        ),
-      )
-    },
-    [],
-  )
+  const handleCustomTaskChange = useCallback((id: string, count: number) => {
+    setCustomTasks((prev) =>
+      prev.map((task) =>
+        task.id === id ? { ...task, count: Math.max(0, count) } : task,
+      ),
+    )
+  }, [])
 
   const handleSubmit = useCallback(async () => {
     if (!validation.isValid) {
@@ -127,10 +146,11 @@ export function SplitBatchModal({
         }),
       })
       onClose()
-      // Reset form
+      // Reset form - default to 'images' since segments may not be available
       setMode('equal')
+      setSplitBy('images')
       setTaskCount(1)
-      setCustomTasks([{ id: '1', imageCount: 0 }])
+      setCustomTasks([{ id: '1', count: 0 }])
     } catch (error) {
       console.error('Failed to create tasks:', error)
       toast.error(t('batches.split.toast.error'), {
@@ -142,28 +162,32 @@ export function SplitBatchModal({
     } finally {
       setIsCreating(false)
     }
-  }, [validation.isValid, generatedTasks, batch.name, onSubmit, onClose])
+  }, [validation.isValid, generatedTasks, batch.name, onSubmit, onClose, t])
 
   const handleClose = useCallback(() => {
     if (!isCreating) {
       onClose()
-      // Reset form
+      // Reset form - default to 'images' since segments may not be available
       setMode('equal')
+      setSplitBy('images')
       setTaskCount(1)
-      setCustomTasks([{ id: '1', imageCount: 0 }])
+      setCustomTasks([{ id: '1', count: 0 }])
     }
   }, [isCreating, onClose])
 
-  // Calculate total allocated images
+  // Calculate total allocated items (images or segments)
   const totalAllocated = useMemo(() => {
+    if (splitBy === 'segments') {
+      return generatedTasks.reduce((sum, task) => sum + task.segmentCount, 0)
+    }
     return generatedTasks.reduce((sum, task) => sum + task.imageCount, 0)
-  }, [generatedTasks])
+  }, [generatedTasks, splitBy])
 
-  const remainingImages = totalImages - totalAllocated
+  const remainingItems = totalItems - totalAllocated
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="!grid-rows-[auto_1fr_auto] max-w-3xl max-h-[80vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Scissors className="h-5 w-5 text-accent" />
@@ -177,7 +201,7 @@ export function SplitBatchModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto py-4 space-y-6">
+        <div className="min-h-0 overflow-y-auto space-y-6">
           {/* Batch Summary Card */}
           <m.div
             initial={{ opacity: 0, y: -8 }}
@@ -196,14 +220,175 @@ export function SplitBatchModal({
                   })}
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold text-text">{totalImages}</p>
-                <p className="text-xs text-text-secondary">
-                  {t('batches.split.summary.images')}
-                </p>
+              <div className="flex gap-4">
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-text">{totalImages}</p>
+                  <p className="text-xs text-text-secondary">
+                    {t('batches.split.summary.images')}
+                  </p>
+                </div>
+                <div className="text-right">
+                  {isLoadingSegments ? (
+                    <>
+                      <Loader2 className="h-6 w-6 animate-spin text-accent" />
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.split.summary.loading', {
+                          defaultValue: 'Loading...',
+                        })}
+                      </p>
+                    </>
+                  ) : segmentsLoadFailed ? (
+                    <>
+                      <AlertTriangle className="h-6 w-6 text-amber" />
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.split.summary.error', {
+                          defaultValue: 'Error',
+                        })}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-2xl font-bold text-accent">
+                        {totalSegments}
+                      </p>
+                      <p className="text-xs text-text-secondary">
+                        {t('batches.split.summary.segments', {
+                          defaultValue: 'Segments',
+                        })}
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </m.div>
+
+          {/* Segments Loading State */}
+          {isLoadingSegments && (
+            <m.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={Spring.presets.smooth}
+              className="rounded-xl border border-border bg-fill/50 p-4"
+            >
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-5 w-5 animate-spin text-accent" />
+                <p className="text-sm text-text-secondary">
+                  {t('batches.split.loadingSegments', {
+                    defaultValue: 'Loading segments...',
+                  })}
+                </p>
+              </div>
+            </m.div>
+          )}
+
+          {/* Segments Load Error */}
+          {segmentsLoadFailed && (
+            <m.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={Spring.presets.smooth}
+              className="rounded-xl border border-amber/20 bg-amber/10 p-4"
+            >
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 shrink-0 text-amber" />
+                <div>
+                  <p className="text-sm font-medium text-amber">
+                    {t('batches.split.segmentsLoadError', {
+                      defaultValue: 'Failed to load segments',
+                    })}
+                  </p>
+                  <p className="mt-1 text-xs text-amber/80">
+                    {t('batches.split.segmentsLoadErrorDesc', {
+                      defaultValue:
+                        'You can still split by images. Run auto-segmentation first if you want to split by segments.',
+                    })}
+                  </p>
+                </div>
+              </div>
+            </m.div>
+          )}
+
+          {/* Split By Selector */}
+          {totalSegments > 0 && !segmentsLoadFailed && (
+            <div className="space-y-3">
+              <Label className="text-sm font-medium text-text">
+                {t('batches.split.splitBy.label', { defaultValue: 'Split By' })}
+              </Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSplitBy('segments')}
+                  className={cn(
+                    'rounded-xl border-2 p-3 text-left transition-all',
+                    splitBy === 'segments'
+                      ? 'border-accent bg-accent/10'
+                      : 'border-border bg-background hover:border-accent/30',
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={cn(
+                        'h-4 w-4 rounded-full border-2 transition-colors',
+                        splitBy === 'segments'
+                          ? 'border-accent bg-accent'
+                          : 'border-border',
+                      )}
+                    />
+                    <span className="font-medium text-text">
+                      {t('batches.split.splitBy.segments', {
+                        defaultValue: 'Segments',
+                      })}
+                    </span>
+                    <span className="text-sm text-text-tertiary">
+                      ({totalSegments})
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-text-secondary">
+                    {t('batches.split.splitBy.segmentsDesc', {
+                      defaultValue:
+                        'Split tasks by individual segmented objects',
+                    })}
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSplitBy('images')}
+                  className={cn(
+                    'rounded-xl border-2 p-3 text-left transition-all',
+                    splitBy === 'images'
+                      ? 'border-accent bg-accent/10'
+                      : 'border-border bg-background hover:border-accent/30',
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={cn(
+                        'h-4 w-4 rounded-full border-2 transition-colors',
+                        splitBy === 'images'
+                          ? 'border-accent bg-accent'
+                          : 'border-border',
+                      )}
+                    />
+                    <span className="font-medium text-text">
+                      {t('batches.split.splitBy.images', {
+                        defaultValue: 'Images',
+                      })}
+                    </span>
+                    <span className="text-sm text-text-tertiary">
+                      ({totalImages})
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-text-secondary">
+                    {t('batches.split.splitBy.imagesDesc', {
+                      defaultValue: 'Split tasks by original images',
+                    })}
+                  </p>
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Split Mode Selector */}
           <div className="space-y-3">
@@ -279,7 +464,7 @@ export function SplitBatchModal({
 
           {/* Configuration Section */}
           <m.div
-            key={mode}
+            key={`${mode}-${splitBy}`}
             initial={{ opacity: 0, x: mode === 'equal' ? -20 : 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={Spring.presets.smooth}
@@ -295,23 +480,31 @@ export function SplitBatchModal({
                   id="task-count"
                   type="number"
                   min={1}
-                  max={totalImages}
+                  max={totalItems}
                   value={taskCount}
                   onChange={(e) => {
                     const value = Number.parseInt(e.target.value, 10)
                     if (!Number.isNaN(value) && value > 0) {
-                      setTaskCount(Math.min(value, totalImages))
+                      setTaskCount(Math.min(value, totalItems))
                     }
                   }}
                   className="w-full"
                   enableStepper
                 />
-                {taskCount > 0 && (
+                {taskCount > 0 && totalItems > 0 && (
                   <p className="text-xs text-text-secondary">
-                    {t('batches.split.equal.hint', {
-                      images: Math.floor(totalImages / taskCount),
-                      remainder: totalImages % taskCount,
-                    })}
+                    {totalItems % taskCount > 0
+                      ? t('batches.split.equal.hintWithRemainderGeneric', {
+                          count: Math.floor(totalItems / taskCount),
+                          remainder: totalItems % taskCount,
+                          unit: splitBy === 'segments' ? 'segments' : 'images',
+                          defaultValue: `~${Math.floor(totalItems / taskCount)} ${splitBy === 'segments' ? 'segments' : 'images'} per task (${totalItems % taskCount} extra distributed)`,
+                        })
+                      : t('batches.split.equal.hintGeneric', {
+                          count: Math.floor(totalItems / taskCount),
+                          unit: splitBy === 'segments' ? 'segments' : 'images',
+                          defaultValue: `${Math.floor(totalItems / taskCount)} ${splitBy === 'segments' ? 'segments' : 'images'} per task`,
+                        })}
                   </p>
                 )}
               </div>
@@ -350,15 +543,22 @@ export function SplitBatchModal({
                         <Input
                           type="number"
                           min={0}
-                          max={totalImages}
-                          value={task.imageCount}
+                          max={totalItems}
+                          value={task.count}
                           onChange={(e) => {
                             const value = Number.parseInt(e.target.value, 10)
                             if (!Number.isNaN(value)) {
                               handleCustomTaskChange(task.id, value)
                             }
                           }}
-                          placeholder={t('batches.split.custom.placeholder')}
+                          placeholder={t(
+                            'batches.split.custom.placeholderGeneric',
+                            {
+                              unit:
+                                splitBy === 'segments' ? 'segments' : 'images',
+                              defaultValue: `Number of ${splitBy === 'segments' ? 'segments' : 'images'}`,
+                            },
+                          )}
                           className="w-full"
                           enableStepper
                         />
@@ -386,30 +586,30 @@ export function SplitBatchModal({
                     <span
                       className={cn(
                         'font-medium',
-                        totalAllocated === totalImages
+                        totalAllocated === totalItems
                           ? 'text-green'
-                          : totalAllocated > totalImages
+                          : totalAllocated > totalItems
                             ? 'text-red'
                             : 'text-text',
                       )}
                     >
-                      {totalAllocated} / {totalImages}
+                      {totalAllocated} / {totalItems}{' '}
+                      {splitBy === 'segments' ? 'segments' : 'images'}
                     </span>
                   </div>
-                  {remainingImages !== 0 && (
+                  {remainingItems !== 0 && (
                     <div className="mt-1 flex items-center justify-between text-xs">
                       <span className="text-text-tertiary">
                         {t('batches.split.custom.remaining')}
                       </span>
                       <span
                         className={cn(
-                          remainingImages > 0 ? 'text-amber' : 'text-red',
+                          remainingItems > 0 ? 'text-amber' : 'text-red',
                         )}
                       >
-                        {t('batches.split.custom.remainingCount', {
-                          count: Math.abs(remainingImages),
-                          sign: remainingImages > 0 ? '+' : '',
-                        })}
+                        {remainingItems > 0 ? '+' : ''}
+                        {Math.abs(remainingItems)}{' '}
+                        {splitBy === 'segments' ? 'segments' : 'images'}
                       </span>
                     </div>
                   )}
@@ -472,7 +672,7 @@ export function SplitBatchModal({
                     count: generatedTasks.length,
                   })}
                 </Label>
-                {validation.isValid && totalAllocated === totalImages && (
+                {validation.isValid && totalAllocated === totalItems && (
                   <div className="flex items-center gap-1.5 text-xs text-green">
                     <CheckCircle2 className="h-3.5 w-3.5" />
                     <span>{t('batches.split.preview.allAllocated')}</span>
@@ -481,7 +681,8 @@ export function SplitBatchModal({
               </div>
 
               <div className="rounded-lg border border-border bg-background overflow-hidden">
-                <div className="max-h-64 overflow-y-auto">
+                {/* Strictly limit preview table height to ensure footer buttons remain visible */}
+                <div className="max-h-32 overflow-y-auto">
                   <table className="w-full">
                     <thead className="sticky top-0 bg-fill/50 backdrop-blur-sm border-b border-border">
                       <tr>
@@ -489,7 +690,11 @@ export function SplitBatchModal({
                           {t('batches.split.preview.table.task')}
                         </th>
                         <th className="px-4 py-2.5 text-left text-xs font-medium text-text-secondary">
-                          {t('batches.split.preview.table.images')}
+                          {splitBy === 'segments'
+                            ? t('batches.split.preview.table.segments', {
+                                defaultValue: 'Segments',
+                              })
+                            : t('batches.split.preview.table.images')}
                         </th>
                         <th className="px-4 py-2.5 text-left text-xs font-medium text-text-secondary">
                           {t('batches.split.preview.table.range')}
@@ -500,47 +705,50 @@ export function SplitBatchModal({
                       </tr>
                     </thead>
                     <tbody>
-                      {generatedTasks.map((task, index) => (
-                        <m.tr
-                          key={task.taskNumber}
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{
-                            ...Spring.presets.smooth,
-                            delay: index * 0.02,
-                          }}
-                          className="border-b border-border last:border-0 hover:bg-fill/30 transition-colors"
-                        >
-                          <td className="px-4 py-3 text-sm font-medium text-text">
-                            {t('batches.split.preview.table.taskNumber', {
-                              number: task.taskNumber,
-                            })}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-text">
-                            {task.imageCount}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-text-secondary">
-                            {task.imageCount > 0
-                              ? t('batches.split.preview.table.imageRange', {
-                                  start: task.startIndex + 1,
-                                  end: task.endIndex + 1,
-                                })
-                              : t('batches.split.preview.table.noImages')}
-                          </td>
-                          <td className="px-4 py-3">
-                            {task.imageCount > 0 ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-green/10 px-2 py-0.5 text-xs font-medium text-green">
-                                <CheckCircle2 className="h-3 w-3" />
-                                {t('batches.split.preview.table.ready')}
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-fill px-2 py-0.5 text-xs font-medium text-text-tertiary">
-                                {t('batches.split.preview.table.empty')}
-                              </span>
-                            )}
-                          </td>
-                        </m.tr>
-                      ))}
+                      {generatedTasks.map((task, index) => {
+                        const itemCount =
+                          splitBy === 'segments'
+                            ? task.segmentCount
+                            : task.imageCount
+                        return (
+                          <m.tr
+                            key={task.taskNumber}
+                            initial={{ opacity: 0, x: -8 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{
+                              ...Spring.presets.smooth,
+                              delay: index * 0.02,
+                            }}
+                            className="border-b border-border last:border-0 hover:bg-fill/30 transition-colors"
+                          >
+                            <td className="px-4 py-3 text-sm font-medium text-text">
+                              {t('batches.split.preview.table.taskNumber', {
+                                number: task.taskNumber,
+                              })}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-text">
+                              {itemCount}
+                            </td>
+                            <td className="px-4 py-3 text-sm text-text-secondary">
+                              {itemCount > 0
+                                ? `#${task.startIndex + 1} - #${task.endIndex + 1}`
+                                : t('batches.split.preview.table.noImages')}
+                            </td>
+                            <td className="px-4 py-3">
+                              {itemCount > 0 ? (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-green/10 px-2 py-0.5 text-xs font-medium text-green">
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  {t('batches.split.preview.table.ready')}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 rounded-full bg-fill px-2 py-0.5 text-xs font-medium text-text-tertiary">
+                                  {t('batches.split.preview.table.empty')}
+                                </span>
+                              )}
+                            </td>
+                          </m.tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -582,34 +790,66 @@ export function SplitBatchModal({
 
 function generateEqualSplitTasks(
   images: Batch['images'],
+  segments: ImageSegment[],
   taskCount: number,
+  splitBy: SplitBy,
 ): TaskSplit[] {
-  if (!images || images.length === 0 || taskCount <= 0) {
+  if (taskCount <= 0) {
+    return []
+  }
+
+  const items = splitBy === 'segments' ? segments : images || []
+  if (items.length === 0) {
     return []
   }
 
   const tasks: TaskSplit[] = []
-  const imagesPerTask = Math.floor(images.length / taskCount)
-  const remainder = images.length % taskCount
+  const itemsPerTask = Math.floor(items.length / taskCount)
+  const remainder = items.length % taskCount
 
   let currentIndex = 0
 
   for (let i = 0; i < taskCount; i++) {
-    // Add one extra image to the first 'remainder' tasks
-    const taskImageCount = i < remainder ? imagesPerTask + 1 : imagesPerTask
+    // Add one extra item to the first 'remainder' tasks
+    const taskItemCount = i < remainder ? itemsPerTask + 1 : itemsPerTask
 
-    const taskImages = images.slice(currentIndex, currentIndex + taskImageCount)
-    const imageIds = taskImages.map((img) => img.id)
+    if (splitBy === 'segments') {
+      const taskSegments = segments.slice(
+        currentIndex,
+        currentIndex + taskItemCount,
+      )
+      const segmentIds = taskSegments.map((seg) => seg.id)
+      // Get unique image IDs from segments
+      const imageIds = [...new Set(taskSegments.map((seg) => seg.batchItemId))]
 
-    tasks.push({
-      taskNumber: i + 1,
-      imageCount: taskImageCount,
-      startIndex: currentIndex,
-      endIndex: currentIndex + taskImageCount - 1,
-      imageIds,
-    })
+      tasks.push({
+        taskNumber: i + 1,
+        imageCount: imageIds.length,
+        segmentCount: taskItemCount,
+        startIndex: currentIndex,
+        endIndex: currentIndex + taskItemCount - 1,
+        imageIds,
+        segmentIds,
+      })
+    } else {
+      const taskImages = (images || []).slice(
+        currentIndex,
+        currentIndex + taskItemCount,
+      )
+      const imageIds = taskImages.map((img) => img.id)
 
-    currentIndex += taskImageCount
+      tasks.push({
+        taskNumber: i + 1,
+        imageCount: taskItemCount,
+        segmentCount: 0,
+        startIndex: currentIndex,
+        endIndex: currentIndex + taskItemCount - 1,
+        imageIds,
+        segmentIds: [],
+      })
+    }
+
+    currentIndex += taskItemCount
   }
 
   return tasks
@@ -617,9 +857,12 @@ function generateEqualSplitTasks(
 
 function generateCustomSplitTasks(
   images: Batch['images'],
-  customTasks: Array<{ id: string; imageCount: number }>,
+  segments: ImageSegment[],
+  customTasks: Array<{ id: string; count: number }>,
+  splitBy: SplitBy,
 ): TaskSplit[] {
-  if (!images || images.length === 0) {
+  const items = splitBy === 'segments' ? segments : images || []
+  if (items.length === 0) {
     return []
   }
 
@@ -627,22 +870,44 @@ function generateCustomSplitTasks(
   let currentIndex = 0
 
   customTasks.forEach((customTask, index) => {
-    const imageCount = Math.min(
-      customTask.imageCount,
-      images.length - currentIndex,
-    )
-    const taskImages = images.slice(currentIndex, currentIndex + imageCount)
-    const imageIds = taskImages.map((img) => img.id)
+    const itemCount = Math.min(customTask.count, items.length - currentIndex)
 
-    tasks.push({
-      taskNumber: index + 1,
-      imageCount,
-      startIndex: currentIndex,
-      endIndex: currentIndex + imageCount - 1,
-      imageIds,
-    })
+    if (splitBy === 'segments') {
+      const taskSegments = segments.slice(
+        currentIndex,
+        currentIndex + itemCount,
+      )
+      const segmentIds = taskSegments.map((seg) => seg.id)
+      const imageIds = [...new Set(taskSegments.map((seg) => seg.batchItemId))]
 
-    currentIndex += imageCount
+      tasks.push({
+        taskNumber: index + 1,
+        imageCount: imageIds.length,
+        segmentCount: itemCount,
+        startIndex: currentIndex,
+        endIndex: currentIndex + itemCount - 1,
+        imageIds,
+        segmentIds,
+      })
+    } else {
+      const taskImages = (images || []).slice(
+        currentIndex,
+        currentIndex + itemCount,
+      )
+      const imageIds = taskImages.map((img) => img.id)
+
+      tasks.push({
+        taskNumber: index + 1,
+        imageCount: itemCount,
+        segmentCount: 0,
+        startIndex: currentIndex,
+        endIndex: currentIndex + itemCount - 1,
+        imageIds,
+        segmentIds: [],
+      })
+    }
+
+    currentIndex += itemCount
   })
 
   return tasks
@@ -651,26 +916,33 @@ function generateCustomSplitTasks(
 function validateSplit(
   mode: SplitMode,
   taskCount: number,
-  customTasks: Array<{ id: string; imageCount: number }>,
-  totalImages: number,
+  customTasks: Array<{ id: string; count: number }>,
+  totalItems: number,
   generatedTasks: TaskSplit[],
+  splitBy: SplitBy,
 ): ValidationResult {
   const errors: string[] = []
   const warnings: string[] = []
+  const itemLabel = splitBy === 'segments' ? 'segments' : 'images'
+
+  if (totalItems === 0) {
+    errors.push(`No ${itemLabel} available to split`)
+    return { isValid: false, errors, warnings }
+  }
 
   if (mode === 'equal') {
     if (taskCount <= 0) {
       errors.push('Number of tasks must be greater than 0')
     }
-    if (taskCount > totalImages) {
+    if (taskCount > totalItems) {
       errors.push(
-        `Cannot create more tasks (${taskCount}) than available images (${totalImages})`,
+        `Cannot create more tasks (${taskCount}) than available ${itemLabel} (${totalItems})`,
       )
     }
   } else {
     // Custom mode validation
     const totalAllocated = customTasks.reduce(
-      (sum, task) => sum + task.imageCount,
+      (sum, task) => sum + task.count,
       0,
     )
 
@@ -678,30 +950,30 @@ function validateSplit(
       errors.push('At least one task is required')
     }
 
-    if (customTasks.some((task) => task.imageCount < 0)) {
-      errors.push('Image count cannot be negative')
-    }
-
-    if (totalAllocated === 0) {
-      errors.push('At least one task must have images allocated')
-    }
-
-    if (totalAllocated > totalImages) {
+    if (customTasks.some((task) => task.count < 0)) {
       errors.push(
-        `Total allocated images (${totalAllocated}) exceeds available images (${totalImages})`,
+        `${splitBy === 'segments' ? 'Segment' : 'Image'} count cannot be negative`,
       )
     }
 
-    if (totalAllocated < totalImages) {
+    if (totalAllocated === 0) {
+      errors.push(`At least one task must have ${itemLabel} allocated`)
+    }
+
+    if (totalAllocated > totalItems) {
+      errors.push(
+        `Total allocated ${itemLabel} (${totalAllocated}) exceeds available ${itemLabel} (${totalItems})`,
+      )
+    }
+
+    if (totalAllocated < totalItems) {
       warnings.push(
-        `${totalImages - totalAllocated} image${totalImages - totalAllocated === 1 ? '' : 's'} will not be assigned to any task`,
+        `${totalItems - totalAllocated} ${itemLabel} will not be assigned to any task`,
       )
     }
 
     // Check for empty tasks
-    const emptyTasks = customTasks.filter(
-      (task) => task.imageCount === 0,
-    ).length
+    const emptyTasks = customTasks.filter((task) => task.count === 0).length
     if (emptyTasks > 0) {
       warnings.push(
         `${emptyTasks} empty task${emptyTasks === 1 ? '' : 's'} will be created`,
@@ -710,12 +982,13 @@ function validateSplit(
   }
 
   // Check generated tasks
-  const totalInTasks = generatedTasks.reduce(
-    (sum, task) => sum + task.imageCount,
-    0,
-  )
-  if (totalInTasks > totalImages) {
-    errors.push('Generated tasks exceed available images')
+  const totalInTasks =
+    splitBy === 'segments'
+      ? generatedTasks.reduce((sum, task) => sum + task.segmentCount, 0)
+      : generatedTasks.reduce((sum, task) => sum + task.imageCount, 0)
+
+  if (totalInTasks > totalItems) {
+    errors.push(`Generated tasks exceed available ${itemLabel}`)
   }
 
   return {

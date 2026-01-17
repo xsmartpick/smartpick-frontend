@@ -580,6 +580,156 @@ const apiUrl = import.meta.env.VITE_API_URL
 }
 ```
 
+## Common UI/UX Pitfalls
+
+### Modal and Dialog Best Practices
+
+When creating modals with dynamic content (like tables or lists that can grow), ensure the modal layout handles overflow correctly:
+
+```tsx
+// ✅ Correct: Modal with scrollable content and fixed footer
+<DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+  <DialogHeader className="shrink-0">
+    {/* Header content */}
+  </DialogHeader>
+
+  {/* Scrollable content area */}
+  <div className="flex-1 min-h-0 overflow-y-auto py-4 space-y-6">
+    {/* Dynamic content like tables, lists, etc. */}
+  </div>
+
+  <DialogFooter className="gap-2 shrink-0">
+    {/* Buttons always visible */}
+  </DialogFooter>
+</DialogContent>
+
+// ❌ Wrong: Content can push buttons off-screen
+<DialogContent className="max-w-3xl max-h-[90vh]">
+  <DialogHeader>{/* ... */}</DialogHeader>
+  <div className="py-4 space-y-6">
+    {/* Large content */}
+  </div>
+  <DialogFooter>{/* Buttons may disappear */}</DialogFooter>
+</DialogContent>
+```
+
+Key principles:
+- Use `flex flex-col` on the dialog content
+- Add `shrink-0` to header and footer to prevent them from shrinking
+- Wrap scrollable content in `flex-1 min-h-0 overflow-y-auto`
+- Set `max-h-[90vh]` to prevent modal from exceeding viewport
+
+### Image Display Best Practices
+
+Always validate image URLs before rendering to prevent broken images:
+
+```tsx
+// ✅ Correct: Validate URL before rendering
+function ImageCard({ imageUrl, fallback }: { imageUrl?: string; fallback: string }) {
+  if (!imageUrl) {
+    console.warn('Image URL is missing')
+    return <div className="placeholder">{fallback}</div>
+  }
+  return <img src={imageUrl} alt={fallback} />
+}
+
+// ❌ Wrong: Passing empty/undefined URL to src
+<img src={imageUrl} alt="..." /> // Will cause console errors if imageUrl is empty
+```
+
+When transforming API data to UI models:
+- Check for null/undefined values before using them
+- Provide meaningful fallbacks
+- Log warnings for debugging but don't crash the UI
+
+### Data Transformation Best Practices
+
+When mapping API responses to UI models, handle edge cases:
+
+```tsx
+// ✅ Correct: Handle missing data gracefully
+export function apiToUIModel(apiData: APIResponse): UIModel {
+  if (!apiData.requiredField) {
+    console.warn(`Missing required field in ${apiData.id}`)
+    return {
+      id: apiData.id,
+      displayValue: 'N/A', // Meaningful fallback
+      // ...
+    }
+  }
+  return {
+    id: apiData.id,
+    displayValue: apiData.requiredField,
+    // ...
+  }
+}
+
+// ❌ Wrong: Assume data is always present
+export function apiToUIModel(apiData: APIResponse): UIModel {
+  return {
+    id: apiData.id,
+    displayValue: apiData.requiredField, // May be undefined!
+  }
+}
+```
+
+### Statistics and Counts
+
+When displaying statistics (like task counts, image counts), always:
+
+1. **Fetch the data** - Don't assume it's available
+2. **Show loading states** - Use skeletons or spinners
+3. **Handle zero gracefully** - "0 tasks" is valid, not an error
+
+```tsx
+// ✅ Correct: Fetch and display with loading state
+function BatchCard({ batch }: { batch: Batch }) {
+  const { data: taskCount = 0, isLoading } = useBatchTaskCount(batch.id)
+  
+  return (
+    <div>
+      <span>{isLoading ? '...' : taskCount} tasks</span>
+    </div>
+  )
+}
+
+// ❌ Wrong: Assume count is part of batch data
+function BatchCard({ batch }: { batch: Batch }) {
+  return (
+    <div>
+      <span>{batch.taskCount} tasks</span> {/* May not exist! */}
+    </div>
+  )
+}
+```
+
+### Navigation and Routing
+
+When building features that involve navigation between related entities:
+
+1. **Consider the user flow** - What should users see first?
+2. **Provide context** - Show where the user came from
+3. **Allow flexibility** - Let users switch between views
+
+```tsx
+// ✅ Correct: Provide view mode toggle
+function LabelingHub() {
+  const [viewMode, setViewMode] = useState<'tasks' | 'batches'>('tasks')
+  
+  return (
+    <div>
+      <ViewToggle value={viewMode} onChange={setViewMode} />
+      {viewMode === 'tasks' ? <TasksList /> : <BatchesList />}
+    </div>
+  )
+}
+
+// ❌ Wrong: Force users into a single workflow
+function LabelingHub() {
+  return <BatchesList /> // What if user wants to see tasks?
+}
+```
+
 ## Code Quality
 
 ### ESLint Configuration

@@ -3,6 +3,8 @@
         "defaultName": "bạn",
         "getStarted": "Bắt đầu",
         "seeAll": "Xem tất cả",
+        "filter": "Lọc",
+        "default": "mặc định",
         "greeting": {
             "morning": "Chào buổi sáng",
             "afternoon": "Chào buổi chiều",
@@ -60,8 +62,11 @@
         "stats": {
             "labeledToday": "Đã dán nhãn hôm nay",
             "totalLabeled": "Tổng số đã dán nhãn",
-            "avgTime": "Thời gian TB/ảnh",
-            "pendingBatches": "Batch đang chờ"
+            "avgTime": "Thời gian TB/nhãn",
+            "pendingBatches": "Batch đang chờ",
+            "totalBatches": "Tổng số batch",
+            "totalImages": "Tổng số hình ảnh",
+            "totalSegments": "Tổng số segment"
         },
         "quickActions": {
             "title": "Thao tác nhanh",
@@ -80,6 +85,7 @@
         },
         "recentActivity": {
             "title": "Hoạt động gần đây",
+            "empty": "Chưa có hoạt động nào. Tạo batch để bắt đầu!",
             "status": {
                 "inProgress": "Đang thực hiện",
                 "completed": "Hoàn thành dán nhãn"
@@ -234,7 +240,7 @@
                 "continue": "Tiếp tục Tải Lên",
                 "back": "Quay lại",
                 "uploading": "Đang tải lên...",
-                "uploadCreate": "Tải Lên & Tạo Batch ({{count}} {{count, plural, one {hình ảnh} other {hình ảnh}}})"
+                "uploadCreate": "Tải Lên & Tạo Batch ({{count}} hình ảnh)"
             },
             "errors": {
                 "noImages": "Vui lòng thêm ít nhất một hình ảnh",
@@ -275,7 +281,8 @@
             },
             "equal": {
                 "taskCount": "Số Lượng Tác Vụ",
-                "hint": "Mỗi tác vụ sẽ có khoảng {{images}} hình ảnh{{remainder, select, 0{} other{ (với {{remainder}} hình ảnh dư trong tác vụ cuối cùng)}}}"
+                "hint": "Mỗi tác vụ sẽ có khoảng {{images}} hình ảnh",
+                "hintWithRemainder": "Mỗi tác vụ sẽ có khoảng {{images}} hình ảnh (với {{remainder}} hình ảnh dư trong tác vụ cuối cùng)"
             },
             "custom": {
                 "label": "Cấu Hình Tác Vụ Tùy Chỉnh",
@@ -291,6 +298,7 @@
             },
             "preview": {
                 "title": "Xem Trước ({{count}} tác vụ)",
+                "title_one": "Xem Trước (1 tác vụ)",
                 "allAllocated": "Tất cả hình ảnh đã được phân bổ",
                 "table": {
                     "task": "Tác Vụ",
@@ -307,7 +315,8 @@
             "buttons": {
                 "cancel": "Hủy",
                 "creating": "Đang Tạo Tác Vụ...",
-                "create": "Tạo {{count}} Tác Vụ"
+                "create": "Tạo {{count}} Tác Vụ",
+                "create_one": "Tạo 1 Tác Vụ"
             },
             "toast": {
                 "validationError": "Vui lòng sửa lỗi xác thực trước khi tạo tác vụ",
@@ -315,7 +324,8 @@
                 "successDesc": "Đã tạo {{count}} tác vụ từ batch \"{{name}}\"",
                 "error": "Không thể tạo tác vụ",
                 "errorDesc": "Đã xảy ra lỗi khi tạo tác vụ."
-            }
+            },
+            "taskDescription": "Tác vụ tự động tạo từ {{batchName}} - Phần {{taskNumber}}"
         },
         "dropzone": {
             "dragDrop": "Kéo và thả hình ảnh vào đây",
@@ -326,6 +336,7 @@
             "maxSize": "Tối đa {{size}}MB mỗi tệp",
             "maxFiles": "Tối đa {{max}} tệp",
             "selected": "{{count}} hình ảnh đã chọn",
+            "selected_one": "1 hình ảnh đã chọn",
             "total": "tổng cộng",
             "clearAll": "Xóa tất cả",
             "errors": {
@@ -382,5 +393,57 @@
         "weeksAgo": "{{count}} tuần trước",
         "monthsAgo": "{{count}} tháng trước",
         "yearsAgo": "{{count}} năm trước"
+    },
+    "segmentation": {
+        "title": "Phân Đoạn Tự Động",
+        "description": "Tự động phát hiện và trích xuất các đối tượng riêng lẻ từ hình ảnh",
+        "selectPreset": "Chọn cấu hình",
+        "start": "Bắt Đầu Phân Đoạn",
+        "startSegmentation": "Bắt Đầu Phân Đoạn Tự Động",
+        "rerun": "Chạy Lại Phân Đoạn",
+        "processing": "Đang xử lý...",
+        "processingBatch": "Đang xử lý hình ảnh batch",
+        "progressInfo": "Đã xử lý {{processed}} trong {{total}} hình ảnh",
+        "jobStarted": "Đã bắt đầu tác vụ phân đoạn",
+        "jobCompleted": "Phân đoạn hoàn thành thành công",
+        "jobFailed": "Phân đoạn thất bại",
+        "startFailed": "Không thể bắt đầu phân đoạn",
+        "completedInfo": "Đã xử lý {{processed}} hình ảnh ({{failed}} thất bại)",
+        "error": "Đã xảy ra lỗi trong quá trình phân đoạn",
+        "notStarted": "Chưa bắt đầu phân đoạn",
+        "notStartedDescription": "Chạy phân đoạn tự động để tự động phát hiện và trích xuất các đối tượng riêng lẻ (ví dụ: hạt điều) từ hình ảnh batch của bạn.",
+        "noSegmentsFound": "Không tìm thấy phân đoạn nào trong batch này",
+        "noSegmentsWithFilter": "Không có phân đoạn nào khớp với bộ lọc đã chọn",
+        "status": {
+            "pendingReview": "Chờ Xem Xét",
+            "approved": "Đã Duyệt",
+            "rejected": "Đã Từ Chối",
+            "manual": "Thủ Công"
+        },
+        "filter": {
+            "all": "Tất cả phân đoạn",
+            "pendingReview": "Chờ xem xét",
+            "approved": "Đã duyệt",
+            "rejected": "Đã từ chối",
+            "manual": "Thủ công"
+        },
+        "actions": {
+            "approve": "Duyệt",
+            "reject": "Từ chối",
+            "edit": "Chỉnh sửa",
+            "delete": "Xóa"
+        },
+        "approved": "Đã duyệt phân đoạn",
+        "rejected": "Đã từ chối phân đoạn",
+        "approveFailed": "Không thể duyệt phân đoạn",
+        "rejectFailed": "Không thể từ chối phân đoạn",
+        "approveAll": "Duyệt tất cả ({{count}})",
+        "bulkApproved": "Đã duyệt {{count}} phân đoạn",
+        "bulkApproveFailed": "Không thể duyệt các phân đoạn",
+        "approval": {
+            "auto": "Tự động duyệt",
+            "manual": "Đã xem xét thủ công",
+            "thresholdInfo": "Độ tin cậy ≥ {{threshold}}% ngưỡng"
+        }
     }
 }

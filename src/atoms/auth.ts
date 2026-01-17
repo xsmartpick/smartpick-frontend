@@ -1,4 +1,4 @@
-import { atom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
 
 import { createAtomHooks } from '~/lib/jotai'
@@ -24,6 +24,9 @@ export const isAuthenticatedAtom = atom((get) => {
   const user = get(userAtom)
   return token !== null && user !== null
 })
+
+// Hook to get isAuthenticated value
+export const useIsAuthenticated = () => useAtomValue(isAuthenticatedAtom)
 
 // QR Session State (persisted in memory while app is open)
 export const [

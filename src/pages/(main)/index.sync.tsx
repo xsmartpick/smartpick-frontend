@@ -1,8 +1,11 @@
+import { formatDistanceToNow } from 'date-fns'
 import {
   ArrowRight,
   CheckCircle2,
   Clock,
   FolderOpen,
+  ImageIcon,
+  Layers,
   PenTool,
   TrendingUp,
 } from 'lucide-react'
@@ -11,9 +14,12 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { useUserValue } from '~/atoms/auth'
+import { LoadingState } from '~/components/common'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
+import type { ActivityItem } from '~/modules/dashboard'
+import { useDashboardStats } from '~/modules/dashboard'
 
 const StaggerItem = ({
   children,
@@ -103,12 +109,14 @@ const StatCard = ({
   value,
   trend,
   delay,
+  isLoading,
 }: {
   icon: React.ReactNode
   label: string
   value: string | number
   trend?: { value: string; positive: boolean }
   delay: number
+  isLoading?: boolean
 }) => (
   <StaggerItem delay={delay}>
     <div className="rounded-2xl border border-border bg-background p-5">
@@ -131,16 +139,65 @@ const StatCard = ({
         )}
       </div>
       <div className="mt-4">
-        <div className="text-2xl font-bold tabular-nums text-text">{value}</div>
+        <div className="text-2xl font-bold tabular-nums text-text">
+          {isLoading ? (
+            <span className="inline-block h-7 w-16 animate-pulse rounded bg-fill" />
+          ) : (
+            value
+          )}
+        </div>
         <div className="mt-0.5 text-sm text-text-secondary">{label}</div>
       </div>
     </div>
   </StaggerItem>
 )
 
+function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return `${(num / 1000000).toFixed(1)}M`
+  }
+  if (num >= 1000) {
+    return `${(num / 1000).toFixed(1)}K`
+  }
+  return num.toLocaleString()
+}
+
+function formatTime(seconds: number): string {
+  if (seconds < 60) {
+    return `${seconds.toFixed(1)}s`
+  }
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}m ${remainingSeconds.toFixed(0)}s`
+}
+
+function getActivityIcon(action: string) {
+  if (action.includes('Completed')) {
+    return <CheckCircle2 className="h-5 w-5" />
+  }
+  if (action.includes('progress') || action.includes('Processing')) {
+    return <Clock className="h-5 w-5" />
+  }
+  return <Layers className="h-5 w-5" />
+}
+
+function getActivityColor(action: string) {
+  if (action.includes('Completed')) {
+    return 'bg-green/10 text-green'
+  }
+  if (action.includes('progress') || action.includes('Processing')) {
+    return 'bg-yellow/10 text-yellow'
+  }
+  return 'bg-accent/10 text-accent'
+}
+
 export const Component = () => {
   const user = useUserValue()
   const { t } = useTranslation()
+  const { data, isLoading } = useDashboardStats()
+
+  const stats = data?.stats
+  const recentActivity = data?.recentActivity ?? []
 
   const getGreeting = () => {
     const hour = new Date().getHours()
@@ -155,7 +212,7 @@ export const Component = () => {
         {/* Header */}
         <StaggerItem delay={0}>
           <div className="mb-10">
-            <h1 className="text-3xl font-bold text-text tracking-normal ">
+            <h1 className="text-3xl font-bold tracking-normal text-text">
               {getGreeting()},{' '}
               {(user?.fullName ?? user?.username)?.split(' ')[0] ??
                 t('common.defaultName')}
@@ -171,33 +228,60 @@ export const Component = () => {
           <StatCard
             icon={<CheckCircle2 className="h-5 w-5" />}
             label={t('dashboard.stats.labeledToday')}
-            value={47}
-            trend={{ value: '+12%', positive: true }}
+            value={formatNumber(stats?.labeledToday ?? 0)}
             delay={0.05}
+            isLoading={isLoading}
           />
           <StatCard
             icon={<PenTool className="h-5 w-5" />}
             label={t('dashboard.stats.totalLabeled')}
-            value="1,247"
+            value={formatNumber(stats?.totalLabeled ?? 0)}
             delay={0.1}
+            isLoading={isLoading}
           />
           <StatCard
-            icon={<Clock className="h-5 w-5" />}
-            label={t('dashboard.stats.avgTime')}
-            value="2.4s"
-            trend={{ value: '-8%', positive: true }}
+            icon={<ImageIcon className="h-5 w-5" />}
+            label={t('dashboard.stats.totalSegments')}
+            value={formatNumber(stats?.totalSegments ?? 0)}
             delay={0.15}
+            isLoading={isLoading}
           />
           <StatCard
             icon={<FolderOpen className="h-5 w-5" />}
             label={t('dashboard.stats.pendingBatches')}
-            value={3}
+            value={stats?.pendingBatches ?? 0}
             delay={0.2}
+            isLoading={isLoading}
+          />
+        </div>
+
+        {/* Secondary Stats */}
+        <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard
+            icon={<Layers className="h-5 w-5" />}
+            label={t('dashboard.stats.totalBatches')}
+            value={stats?.totalBatches ?? 0}
+            delay={0.25}
+            isLoading={isLoading}
+          />
+          <StatCard
+            icon={<ImageIcon className="h-5 w-5" />}
+            label={t('dashboard.stats.totalImages')}
+            value={formatNumber(stats?.totalImages ?? 0)}
+            delay={0.3}
+            isLoading={isLoading}
+          />
+          <StatCard
+            icon={<Clock className="h-5 w-5" />}
+            label={t('dashboard.stats.avgTime')}
+            value={formatTime(stats?.avgTimeSeconds ?? 0)}
+            delay={0.35}
+            isLoading={isLoading}
           />
         </div>
 
         {/* Quick Actions */}
-        <StaggerItem delay={0.25}>
+        <StaggerItem delay={0.4}>
           <h2 className="mb-4 text-lg font-semibold text-text">
             {t('dashboard.quickActions.title')}
           </h2>
@@ -209,26 +293,26 @@ export const Component = () => {
             description={t('dashboard.quickActions.startLabeling.description')}
             href="/label"
             variant="primary"
-            delay={0.3}
+            delay={0.45}
           />
           <QuickActionCard
             icon={<FolderOpen className="h-5 w-5" />}
             title={t('dashboard.quickActions.browseBatches.title')}
             description={t('dashboard.quickActions.browseBatches.description')}
             href="/batches"
-            delay={0.35}
+            delay={0.5}
           />
           <QuickActionCard
             icon={<CheckCircle2 className="h-5 w-5" />}
             title={t('dashboard.quickActions.reviewLabels.title')}
             description={t('dashboard.quickActions.reviewLabels.description')}
             href="/batches"
-            delay={0.4}
+            delay={0.55}
           />
         </div>
 
         {/* Recent Activity */}
-        <StaggerItem delay={0.45}>
+        <StaggerItem delay={0.6}>
           <div className="rounded-2xl border border-border bg-background p-6">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-text">
@@ -241,76 +325,58 @@ export const Component = () => {
                 {t('common.seeAll')}
               </Link>
             </div>
-            <div className="space-y-4">
-              {[
-                {
-                  batch: 'Batch #1042 - Cashew Grade W240',
-                  action: 'Completed labeling',
-                  time: '2 hours ago',
-                  count: 48,
-                },
-                {
-                  batch: 'Batch #1041 - Quality Check',
-                  action: 'In progress',
-                  time: '4 hours ago',
-                  count: 32,
-                },
-                {
-                  batch: 'Batch #1039 - Grade W320',
-                  action: 'Completed labeling',
-                  time: 'Yesterday',
-                  count: 64,
-                },
-              ].map((activity, i) => (
-                <m.div
-                  key={i}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    ...Spring.presets.smooth,
-                    delay: 0.5 + i * 0.05,
-                  }}
-                  className="flex items-center justify-between rounded-xl bg-fill/50 p-4"
-                >
-                  <div className="flex items-center gap-4">
-                    <div
-                      className={cn(
-                        'flex h-10 w-10 items-center justify-center rounded-full',
-                        activity.action === 'In progress'
-                          ? 'bg-yellow/10 text-yellow'
-                          : 'bg-green/10 text-green',
-                      )}
-                    >
-                      {activity.action === 'In progress' ? (
-                        <Clock className="h-5 w-5" />
-                      ) : (
-                        <CheckCircle2 className="h-5 w-5" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-medium text-text">
-                        {activity.batch}
+            {isLoading ? (
+              <LoadingState message="Loading recent activity..." />
+            ) : recentActivity.length === 0 ? (
+              <div className="py-8 text-center text-text-secondary">
+                <Layers className="mx-auto mb-3 h-12 w-12 text-text-tertiary" />
+                <p>{t('dashboard.recentActivity.empty')}</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentActivity.map((activity: ActivityItem, i: number) => (
+                  <m.div
+                    key={activity.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      ...Spring.presets.smooth,
+                      delay: 0.65 + i * 0.05,
+                    }}
+                    className="flex items-center justify-between rounded-xl bg-fill/50 p-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={cn(
+                          'flex h-10 w-10 items-center justify-center rounded-full',
+                          getActivityColor(activity.action),
+                        )}
+                      >
+                        {getActivityIcon(activity.action)}
                       </div>
-                      <div className="text-sm text-text-secondary" />
-                      <div className="text-sm text-text-secondary">
-                        {activity.action === 'In progress'
-                          ? t('dashboard.recentActivity.status.inProgress')
-                          : t('dashboard.recentActivity.status.completed')}{' '}
-                        • {activity.count} images
+                      <div>
+                        <div className="font-medium text-text">
+                          {activity.batchName}
+                        </div>
+                        <div className="text-sm text-text-secondary">
+                          {activity.action} • {activity.count} images
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-sm text-text-tertiary">
-                    {activity.time}
-                  </div>
-                </m.div>
-              ))}
-            </div>
+                    <div className="text-sm text-text-tertiary">
+                      {formatDistanceToNow(new Date(activity.timestamp), {
+                        addSuffix: true,
+                      })}
+                    </div>
+                  </m.div>
+                ))}
+              </div>
+            )}
           </div>
         </StaggerItem>
 
         {/* CTA Section */}
-        <StaggerItem delay={0.65}>
+        <StaggerItem delay={0.8}>
           <div className="mt-8 overflow-hidden rounded-2xl bg-gradient-to-br from-accent/20 via-accent/10 to-transparent p-8">
             <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
               <div>
@@ -318,7 +384,9 @@ export const Component = () => {
                   {t('dashboard.cta.title')}
                 </h3>
                 <p className="mt-1 text-text-secondary">
-                  {t('dashboard.cta.description', { count: 3 })}
+                  {t('dashboard.cta.description', {
+                    count: stats?.pendingBatches ?? 0,
+                  })}
                 </p>
               </div>
               <Button variant="primary" asChild>

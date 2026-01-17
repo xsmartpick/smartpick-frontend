@@ -1,26 +1,183 @@
-import {
-  LabelingPage,
-  mockLabelingImages,
-  mockLabels,
-} from '~/modules/labeling'
+import { ArrowRight, Boxes, ImageIcon, Tag } from 'lucide-react'
+import { m } from 'motion/react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
+
+import { EmptyState, ErrorState, LoadingState } from '~/components/common'
+import { Button } from '~/components/ui/button'
+import { relativeTime } from '~/lib/date-utils'
+import { Spring } from '~/lib/spring'
+import { useBatches } from '~/modules/batches/hooks'
+import type { Batch } from '~/modules/batches/types'
+import { CASHEW_LABELS } from '~/modules/labeling'
 
 /**
- * Labeling page route
+ * Labeling hub page
  *
- * This is a thin wrapper that:
- * - Provides mock data (will be replaced with real data fetching)
- * - Handles route-specific concerns (URL params, query strings, etc.)
- * - Connects to the reusable LabelingPage component from the module
+ * Shows available batches that can be labeled
+ * Click on a batch to start labeling its segments
  */
 export const Component = () => {
+  const { t } = useTranslation()
+  const { data: batches = [], isLoading, error, refetch } = useBatches()
+
+  // Filter batches that have images (ready for labeling)
+  const readyBatches = batches.filter(
+    (batch) => batch.status === 'completed' || batch.imageCount > 0,
+  )
+
   return (
-    <LabelingPage
-      images={mockLabelingImages}
-      labels={mockLabels}
-      onSave={(_) => {
-        // UI only - no backend integration
-        // TODO: implement actual API call when backend is ready
-      }}
-    />
+    <div className="min-h-screen bg-background text-text">
+      {/* Page Header */}
+      <div className="border-b border-border bg-background/50 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-6">
+          <div className="flex items-center gap-4">
+            <m.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={Spring.presets.bouncy}
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-background shadow-lg shadow-accent/20"
+            >
+              <Tag className="h-6 w-6" />
+            </m.div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">Labeling</h1>
+              <p className="text-sm text-text-secondary">
+                Select a batch to start labeling
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-6 py-8">
+        {/* Available Labels Preview */}
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={Spring.presets.smooth}
+          className="mb-8"
+        >
+          <h2 className="mb-4 text-sm font-semibold text-text">
+            Available Labels
+          </h2>
+          <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-fill/30 p-4">
+            {CASHEW_LABELS.map((label) => (
+              <div
+                key={label.id}
+                className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5"
+              >
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: label.color }}
+                />
+                <span className="text-sm font-medium text-text">
+                  {label.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </m.div>
+
+        {/* Batches Grid */}
+        <m.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...Spring.presets.smooth, delay: 0.1 }}
+        >
+          <h2 className="mb-4 text-sm font-semibold text-text">
+            Batches Ready for Labeling
+          </h2>
+
+          {isLoading ? (
+            <div className="rounded-2xl border border-border bg-background p-8">
+              <LoadingState message="Loading batches..." />
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-border bg-background p-8">
+              <ErrorState
+                title="Failed to load batches"
+                onRetry={() => refetch()}
+              />
+            </div>
+          ) : readyBatches.length === 0 ? (
+            <div className="rounded-2xl border border-border bg-background p-8">
+              <EmptyState
+                title="No batches available"
+                message="Create a batch and run auto-segmentation to start labeling."
+              />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {readyBatches.map((batch) => (
+                <BatchCard key={batch.id} batch={batch} t={t} />
+              ))}
+            </div>
+          )}
+        </m.div>
+      </div>
+    </div>
+  )
+}
+
+function BatchCard({
+  batch,
+  t,
+}: {
+  batch: Batch
+  t: ReturnType<typeof useTranslation>['t']
+}) {
+  return (
+    <m.div
+      whileHover={{ scale: 1.02 }}
+      transition={Spring.presets.snappy}
+      className="group rounded-2xl border border-border bg-background p-4 transition-shadow hover:shadow-lg"
+    >
+      <div className="mb-4 flex items-start justify-between">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-fill">
+          <Boxes className="h-5 w-5 text-text-secondary" />
+        </div>
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            batch.status === 'completed'
+              ? 'bg-accent/10 text-accent'
+              : batch.status === 'processing'
+                ? 'bg-warning/10 text-warning'
+                : 'bg-fill text-text-secondary'
+          }`}
+        >
+          {batch.status || 'Draft'}
+        </span>
+      </div>
+
+      <h3 className="mb-1 font-semibold text-text">{batch.name}</h3>
+      {batch.description && (
+        <p className="mb-3 line-clamp-2 text-sm text-text-secondary">
+          {batch.description}
+        </p>
+      )}
+
+      <div className="mb-4 flex items-center gap-4 text-sm text-text-tertiary">
+        <div className="flex items-center gap-1">
+          <ImageIcon className="h-4 w-4" />
+          <span>{batch.imageCount} images</span>
+        </div>
+      </div>
+
+      <div className="mb-4 text-xs text-text-tertiary">
+        Updated {relativeTime(batch.updatedAt, t)}
+      </div>
+
+      <Link to={`/label/${batch.id}`}>
+        <Button
+          variant="primary"
+          className="w-full"
+          disabled={batch.imageCount === 0}
+        >
+          Start Labeling
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+      </Link>
+    </m.div>
   )
 }

@@ -26,7 +26,13 @@ export const useLogin = () => {
       return response
     },
     onSuccess: (data) => {
-      // Store token and user in state
+      // IMPORTANT: Write to localStorage SYNCHRONOUSLY before updating Jotai atoms
+      // This ensures the token is available for subsequent API calls immediately
+      // Jotai's atomWithStorage stores values as JSON
+      localStorage.setItem('smartpick_token', JSON.stringify(data.token))
+      localStorage.setItem('smartpick_user', JSON.stringify(data.user))
+
+      // Also update Jotai state (this may be async but localStorage is already set)
       setToken(data.token)
       setUser(data.user)
 
@@ -35,8 +41,10 @@ export const useLogin = () => {
         description: 'You have been successfully logged in.',
       })
 
-      // Redirect to home page
-      navigate('/')
+      // Small delay to ensure state propagation before navigation
+      setTimeout(() => {
+        navigate('/', { replace: true })
+      }, 100)
     },
     onError: (error: any) => {
       // Handle login errors

@@ -1,4 +1,4 @@
-import { FolderPlus, ImageIcon, Plus, Search } from 'lucide-react'
+import { Database, FolderPlus, ImageIcon, Plus, Search, X } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -12,8 +12,10 @@ import {
   StatsCard,
 } from '~/components/common'
 import { Button } from '~/components/ui/button'
+import { Checkbox } from '~/components/ui/checkbox'
 import { Input } from '~/components/ui/input'
 import { useKeyboardShortcut } from '~/hooks/common'
+import { cn } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
 import type { Batch, CreateBatchFormData } from '~/modules/batches'
 import {
@@ -24,6 +26,7 @@ import {
   useCreateBatch,
   useDeleteBatch,
 } from '~/modules/batches'
+import { CreateDatasetFromBatchesModal } from '~/modules/datasets/components'
 
 export const Component = () => {
   const { t } = useTranslation()
@@ -32,9 +35,14 @@ export const Component = () => {
   const deleteBatchMutation = useDeleteBatch()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isSplitModalOpen, setIsSplitModalOpen] = useState(false)
+  const [isCreateDatasetModalOpen, setIsCreateDatasetModalOpen] =
+    useState(false)
   const [selectedBatchForSplit, setSelectedBatchForSplit] =
     useState<Batch | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedBatchIds, setSelectedBatchIds] = useState<Set<string>>(
+    new Set(),
+  )
 
   // Keyboard shortcut: N to create new batch
   useKeyboardShortcut({
@@ -118,6 +126,44 @@ export const Component = () => {
   const handleCloseSplitModal = useCallback(() => {
     setIsSplitModalOpen(false)
     setSelectedBatchForSplit(null)
+  }, [])
+
+  // Batch selection handlers
+  const handleToggleBatchSelection = useCallback((batchId: string) => {
+    setSelectedBatchIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(batchId)) {
+        next.delete(batchId)
+      } else {
+        next.add(batchId)
+      }
+      return next
+    })
+  }, [])
+
+  const handleSelectAll = useCallback(() => {
+    if (selectedBatchIds.size === filteredBatches.length) {
+      setSelectedBatchIds(new Set())
+    } else {
+      setSelectedBatchIds(new Set(filteredBatches.map((b) => b.id)))
+    }
+  }, [filteredBatches, selectedBatchIds.size])
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedBatchIds(new Set())
+  }, [])
+
+  const selectedBatches = useMemo(
+    () => batches.filter((b) => selectedBatchIds.has(b.id)),
+    [batches, selectedBatchIds],
+  )
+
+  const handleCreateDatasetSuccess = useCallback((_datasetId: string) => {
+    setSelectedBatchIds(new Set())
+    const navigate = getStableRouterNavigate()
+    if (navigate) {
+      navigate(`/datasets`)
+    }
   }, [])
 
   // Stats
@@ -221,7 +267,58 @@ export const Component = () => {
                 />
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-tertiary" />
               </div>
+              {filteredBatches.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleSelectAll}
+                  className="text-xs"
+                >
+                  {selectedBatchIds.size === filteredBatches.length
+                    ? t('common.deselectAll', { defaultValue: 'Deselect All' })
+                    : t('common.selectAll', { defaultValue: 'Select All' })}
+                </Button>
+              )}
             </div>
+
+            {/* Selection Action Bar */}
+            {selectedBatchIds.size > 0 && (
+              <m.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={Spring.presets.smooth}
+                className="mb-6 flex items-center justify-between rounded-xl border border-accent/30 bg-accent/5 px-4 py-3"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-medium text-text">
+                    {t('batches.selection.count', {
+                      count: selectedBatchIds.size,
+                      defaultValue: `${selectedBatchIds.size} batch(es) selected`,
+                    })}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearSelection}
+                    className="h-7 px-2 text-xs"
+                  >
+                    <X className="mr-1 h-3 w-3" />
+                    {t('common.clear', { defaultValue: 'Clear' })}
+                  </Button>
+                </div>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsCreateDatasetModalOpen(true)}
+                >
+                  <Database className="mr-2 h-4 w-4" />
+                  {t('batches.selection.createDataset', {
+                    defaultValue: 'Create Dataset',
+                  })}
+                </Button>
+              </m.div>
+            )}
 
             {/* Batch grid or empty state */}
             {filteredBatches.length === 0 ? (
@@ -278,16 +375,43 @@ export const Component = () => {
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <AnimatePresence mode="popLayout">
                   {filteredBatches.map((batch) => (
-                    <BatchCard
-                      key={batch.id}
-                      batch={batch}
-                      onDelete={handleDeleteBatch}
-                      onSplit={handleSplitBatch}
-                      onClick={(b) => {
-                        const navigate = getStableRouterNavigate()
-                        if (navigate) navigate(`/batches/${b.id}`)
-                      }}
-                    />
+                    <div key={batch.id} className="relative">
+                      {/* Selection checkbox overlay */}
+                      <div
+                        className={cn(
+                          'absolute left-3 top-3 z-10 transition-opacity',
+                          selectedBatchIds.size > 0
+                            ? 'opacity-100'
+                            : 'opacity-0 group-hover:opacity-100',
+                        )}
+                      >
+                        <Checkbox
+                          checked={selectedBatchIds.has(batch.id)}
+                          onCheckedChange={() =>
+                            handleToggleBatchSelection(batch.id)
+                          }
+                          className="h-5 w-5 bg-background/80 backdrop-blur-sm"
+                        />
+                      </div>
+                      <BatchCard
+                        batch={batch}
+                        onDelete={handleDeleteBatch}
+                        onSplit={handleSplitBatch}
+                        onClick={(b) => {
+                          // If in selection mode, toggle selection instead of navigating
+                          if (selectedBatchIds.size > 0) {
+                            handleToggleBatchSelection(b.id)
+                          } else {
+                            const navigate = getStableRouterNavigate()
+                            if (navigate) navigate(`/batches/${b.id}`)
+                          }
+                        }}
+                        className={cn(
+                          selectedBatchIds.has(batch.id) &&
+                            'ring-2 ring-accent ring-offset-2 ring-offset-background',
+                        )}
+                      />
+                    </div>
                   ))}
                 </AnimatePresence>
               </div>
@@ -318,6 +442,14 @@ export const Component = () => {
           }}
         />
       )}
+
+      {/* Create Dataset from Batches Modal */}
+      <CreateDatasetFromBatchesModal
+        open={isCreateDatasetModalOpen}
+        batches={selectedBatches}
+        onClose={() => setIsCreateDatasetModalOpen(false)}
+        onSuccess={handleCreateDatasetSuccess}
+      />
     </div>
   )
 }

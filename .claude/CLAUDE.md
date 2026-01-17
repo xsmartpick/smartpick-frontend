@@ -153,15 +153,41 @@ To change max file size, update `MAX_FILE_SIZE_MB` value.
 2. Export from index file
 3. Use Pastel color tokens and CVA for variants
 
-## Testing Changes
+## Testing Requirements
 
-Run these before committing:
+**IMPORTANT**: Always test implementations - don't just implement and leave without testing!
+
+### Before Committing
 
 ```bash
 pnpm lint    # Check for lint errors
 pnpm format  # Format code
 pnpm build   # Type check and build
 ```
+
+### UI Testing with Browser
+
+When implementing UI features:
+1. Start the dev server: `pnpm dev`
+2. Navigate to the feature in browser
+3. Test all user interactions
+4. Verify visual appearance
+5. Check console for errors
+
+### Unit Tests
+
+For modules with complex logic, write unit tests:
+- Place tests in `__tests__/` directories or `*.test.ts` files
+- Test API hooks with mocked responses
+- Test utility functions with edge cases
+
+### Integration Testing
+
+For features involving backend:
+1. Ensure backend is running
+2. Test the full flow end-to-end
+3. Verify API responses are handled correctly
+4. Test error states
 
 ## Do Not
 

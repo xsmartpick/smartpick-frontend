@@ -3,106 +3,130 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import type { RouteObject } from "react-router"
+import type { RouteObject } from 'react-router'
 
 // Imports for page components
-import * as SyncComponent0 from "./pages/(main)/admintasks.sync"
-import * as SyncComponent1 from "./pages/(main)/batches/[id].sync"
-import * as SyncComponent2 from "./pages/(main)/batches/index.sync"
-import * as SyncComponent3 from "./pages/(main)/datasets.sync"
-import * as SyncComponent4 from "./pages/(main)/label.sync"
-import * as SyncComponent5 from "./pages/(main)/label-sets.sync"
-import * as SyncComponent6 from "./pages/(main)/login.sync"
-import * as SyncComponent7 from "./pages/(main)/projects/[id].sync"
-import * as SyncComponent8 from "./pages/(main)/projects/index.sync"
-import * as SyncComponent9 from "./pages/(main)/tasks.sync"
-import * as SyncComponent10 from "./pages/(main)/index.sync"
-const lazy0 = () => import("./pages/(main)/layout")
+import * as SyncComponent0 from './pages/(main)/admintasks.sync'
+import * as SyncComponent1 from './pages/(main)/batches/[id].sync'
+import * as SyncComponent2 from './pages/(main)/batches/index.sync'
+import * as SyncComponent3 from './pages/(main)/datasets.sync'
+import * as SyncComponent4 from './pages/(main)/label/[batchId].sync'
+import * as SyncComponent5 from './pages/(main)/label/task/[taskId].sync'
+import * as SyncComponent6 from './pages/(main)/label/index.sync'
+import * as SyncComponent7 from './pages/(main)/label-sets.sync'
+import * as SyncComponent8 from './pages/(main)/login.sync'
+import * as SyncComponent9 from './pages/(main)/projects/[id].sync'
+import * as SyncComponent10 from './pages/(main)/projects/index.sync'
+import * as SyncComponent11 from './pages/(main)/tasks.sync'
+import * as SyncComponent12 from './pages/(main)/index.sync'
+const lazy0 = () => import('./pages/(main)/layout')
 
 // Generated route configuration
 export const routes: RouteObject[] = [
   {
-    "path": "",
-    "lazy": lazy0,
-    "children": [
+    path: '',
+    lazy: lazy0,
+    children: [
       {
-        "path": "admintasks",
-        "Component": SyncComponent0.Component,
-        "loader": SyncComponent0.loader,
-        "handle": SyncComponent0.handle
+        path: 'admintasks',
+        Component: SyncComponent0.Component,
+        loader: SyncComponent0.loader,
+        handle: SyncComponent0.handle,
       },
       {
-        "path": "batches",
-        "children": [
+        path: 'batches',
+        children: [
           {
-            "path": ":id",
-            "Component": SyncComponent1.Component,
-            "loader": SyncComponent1.loader,
-            "handle": SyncComponent1.handle
+            path: ':id',
+            Component: SyncComponent1.Component,
+            loader: SyncComponent1.loader,
+            handle: SyncComponent1.handle,
           },
           {
-            "path": "",
-            "Component": SyncComponent2.Component,
-            "loader": SyncComponent2.loader,
-            "handle": SyncComponent2.handle
-          }
-        ]
+            path: '',
+            Component: SyncComponent2.Component,
+            loader: SyncComponent2.loader,
+            handle: SyncComponent2.handle,
+          },
+        ],
       },
       {
-        "path": "datasets",
-        "Component": SyncComponent3.Component,
-        "loader": SyncComponent3.loader,
-        "handle": SyncComponent3.handle
+        path: 'datasets',
+        Component: SyncComponent3.Component,
+        loader: SyncComponent3.loader,
+        handle: SyncComponent3.handle,
       },
       {
-        "path": "label",
-        "Component": SyncComponent4.Component,
-        "loader": SyncComponent4.loader,
-        "handle": SyncComponent4.handle
-      },
-      {
-        "path": "label-sets",
-        "Component": SyncComponent5.Component,
-        "loader": SyncComponent5.loader,
-        "handle": SyncComponent5.handle
-      },
-      {
-        "path": "login",
-        "Component": SyncComponent6.Component,
-        "loader": SyncComponent6.loader,
-        "handle": SyncComponent6.handle
-      },
-      {
-        "path": "projects",
-        "children": [
+        path: 'label',
+        children: [
           {
-            "path": ":id",
-            "Component": SyncComponent7.Component,
-            "loader": SyncComponent7.loader,
-            "handle": SyncComponent7.handle
+            path: ':batchId',
+            Component: SyncComponent4.Component,
+            loader: SyncComponent4.loader,
+            handle: SyncComponent4.handle,
           },
           {
-            "path": "",
-            "Component": SyncComponent8.Component,
-            "loader": SyncComponent8.loader,
-            "handle": SyncComponent8.handle
-          }
-        ]
+            path: 'task',
+            children: [
+              {
+                path: ':taskId',
+                Component: SyncComponent5.Component,
+                loader: SyncComponent5.loader,
+                handle: SyncComponent5.handle,
+              },
+            ],
+          },
+          {
+            path: '',
+            Component: SyncComponent6.Component,
+            loader: SyncComponent6.loader,
+            handle: SyncComponent6.handle,
+          },
+        ],
       },
       {
-        "path": "tasks",
-        "Component": SyncComponent9.Component,
-        "loader": SyncComponent9.loader,
-        "handle": SyncComponent9.handle
+        path: 'label-sets',
+        Component: SyncComponent7.Component,
+        loader: SyncComponent7.loader,
+        handle: SyncComponent7.handle,
       },
       {
-        "path": "",
-        "Component": SyncComponent10.Component,
-        "loader": SyncComponent10.loader,
-        "handle": SyncComponent10.handle
-      }
-    ]
-  }
+        path: 'login',
+        Component: SyncComponent8.Component,
+        loader: SyncComponent8.loader,
+        handle: SyncComponent8.handle,
+      },
+      {
+        path: 'projects',
+        children: [
+          {
+            path: ':id',
+            Component: SyncComponent9.Component,
+            loader: SyncComponent9.loader,
+            handle: SyncComponent9.handle,
+          },
+          {
+            path: '',
+            Component: SyncComponent10.Component,
+            loader: SyncComponent10.loader,
+            handle: SyncComponent10.handle,
+          },
+        ],
+      },
+      {
+        path: 'tasks',
+        Component: SyncComponent11.Component,
+        loader: SyncComponent11.loader,
+        handle: SyncComponent11.handle,
+      },
+      {
+        path: '',
+        Component: SyncComponent12.Component,
+        loader: SyncComponent12.loader,
+        handle: SyncComponent12.handle,
+      },
+    ],
+  },
 ]
 
 export default routes
