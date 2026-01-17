@@ -38,6 +38,8 @@ export const Component = () => {
   const isAuthenticated = useAtomValue(isAuthenticatedAtom)
 
   const isLoginPage = location.pathname === '/login'
+  const isStartPage = location.pathname === '/start'
+  const isPublicPage = isLoginPage || isStartPage
 
   // Check hydration state on mount
   useEffect(() => {
@@ -57,14 +59,14 @@ export const Component = () => {
     if (actuallyAuthenticated && isLoginPage) {
       // Redirect authenticated users away from login page
       navigate('/', { replace: true })
-    } else if (!actuallyAuthenticated && !isLoginPage) {
-      // Redirect unauthenticated users to login
+    } else if (!actuallyAuthenticated && !isPublicPage) {
+      // Redirect unauthenticated users to login (except public pages)
       navigate('/login', { replace: true })
     }
-  }, [isAuthenticated, isLoginPage, navigate, isHydrated])
+  }, [isAuthenticated, isLoginPage, isPublicPage, navigate, isHydrated])
 
-  // Login page has its own full layout, no sidebar needed
-  if (isLoginPage) {
+  // Public pages (login, start) have their own full layout, no sidebar needed
+  if (isPublicPage) {
     return <Outlet />
   }
 
