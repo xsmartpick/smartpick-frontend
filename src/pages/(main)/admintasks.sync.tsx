@@ -44,13 +44,13 @@ function getStatusDotColor(status: TaskStatus) {
       return 'bg-zinc-400'
     }
     case 'in_progress': {
-      return 'bg-blue-500 animate-pulse'
+      return 'bg-blue animate-pulse'
     }
     case 'review': {
-      return 'bg-orange-500'
+      return 'bg-orange'
     }
     case 'done': {
-      return 'bg-green-500'
+      return 'bg-green'
     }
   }
 }
@@ -58,13 +58,13 @@ function getStatusDotColor(status: TaskStatus) {
 function getPriorityColor(priority: TaskPriority) {
   switch (priority) {
     case 'low': {
-      return 'text-green-700 bg-green-100'
+      return 'text-green bg-green/10'
     }
     case 'medium': {
-      return 'text-yellow-700 bg-yellow-100'
+      return 'text-yellow bg-yellow/10'
     }
     case 'high': {
-      return 'text-red-700 bg-red-100'
+      return 'text-red bg-red/10'
     }
   }
 }

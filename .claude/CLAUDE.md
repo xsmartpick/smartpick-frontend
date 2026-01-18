@@ -1,6 +1,6 @@
 # Claude Code Onboarding
 
-Welcome to the SmartPick Axon UI codebase! This document helps Claude Code understand and work effectively with this project.
+Welcome to the SmartPick Frontend codebase! This document helps Claude Code understand and work effectively with this project.
 
 ## Quick Start
 
@@ -20,7 +20,7 @@ pnpm lint && pnpm format
 
 ## Project Overview
 
-SmartPick Axon UI is a modern web application for AI-powered cashew classification. Built with React 19, TypeScript, and TailwindCSS v4.
+SmartPick Frontend is a modern web application for AI-powered cashew classification. Built with React 19, TypeScript, and TailwindCSS v4.
 
 ### Tech Stack
 
@@ -209,6 +209,18 @@ For features involving backend:
 
 ## Additional Documentation
 
+- `skills/` - AI Agent Skills following Vercel Labs format (recommended)
 - `agents.md` - Full AI agent guidelines
 - `.cursor/rules/` - Cursor-specific rules and patterns
 - `docs/` - Detailed documentation
+
+## Agent Skills
+
+This project now includes structured Agent Skills in `.claude/skills/` following the [Vercel Labs agent-skills](https://github.com/vercel-labs/agent-skills) format. These skills provide:
+
+- **smartpick-react-patterns**: Comprehensive React 19 patterns covering animation (Framer Motion), styling (Pastel colors), state management (Jotai), component organization, and routing
+- Categorized rules with priority levels (CRITICAL, HIGH, MEDIUM)
+- Clear examples with rationale
+- Common violation patterns and fixes
+
+AI agents will automatically apply these skills when relevant to the task.

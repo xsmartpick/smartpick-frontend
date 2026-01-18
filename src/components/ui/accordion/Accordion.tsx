@@ -2,7 +2,7 @@
 
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import type { HTMLMotionProps, Transition } from 'motion/react'
-import { AnimatePresence, m as motion } from 'motion/react'
+import { AnimatePresence, m } from 'motion/react'
 import * as React from 'react'
 
 import { clsxm } from '~/lib/cn'
@@ -109,13 +109,13 @@ function AccordionTrigger({
         {children}
 
         {chevron && (
-          <motion.div
+          <m.div
             data-slot="accordion-trigger-chevron"
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={transition}
           >
             <i className="text-text-secondary i-mingcute-down-line size-4 shrink-0" />
-          </motion.div>
+          </m.div>
         )}
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
@@ -141,7 +141,7 @@ function AccordionContent({
     <AnimatePresence>
       {isOpen && (
         <AccordionPrimitive.Content forceMount {...props}>
-          <motion.div
+          <m.div
             key="accordion-content"
             data-slot="accordion-content"
             initial={{ height: 0, opacity: 0, '--mask-stop': '0%' }}
@@ -160,7 +160,7 @@ function AccordionContent({
             <div className={clsxm('pt-0 pb-4 text-sm', className)}>
               {children}
             </div>
-          </motion.div>
+          </m.div>
         </AccordionPrimitive.Content>
       )}
     </AnimatePresence>

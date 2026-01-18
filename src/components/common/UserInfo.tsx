@@ -38,9 +38,7 @@ function MenuItem({
       className={clsxm(
         'group relative flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all duration-200',
         'hover:bg-fill focus:bg-fill active:bg-fill-secondary',
-        danger
-          ? 'text-red-600 hover:text-red-700 focus:text-red-700'
-          : 'text-text',
+        danger ? 'text-red hover:text-red focus:text-red' : 'text-text',
       )}
       type="button"
     >
@@ -49,7 +47,7 @@ function MenuItem({
           className={clsxm(
             'h-4 w-4 shrink-0 transition-transform duration-200',
             danger
-              ? 'text-red-600 group-hover:text-red-700'
+              ? 'text-red group-hover:text-red'
               : 'text-text-secondary group-hover:translate-x-0.5',
           )}
         >

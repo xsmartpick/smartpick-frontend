@@ -6,7 +6,7 @@ import type {
   TargetAndTransition,
   VariantLabels,
 } from 'motion/react'
-import { m as motion } from 'motion/react'
+import { m } from 'motion/react'
 import { Switch as SwitchPrimitives } from 'radix-ui'
 import * as React from 'react'
 
@@ -42,7 +42,7 @@ function Switch(props: SwitchProps) {
       value={{ isChecked, setIsChecked, isPressed, setIsPressed }}
     >
       <SwitchPrimitives.Root {...props} onCheckedChange={setIsChecked} asChild>
-        <motion.button
+        <m.button
           data-slot="switch"
           whileTap="tap"
           initial={false}
@@ -77,7 +77,7 @@ function SwitchThumb({
 
   return (
     <SwitchPrimitives.Thumb asChild>
-      <motion.div
+      <m.div
         data-slot="switch-thumb"
         whileTap="tab"
         layout
@@ -110,7 +110,7 @@ function SwitchIcon({
   }, [position, isChecked])
 
   return (
-    <motion.div
+    <m.div
       data-slot={`switch-${position}-icon`}
       animate={isAnimated ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
       transition={transition}

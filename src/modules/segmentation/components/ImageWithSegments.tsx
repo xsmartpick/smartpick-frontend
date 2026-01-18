@@ -43,7 +43,7 @@ function getSegmentColor(
       return {
         border: `rgba(59, 130, 246, ${opacity})`,
         fill: `rgba(59, 130, 246, ${isSelected || isHovered ? 0.2 : 0.1})`,
-        text: 'text-blue-500',
+        text: 'text-blue',
       }
     }
     default: {
