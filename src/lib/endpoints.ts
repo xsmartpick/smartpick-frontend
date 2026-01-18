@@ -3,7 +3,8 @@ export const API_ENDPOINTS = {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
     REFRESH: '/auth/refresh',
-    ME: '/auth/me',
+    ME: '/me',
+    LABELER_ONBOARD: '/auth/labeler/onboard',
     QR: {
       GENERATE: '/auth/qr/generate',
       POLL: (token: string) => `/auth/qr/poll/${token}`,
