@@ -31,16 +31,16 @@ export function LabelingComplete({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         transition={{ ...Spring.presets.bouncy, delay: 0.1 }}
-        className="mx-4 max-w-md rounded-2xl border border-green-500/20 bg-background p-8 shadow-2xl shadow-green-500/10"
+        className="mx-4 max-w-md rounded-2xl border border-green/20 bg-background p-8 shadow-2xl shadow-green/10"
       >
         {/* Celebration icon */}
         <m.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ ...Spring.presets.bouncy, delay: 0.2 }}
-          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10"
+          className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green/10"
         >
-          <PartyPopper className="h-10 w-10 text-green-500" />
+          <PartyPopper className="h-10 w-10 text-green" />
         </m.div>
 
         {/* Title */}
@@ -68,10 +68,10 @@ export function LabelingComplete({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...Spring.presets.smooth, delay: 0.5 }}
-          className="mb-6 flex items-center justify-center gap-2 rounded-lg bg-green-500/10 px-4 py-3"
+          className="mb-6 flex items-center justify-center gap-2 rounded-lg bg-green/10 px-4 py-3"
         >
-          <CheckCircle2 className="h-5 w-5 text-green-500" />
-          <span className="font-medium text-green-500">
+          <CheckCircle2 className="h-5 w-5 text-green" />
+          <span className="font-medium text-green">
             {totalLabeled} image{totalLabeled === 1 ? '' : 's'} labeled
           </span>
         </m.div>

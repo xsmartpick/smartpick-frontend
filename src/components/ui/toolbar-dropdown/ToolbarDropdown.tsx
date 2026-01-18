@@ -89,7 +89,7 @@ export function ToolbarMenuItem({
       onClick={onClick}
       className={clsxm(
         'flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition',
-        danger ? 'text-red-700 hover:bg-red-50' : 'text-text hover:bg-fill',
+        danger ? 'text-red hover:bg-red/10' : 'text-text hover:bg-fill',
       )}
       type="button"
     >
@@ -97,7 +97,7 @@ export function ToolbarMenuItem({
         <span
           className={clsxm(
             'h-4 w-4',
-            danger ? 'text-red-700' : 'text-text-secondary',
+            danger ? 'text-red' : 'text-text-secondary',
           )}
         >
           {icon}

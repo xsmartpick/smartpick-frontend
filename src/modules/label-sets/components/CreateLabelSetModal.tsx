@@ -146,7 +146,7 @@ export function CreateLabelSetModal({
             {/* Name Field */}
             <div className="space-y-6">
               <Label htmlFor="label-set-name">
-                Name <span className="text-red-500">*</span>
+                Name <span className="text-red">*</span>
               </Label>
               <Input
                 id="label-set-name"
@@ -164,7 +164,7 @@ export function CreateLabelSetModal({
                 aria-describedby={errors.name ? 'name-error' : undefined}
               />
               {errors.name ? (
-                <p id="name-error" className="text-sm text-red-500">
+                <p id="name-error" className="text-sm text-red">
                   {errors.name}
                 </p>
               ) : (
@@ -267,7 +267,7 @@ export function CreateLabelSetModal({
                             variant="ghost"
                             size="sm"
                             onClick={() => removeLabel(label.key)}
-                            className="mt-6 h-9 w-9 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="mt-6 h-9 w-9 p-0 text-red hover:text-red hover:bg-red/10"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

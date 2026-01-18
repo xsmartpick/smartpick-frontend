@@ -2,7 +2,7 @@
 
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox'
 import type { HTMLMotionProps } from 'motion/react'
-import { m as motion } from 'motion/react'
+import { m } from 'motion/react'
 import * as React from 'react'
 
 import { clsxm } from '~/lib/cn'
@@ -47,7 +47,7 @@ function Checkbox({
       onCheckedChange={handleCheckedChange}
       asChild
     >
-      <motion.button
+      <m.button
         data-slot="checkbox"
         className={clsxm(
           'peer size-5 flex items-center justify-center shrink-0 rounded-sm bg-fill transition-colors duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-accent data-[state=checked]:text-white',
@@ -59,7 +59,7 @@ function Checkbox({
         {...props}
       >
         <CheckboxPrimitive.Indicator forceMount asChild>
-          <motion.svg
+          <m.svg
             data-slot="checkbox-indicator"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -71,7 +71,7 @@ function Checkbox({
             animate={checkboxState}
           >
             {/* Checkmark path */}
-            <motion.path
+            <m.path
               strokeLinecap="round"
               strokeLinejoin="round"
               d="M4.5 12.75l6 6 9-13.5"
@@ -101,7 +101,7 @@ function Checkbox({
               }}
             />
             {/* Indeterminate line */}
-            <motion.path
+            <m.path
               strokeLinecap="round"
               strokeLinejoin="round"
               d="M6 12h12"
@@ -130,9 +130,9 @@ function Checkbox({
                 },
               }}
             />
-          </motion.svg>
+          </m.svg>
         </CheckboxPrimitive.Indicator>
-      </motion.button>
+      </m.button>
     </CheckboxPrimitive.Root>
   )
 }

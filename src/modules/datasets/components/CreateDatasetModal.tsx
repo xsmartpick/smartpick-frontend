@@ -118,7 +118,7 @@ export function CreateDatasetModal({
           {/* Name Field */}
           <div className="space-y-2">
             <Label htmlFor="dataset-name">
-              Name <span className="text-red-500">*</span>
+              Name <span className="text-red">*</span>
             </Label>
             <Input
               id="dataset-name"
@@ -136,7 +136,7 @@ export function CreateDatasetModal({
               aria-describedby={errors.name ? 'name-error' : undefined}
             />
             {errors.name ? (
-              <p id="name-error" className="text-sm text-red-500">
+              <p id="name-error" className="text-sm text-red">
                 {errors.name}
               </p>
             ) : (
@@ -170,7 +170,7 @@ export function CreateDatasetModal({
           {/* Media Type Field */}
           <div className="space-y-2">
             <Label htmlFor="dataset-media-type">
-              Media Type <span className="text-red-500">*</span>
+              Media Type <span className="text-red">*</span>
             </Label>
             <Select
               value={mediaType}
@@ -183,7 +183,7 @@ export function CreateDatasetModal({
             >
               <SelectTrigger
                 id="dataset-media-type"
-                className={errors.mediaType ? 'border-red-500' : ''}
+                className={errors.mediaType ? 'border-red' : ''}
                 aria-invalid={!!errors.mediaType}
                 aria-describedby={
                   errors.mediaType ? 'media-type-error' : undefined
@@ -199,7 +199,7 @@ export function CreateDatasetModal({
               </SelectContent>
             </Select>
             {errors.mediaType ? (
-              <p id="media-type-error" className="text-sm text-red-500">
+              <p id="media-type-error" className="text-sm text-red">
                 {errors.mediaType}
               </p>
             ) : (

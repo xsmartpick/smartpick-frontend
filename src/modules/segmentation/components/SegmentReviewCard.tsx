@@ -47,7 +47,7 @@ function getStatusBadge(
     case 'manual': {
       return {
         label: t('segmentation.status.manual'),
-        className: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+        className: 'bg-blue/10 text-blue border-blue/20',
         icon: Pencil,
       }
     }
@@ -157,8 +157,8 @@ export function SegmentReviewCard({
                     className={cn(
                       'inline-flex items-center rounded-full px-1.5 py-0.5',
                       segment.approvalSource === 'auto'
-                        ? 'bg-purple-500/10 text-purple-500'
-                        : 'bg-blue-500/10 text-blue-500',
+                        ? 'bg-purple/10 text-purple'
+                        : 'bg-blue/10 text-blue',
                     )}
                   >
                     {segment.approvalSource === 'auto' ? (

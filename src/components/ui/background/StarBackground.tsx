@@ -1,7 +1,7 @@
 'use client'
 
 import type { HTMLMotionProps, SpringOptions, Transition } from 'motion/react'
-import { m as motion, useMotionValue, useSpring } from 'motion/react'
+import { m, useMotionValue, useSpring } from 'motion/react'
 import * as React from 'react'
 
 import { useIsDark } from '~/hooks/common'
@@ -45,7 +45,7 @@ function StarLayer({
   }, [count, starColor])
 
   return (
-    <motion.div
+    <m.div
       data-slot="star-layer"
       animate={{ y: [0, -2000] }}
       transition={transition}
@@ -68,7 +68,7 @@ function StarLayer({
           boxShadow,
         }}
       />
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -122,7 +122,7 @@ function StarsBackground({
       onMouseMove={handleMouseMove}
       {...props}
     >
-      <motion.div
+      <m.div
         style={{ x: springX, y: springY }}
         className={cn({ 'pointer-events-none': !pointerEvents })}
       >
@@ -149,7 +149,7 @@ function StarsBackground({
             ease: 'linear',
           }}
         />
-      </motion.div>
+      </m.div>
       {children}
     </div>
   )
