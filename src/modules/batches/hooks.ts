@@ -44,13 +44,14 @@ function mapBatchResponse(
   }
 }
 
-export function useBatches() {
+export function useBatches(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: batchKeys.lists(),
     queryFn: async () => {
       const batches = await getBatches()
       return batches.map((element) => mapBatchResponse(element))
     },
+    enabled: options?.enabled ?? true,
     staleTime: 30 * 1000, // 30 seconds
   })
 }

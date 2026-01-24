@@ -41,6 +41,13 @@ Routing and layouts:
   - src/pages/(main)/about.sync.tsx -> /about
   - src/pages/(main)/settings/layout.tsx -> wraps /settings subtree
 
+Role-based access control (RBAC):
+- Roles in scope: admin, labeler (stored on user.role).
+- Admin-only UI routes: /projects, /datasets, /label-sets, /batches, /admintasks, /label/:batchId.
+- Labeler UI routes: /label (task view), /tasks, /label/task/:taskId, /.
+- Use helpers in src/lib/rbac.ts for route gating and role checks.
+- Update AppSidebar navItems adminOnly flag and isAdminRoute when adding new restricted routes.
+
 Providers:
 
 - Root providers are composed in src/providers/root-providers.tsx and include:

@@ -13,9 +13,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { useUserValue } from '~/atoms/auth'
 import { EmptyState, ErrorState, LoadingState } from '~/components/common'
 import { Button } from '~/components/ui/button'
 import { relativeTime } from '~/lib/date-utils'
+import { isAdmin } from '~/lib/rbac'
 import { Spring } from '~/lib/spring'
 import { useBatches } from '~/modules/batches/hooks'
 import type { Batch } from '~/modules/batches/types'
@@ -35,6 +37,8 @@ type ViewMode = 'tasks' | 'batches'
 export const Component = () => {
   const { t } = useTranslation()
   const [viewMode, setViewMode] = useState<ViewMode>('tasks')
+  const user = useUserValue()
+  const isUserAdmin = isAdmin(user)
 
   const {
     data: tasks = [],
@@ -47,7 +51,9 @@ export const Component = () => {
     isLoading: batchesLoading,
     error: batchesError,
     refetch: refetchBatches,
-  } = useBatches()
+  } = useBatches({ enabled: isUserAdmin })
+
+  const effectiveViewMode: ViewMode = isUserAdmin ? viewMode : 'tasks'
 
   // Filter batches that have images (ready for labeling)
   const readyBatches = batches.filter(
@@ -59,9 +65,10 @@ export const Component = () => {
     (task) => task.labelingProgress.progressPercent < 100,
   )
 
-  const isLoading = viewMode === 'tasks' ? tasksLoading : batchesLoading
-  const error = viewMode === 'tasks' ? tasksError : batchesError
-  const refetch = viewMode === 'tasks' ? refetchTasks : refetchBatches
+  const isLoading =
+    effectiveViewMode === 'tasks' ? tasksLoading : batchesLoading
+  const error = effectiveViewMode === 'tasks' ? tasksError : batchesError
+  const refetch = effectiveViewMode === 'tasks' ? refetchTasks : refetchBatches
 
   return (
     <div className="min-h-screen bg-background text-text">
@@ -80,7 +87,7 @@ export const Component = () => {
             <div>
               <h1 className="text-xl font-bold tracking-tight">Labeling</h1>
               <p className="text-sm text-text-secondary">
-                {viewMode === 'tasks'
+                {effectiveViewMode === 'tasks'
                   ? 'Select a task to start labeling'
                   : 'Select a batch to start labeling'}
               </p>
@@ -88,35 +95,37 @@ export const Component = () => {
           </div>
 
           {/* View Mode Toggle */}
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-fill/30 p-1">
-            <button
-              onClick={() => setViewMode('tasks')}
-              className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'tasks'
-                  ? 'bg-background text-text shadow-sm'
-                  : 'text-text-secondary hover:text-text'
-              }`}
-            >
-              <ClipboardList className="h-4 w-4" />
-              Tasks
-              {pendingTasks.length > 0 && (
-                <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-xs text-accent">
-                  {pendingTasks.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setViewMode('batches')}
-              className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                viewMode === 'batches'
-                  ? 'bg-background text-text shadow-sm'
-                  : 'text-text-secondary hover:text-text'
-              }`}
-            >
-              <Boxes className="h-4 w-4" />
-              Batches
-            </button>
-          </div>
+          {isUserAdmin && (
+            <div className="flex items-center gap-1 rounded-xl border border-border bg-fill/30 p-1">
+              <button
+                onClick={() => setViewMode('tasks')}
+                className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  viewMode === 'tasks'
+                    ? 'bg-background text-text shadow-sm'
+                    : 'text-text-secondary hover:text-text'
+                }`}
+              >
+                <ClipboardList className="h-4 w-4" />
+                Tasks
+                {pendingTasks.length > 0 && (
+                  <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-xs text-accent">
+                    {pendingTasks.length}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setViewMode('batches')}
+                className={`flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                  viewMode === 'batches'
+                    ? 'bg-background text-text shadow-sm'
+                    : 'text-text-secondary hover:text-text'
+                }`}
+              >
+                <Boxes className="h-4 w-4" />
+                Batches
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -156,7 +165,7 @@ export const Component = () => {
           transition={{ ...Spring.presets.smooth, delay: 0.1 }}
         >
           <h2 className="mb-4 text-sm font-semibold text-text">
-            {viewMode === 'tasks'
+            {effectiveViewMode === 'tasks'
               ? 'Tasks Ready for Labeling'
               : 'Batches Ready for Labeling'}
           </h2>
@@ -165,7 +174,7 @@ export const Component = () => {
             <div className="rounded-2xl border border-border bg-background p-8">
               <LoadingState
                 message={
-                  viewMode === 'tasks'
+                  effectiveViewMode === 'tasks'
                     ? 'Loading tasks...'
                     : 'Loading batches...'
                 }
@@ -175,19 +184,23 @@ export const Component = () => {
             <div className="rounded-2xl border border-border bg-background p-8">
               <ErrorState
                 title={
-                  viewMode === 'tasks'
+                  effectiveViewMode === 'tasks'
                     ? 'Failed to load tasks'
                     : 'Failed to load batches'
                 }
                 onRetry={() => refetch()}
               />
             </div>
-          ) : viewMode === 'tasks' ? (
+          ) : effectiveViewMode === 'tasks' ? (
             pendingTasks.length === 0 ? (
               <div className="rounded-2xl border border-border bg-background p-8">
                 <EmptyState
                   title="No tasks available"
-                  message="Tasks are created by splitting batches. Go to Batches and split a batch into tasks."
+                  message={
+                    isUserAdmin
+                      ? 'Tasks are created by splitting batches. Go to Batches and split a batch into tasks.'
+                      : 'No tasks are assigned to you yet.'
+                  }
                 />
               </div>
             ) : (

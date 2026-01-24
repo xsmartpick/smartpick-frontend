@@ -36,6 +36,7 @@ import {
 } from '~/hooks/common/useDark'
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
+import { isAdmin } from '~/lib/rbac'
 import { Spring } from '~/lib/spring'
 
 import { UserInfo } from './UserInfo'
@@ -47,6 +48,7 @@ interface NavItem {
   href: string
   description?: string
   badge?: string | number
+  adminOnly?: boolean
 }
 
 interface AppSidebarProps {
@@ -68,6 +70,7 @@ export function AppSidebar({
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const manualToggleRef = useRef(false)
+  const isUserAdmin = isAdmin(user)
 
   // Navigation items - labeler focused
   const navItems: NavItem[] = [
@@ -84,6 +87,7 @@ export function AppSidebar({
       icon: <FolderKanban className="h-5 w-5" />,
       href: '/projects',
       description: i18n.t('navigation.projects.description'),
+      adminOnly: true,
     },
     {
       id: 'batches',
@@ -91,6 +95,7 @@ export function AppSidebar({
       icon: <FolderOpen className="h-5 w-5" />,
       href: '/batches',
       description: i18n.t('navigation.batches.description'),
+      adminOnly: true,
     },
     {
       id: 'admin-tasks',
@@ -98,6 +103,7 @@ export function AppSidebar({
       icon: <ClipboardList className="h-5 w-5" />,
       href: '/admintasks',
       description: i18n.t('navigation.adminTasks.description'),
+      adminOnly: true,
     },
     {
       id: 'label',
@@ -112,6 +118,7 @@ export function AppSidebar({
       icon: <Database className="h-5 w-5" />,
       href: '/datasets',
       description: i18n.t('navigation.datasets.description'),
+      adminOnly: true,
     },
     {
       id: 'label-sets',
@@ -119,8 +126,12 @@ export function AppSidebar({
       icon: <Tag className="h-5 w-5" />,
       href: '/label-sets',
       description: i18n.t('navigation.labelSets.description'),
+      adminOnly: true,
     },
   ]
+  const visibleNavItems = navItems.filter(
+    (item) => !item.adminOnly || isUserAdmin,
+  )
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -133,7 +144,7 @@ export function AppSidebar({
   useEffect(() => {
     if (isMobile && !manualToggleRef.current) {
       const MAX_MOBILE_VISIBLE = 4
-      const overflowItems = navItems.slice(MAX_MOBILE_VISIBLE)
+      const overflowItems = visibleNavItems.slice(MAX_MOBILE_VISIBLE)
       const isActiveInOverflow = overflowItems.some((item) =>
         isActive(item.href),
       )
@@ -149,7 +160,7 @@ export function AppSidebar({
     }
     // isActive is stable (defined above), so we can safely disable the exhaustive-deps warning
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, isMobile, navItems])
+  }, [pathname, isMobile, visibleNavItems])
 
   const toggleTheme = () => {
     if (theme === 'system') {
@@ -170,8 +181,8 @@ export function AppSidebar({
   // Mobile bottom navigation
   if (isMobile) {
     const MAX_MOBILE_VISIBLE = 4
-    const visibleItems = navItems.slice(0, MAX_MOBILE_VISIBLE)
-    const overflowItems = navItems.slice(MAX_MOBILE_VISIBLE)
+    const visibleItems = visibleNavItems.slice(0, MAX_MOBILE_VISIBLE)
+    const overflowItems = visibleNavItems.slice(MAX_MOBILE_VISIBLE)
 
     return (
       <>
@@ -462,7 +473,7 @@ export function AppSidebar({
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-3">
         <div className="space-y-1">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const active = isActive(item.href)
             return (
               <Link

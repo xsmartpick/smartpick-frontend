@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 import { setToken, setUser } from '~/atoms/auth'
 import { apiClient } from '~/lib/api-client'
 import { API_ENDPOINTS } from '~/lib/endpoints'
+import type { AuthRole } from '~/modules/auth/types'
 
 type OnboardResponse = {
   token: string
@@ -13,7 +14,7 @@ type OnboardResponse = {
     username: string
     email: string
     fullName: string
-    role?: string
+    role?: AuthRole
   }
 }
 
@@ -48,7 +49,9 @@ export const Component = () => {
           // Validate existing token
           setStatus('checking')
           try {
-            await apiClient<MeResponse>(API_ENDPOINTS.AUTH.ME, { timeout: 5000 })
+            await apiClient<MeResponse>(API_ENDPOINTS.AUTH.ME, {
+              timeout: 5000,
+            })
             // Token is valid, redirect to labeling
             setStatus('redirecting')
             navigate('/label', { replace: true })

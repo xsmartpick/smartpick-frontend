@@ -71,6 +71,13 @@ export const API_ENDPOINTS = {
       `/labeling/batches/${batchId}/segments`,
     SAVE_SINGLE_LABEL: (segmentId: string) => `/labeling/segments/${segmentId}`,
   },
+  LABEL_SETS: {
+    LIST: '/labelsets',
+    CREATE: '/labelsets',
+    DETAIL: (id: string) => `/labelsets/${id}`,
+    UPDATE: (id: string) => `/labelsets/${id}`,
+    DELETE: (id: string) => `/labelsets/${id}`,
+  },
   DATASETS: {
     LIST: '/datasets',
     CREATE: '/datasets',
