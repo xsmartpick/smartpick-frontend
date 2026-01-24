@@ -248,6 +248,7 @@ Do not:
 - Do not bypass providers by re-creating QueryClient or Jotai store; use the shared instances.
 - Do not use window.location directly; use routing utilities.
 - Do not introduce ad-hoc color tokens that bypass the Pastel system.
+- Commits must follow Conventional Commits. Always ask for the ticket code to use as the scope before committing (e.g., feat(PROJ-123): add rbac guard).
 
 Troubleshooting:
 
