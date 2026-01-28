@@ -4,11 +4,13 @@ export interface LoginRequest {
   rememberMe?: boolean
 }
 
+export type AuthRole = 'admin' | 'labeler'
+
 export interface User {
   id: string
   username: string
   email: string
-  role: string
+  role: AuthRole
   fullName?: string
   avatar?: string
   createdAt?: string

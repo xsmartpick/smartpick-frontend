@@ -17,8 +17,9 @@ import * as SyncComponent7 from './pages/(main)/label-sets.sync'
 import * as SyncComponent8 from './pages/(main)/login.sync'
 import * as SyncComponent9 from './pages/(main)/projects/[id].sync'
 import * as SyncComponent10 from './pages/(main)/projects/index.sync'
-import * as SyncComponent11 from './pages/(main)/tasks.sync'
-import * as SyncComponent12 from './pages/(main)/index.sync'
+import * as SyncComponent11 from './pages/(main)/start.sync'
+import * as SyncComponent12 from './pages/(main)/tasks.sync'
+import * as SyncComponent13 from './pages/(main)/index.sync'
 const lazy0 = () => import('./pages/(main)/layout')
 
 // Generated route configuration
@@ -114,16 +115,22 @@ export const routes: RouteObject[] = [
         ],
       },
       {
-        path: 'tasks',
+        path: 'start',
         Component: SyncComponent11.Component,
         loader: SyncComponent11.loader,
         handle: SyncComponent11.handle,
       },
       {
-        path: '',
+        path: 'tasks',
         Component: SyncComponent12.Component,
         loader: SyncComponent12.loader,
         handle: SyncComponent12.handle,
+      },
+      {
+        path: '',
+        Component: SyncComponent13.Component,
+        loader: SyncComponent13.loader,
+        handle: SyncComponent13.handle,
       },
     ],
   },

@@ -41,6 +41,13 @@ Routing and layouts:
   - src/pages/(main)/about.sync.tsx -> /about
   - src/pages/(main)/settings/layout.tsx -> wraps /settings subtree
 
+Role-based access control (RBAC):
+- Roles in scope: admin, labeler (stored on user.role).
+- Admin-only UI routes: /projects, /datasets, /label-sets, /batches, /admintasks, /label/:batchId.
+- Labeler UI routes: /label (task view), /tasks, /label/task/:taskId, /.
+- Use helpers in src/lib/rbac.ts for route gating and role checks.
+- Update AppSidebar navItems adminOnly flag and isAdminRoute when adding new restricted routes.
+
 Providers:
 
 - Root providers are composed in src/providers/root-providers.tsx and include:
@@ -241,6 +248,7 @@ Do not:
 - Do not bypass providers by re-creating QueryClient or Jotai store; use the shared instances.
 - Do not use window.location directly; use routing utilities.
 - Do not introduce ad-hoc color tokens that bypass the Pastel system.
+- Commits must follow Conventional Commits. Always ask for the ticket code to use as the scope before committing (e.g., feat(PROJ-123): add rbac guard).
 
 Troubleshooting:
 

@@ -3,11 +3,13 @@ import { m } from 'motion/react'
 import { useEffect, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 
-import { isAuthenticatedAtom } from '~/atoms/auth'
+import { isAuthenticatedAtom, useUserValue } from '~/atoms/auth'
 import { AppSidebar } from '~/components/common/AppSidebar'
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
+import { getUserRole, isAdminRoute } from '~/lib/rbac'
 import { Spring } from '~/lib/spring'
+import type { User } from '~/modules/auth/types'
 
 /**
  * Check if localStorage has auth data (synchronous check to avoid flash)
@@ -24,6 +26,16 @@ function hasStoredAuth(): boolean {
   }
 }
 
+function getStoredUser(): User | null {
+  try {
+    const storedUser = localStorage.getItem('smartpick_user')
+    if (!storedUser || storedUser === 'null') return null
+    return JSON.parse(storedUser) as User
+  } catch {
+    return null
+  }
+}
+
 /**
  * Main layout with sidebar navigation
  * Wraps all pages in the (main) route group
@@ -36,6 +48,9 @@ export const Component = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const isAuthenticated = useAtomValue(isAuthenticatedAtom)
+  const user = useUserValue()
+  const storedUser = isHydrated ? getStoredUser() : null
+  const role = getUserRole(user ?? storedUser)
 
   const isLoginPage = location.pathname === '/login'
   const isStartPage = location.pathname === '/start'
@@ -65,6 +80,18 @@ export const Component = () => {
     }
   }, [isAuthenticated, isLoginPage, isPublicPage, navigate, isHydrated])
 
+  // Handle role-based access redirects (only after hydration + auth)
+  useEffect(() => {
+    if (!isHydrated) return
+    const hasAuth = hasStoredAuth()
+    const actuallyAuthenticated = isAuthenticated || hasAuth
+    if (!actuallyAuthenticated) return
+
+    if (isAdminRoute(location.pathname) && role !== 'admin') {
+      navigate('/label', { replace: true })
+    }
+  }, [isAuthenticated, isHydrated, location.pathname, navigate, role])
+
   // Public pages (login, start) have their own full layout, no sidebar needed
   if (isPublicPage) {
     return <Outlet />
@@ -79,6 +106,11 @@ export const Component = () => {
   if (!isAuthenticated && !hasStoredAuth()) {
     return null
   }
+
+  if (isAdminRoute(location.pathname) && role !== 'admin') {
+    return null
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar
