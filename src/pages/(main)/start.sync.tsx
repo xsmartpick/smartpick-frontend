@@ -6,6 +6,7 @@ import { setToken, setUser } from '~/atoms/auth'
 import { apiClient } from '~/lib/api-client'
 import { API_ENDPOINTS } from '~/lib/endpoints'
 import type { AuthRole } from '~/modules/auth/types'
+import { normalizeAuthUser } from '~/modules/auth/utils'
 
 type OnboardResponse = {
   token: string
@@ -14,6 +15,7 @@ type OnboardResponse = {
     username: string
     email: string
     fullName: string
+    orgRole?: AuthRole
     role?: AuthRole
   }
 }
@@ -72,10 +74,10 @@ export const Component = () => {
         )
 
         // Prepare user with default role
-        const user = {
+        const user = normalizeAuthUser({
           ...response.user,
-          role: response.user.role || 'labeler',
-        }
+          orgRole: response.user.orgRole ?? response.user.role ?? 'labeler',
+        })
 
         // Save token and user to localStorage (JSON format for atomWithStorage)
         localStorage.setItem('smartpick_token', JSON.stringify(response.token))

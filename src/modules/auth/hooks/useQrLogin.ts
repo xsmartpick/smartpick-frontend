@@ -5,8 +5,8 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
 import { tokenAtom, useQrSession, userAtom } from '~/atoms/auth'
-
-import { generateQrCode, pollQrStatus } from '../api'
+import { generateQrCode, pollQrStatus } from '~/modules/auth/api'
+import { normalizeAuthUser } from '~/modules/auth/utils'
 
 export const useQrLogin = () => {
   const [qrSession, setQrSession] = useQrSession()
@@ -54,7 +54,7 @@ export const useQrLogin = () => {
     queryFn: () => pollQrStatus(qrSession!.qrToken),
     enabled: !!qrSession?.qrToken,
     refetchInterval: (query) => {
-      const {data} = query.state
+      const { data } = query.state
       if (!data) return 2000
       if (['authorized', 'rejected', 'expired'].includes(data.status)) {
         return false
@@ -69,10 +69,11 @@ export const useQrLogin = () => {
     if (!pollData) return
 
     if (pollData.status === 'authorized' && pollData.token && pollData.user) {
+      const normalizedUser = normalizeAuthUser(pollData.user)
       setToken(pollData.token)
-      setUser(pollData.user)
+      setUser(normalizedUser)
       toast.success('Login Successful', {
-        description: `Welcome back, ${pollData.user.username}!`,
+        description: `Welcome back, ${normalizedUser.username}!`,
       })
       navigate('/')
     }

@@ -9,9 +9,10 @@ const ADMIN_ONLY_PREFIXES = [
 ]
 
 export const getUserRole = (user: User | null | undefined): AuthRole | null => {
-  if (!user?.role) return null
-  if (user.role === 'admin' || user.role === 'labeler') {
-    return user.role
+  const role = user?.orgRole ?? user?.role
+  if (!role) return null
+  if (role === 'admin' || role === 'labeler') {
+    return role
   }
   return null
 }
