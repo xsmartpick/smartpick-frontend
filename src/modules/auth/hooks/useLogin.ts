@@ -6,8 +6,8 @@ import { toast } from 'sonner'
 import { tokenAtom, userAtom } from '~/atoms/auth'
 import { apiClient } from '~/lib/api-client'
 import { API_ENDPOINTS } from '~/lib/endpoints'
-
-import type { LoginRequest, LoginResponse } from '../types'
+import type { LoginRequest, LoginResponse } from '~/modules/auth/types'
+import { normalizeAuthUser } from '~/modules/auth/utils'
 
 export const useLogin = () => {
   const setToken = useSetAtom(tokenAtom)
@@ -26,18 +26,19 @@ export const useLogin = () => {
       return response
     },
     onSuccess: (data) => {
+      const normalizedUser = normalizeAuthUser(data.user)
       // IMPORTANT: Write to localStorage SYNCHRONOUSLY before updating Jotai atoms
       // This ensures the token is available for subsequent API calls immediately
       // Jotai's atomWithStorage stores values as JSON
       localStorage.setItem('smartpick_token', JSON.stringify(data.token))
-      localStorage.setItem('smartpick_user', JSON.stringify(data.user))
+      localStorage.setItem('smartpick_user', JSON.stringify(normalizedUser))
 
       // Also update Jotai state (this may be async but localStorage is already set)
       setToken(data.token)
-      setUser(data.user)
+      setUser(normalizedUser)
 
       // Show success message
-      toast.success(`Welcome back, ${data.user.username}!`, {
+      toast.success(`Welcome back, ${normalizedUser.username}!`, {
         description: 'You have been successfully logged in.',
       })
 
