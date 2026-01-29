@@ -20,13 +20,23 @@ import * as SyncComponent10 from './pages/(main)/projects/index.sync'
 import * as SyncComponent11 from './pages/(main)/start.sync'
 import * as SyncComponent12 from './pages/(main)/tasks.sync'
 import * as SyncComponent13 from './pages/(main)/index.sync'
-const lazy0 = () => import('./pages/(main)/layout')
+const lazy0 = () => import('./pages/admin/index')
+const lazy1 = () => import('./pages/(main)/layout')
 
 // Generated route configuration
 export const routes: RouteObject[] = [
   {
+    path: 'admin',
+    children: [
+      {
+        path: '',
+        lazy: lazy0,
+      },
+    ],
+  },
+  {
     path: '',
-    lazy: lazy0,
+    lazy: lazy1,
     children: [
       {
         path: 'admintasks',

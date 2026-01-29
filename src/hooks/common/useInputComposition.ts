@@ -83,16 +83,10 @@ export const useInputComposition = <E = HTMLInputElement>(
     }
   }, [])
 
-  const ret = {
+  return {
     onCompositionEnd: handleCompositionEnd,
     onCompositionStart: handleCompositionStart,
     onKeyDown: handleKeyDown,
-  }
-  Object.defineProperty(ret, 'isCompositionRef', {
-    value: isCompositionRef,
-    enumerable: false,
-  })
-  return ret as typeof ret & {
-    isCompositionRef: typeof isCompositionRef
+    isCompositionRef,
   }
 }

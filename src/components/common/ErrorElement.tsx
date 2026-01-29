@@ -1,5 +1,5 @@
 import { repository } from '@pkg'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { isRouteErrorResponse, useRouteError } from 'react-router'
 
 import { attachOpenInEditor } from '~/lib/dev'
@@ -19,15 +19,20 @@ export function ErrorElement() {
     console.error('Error handled by React Router default ErrorBoundary:', error)
   }, [error])
 
-  const reloadRef = useRef(false)
+  useEffect(() => {
+    if (
+      message.startsWith('Failed to fetch dynamically imported module') &&
+      window.sessionStorage.getItem('reload') !== '1'
+    ) {
+      window.sessionStorage.setItem('reload', '1')
+      window.location.reload()
+    }
+  }, [message])
+
   if (
     message.startsWith('Failed to fetch dynamically imported module') &&
     window.sessionStorage.getItem('reload') !== '1'
   ) {
-    if (reloadRef.current) return null
-    window.sessionStorage.setItem('reload', '1')
-    window.location.reload()
-    reloadRef.current = true
     return null
   }
 
