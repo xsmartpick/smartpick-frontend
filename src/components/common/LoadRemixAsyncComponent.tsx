@@ -15,7 +15,6 @@ export const LoadRemixAsyncComponent: FC<{
 
   useEffect(() => {
     let isUnmounted = false
-    setLoading(true)
     loader()
       .then((module) => {
         if (!module.Component) {
