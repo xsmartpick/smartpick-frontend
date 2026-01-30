@@ -1,5 +1,6 @@
 import { m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button/Button'
 import { Checkbox } from '~/components/ui/checkbox/Checkbox'
@@ -26,6 +27,7 @@ const FormField = ({
 )
 
 export const LoginForm = () => {
+  const { t } = useTranslation()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
@@ -39,19 +41,19 @@ export const LoginForm = () => {
 
     // Username validation
     if (!username.trim()) {
-      newErrors.username = 'Username is required'
+      newErrors.username = t('auth.login.form.validation.usernameRequired')
       isValid = false
     } else if (username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters'
+      newErrors.username = t('auth.login.form.validation.usernameMinLength')
       isValid = false
     }
 
     // Password validation
     if (!password) {
-      newErrors.password = 'Password is required'
+      newErrors.password = t('auth.login.form.validation.passwordRequired')
       isValid = false
     } else if (password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters'
+      newErrors.password = t('auth.login.form.validation.passwordMinLength')
       isValid = false
     }
 
@@ -79,7 +81,7 @@ export const LoginForm = () => {
       {/* Username field */}
       <FormField delay={0}>
         <Label htmlFor="username" className="text-text font-medium">
-          Username or Email
+          {t('auth.login.form.username')}
         </Label>
         <div className="mt-2 relative">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
@@ -90,7 +92,7 @@ export const LoginForm = () => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your username"
+            placeholder={t('auth.login.form.usernamePlaceholder')}
             hasError={!!errors.username}
             disabled={loginMutation.isPending}
             autoComplete="username"
@@ -113,7 +115,7 @@ export const LoginForm = () => {
       {/* Password field */}
       <FormField delay={0.05}>
         <Label htmlFor="password" className="text-text font-medium">
-          Password
+          {t('auth.login.form.password')}
         </Label>
         <div className="mt-2 relative">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
@@ -124,7 +126,7 @@ export const LoginForm = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Enter your password"
+            placeholder={t('auth.login.form.passwordPlaceholder')}
             hasError={!!errors.password}
             disabled={loginMutation.isPending}
             autoComplete="current-password"
@@ -157,7 +159,7 @@ export const LoginForm = () => {
             htmlFor="remember"
             className="cursor-pointer text-sm text-text-secondary"
           >
-            Keep me signed in for 30 days
+            {t('auth.login.form.rememberMe')}
           </Label>
         </div>
       </FormField>
@@ -172,10 +174,10 @@ export const LoginForm = () => {
             isLoading={loginMutation.isPending}
           >
             {loginMutation.isPending ? (
-              'Signing in...'
+              t('auth.login.form.signingIn')
             ) : (
               <span className="flex items-center gap-2">
-                Sign In
+                {t('auth.login.form.signIn')}
                 <i className="i-mingcute-arrow-right-line w-4 h-4" />
               </span>
             )}

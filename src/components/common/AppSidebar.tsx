@@ -66,7 +66,7 @@ export function AppSidebar({
   const isDark = useIsDark()
   const theme = useThemeAtomValue()
   const setTheme = useSetTheme()
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [showMoreMenu, setShowMoreMenu] = useState(false)
   const [showProfileModal, setShowProfileModal] = useState(false)
   const manualToggleRef = useRef(false)
@@ -76,56 +76,56 @@ export function AppSidebar({
   const navItems: NavItem[] = [
     {
       id: 'home',
-      label: i18n.t('navigation.home.label'),
+      label: t('navigation.home.label'),
       icon: <Home className="h-5 w-5" />,
       href: '/',
-      description: i18n.t('navigation.home.description'),
+      description: t('navigation.home.description'),
     },
     {
       id: 'projects',
-      label: i18n.t('navigation.projects.label'),
+      label: t('navigation.projects.label'),
       icon: <FolderKanban className="h-5 w-5" />,
       href: '/projects',
-      description: i18n.t('navigation.projects.description'),
+      description: t('navigation.projects.description'),
       adminOnly: true,
     },
     {
       id: 'batches',
-      label: i18n.t('navigation.batches.label'),
+      label: t('navigation.batches.label'),
       icon: <FolderOpen className="h-5 w-5" />,
       href: '/batches',
-      description: i18n.t('navigation.batches.description'),
+      description: t('navigation.batches.description'),
       adminOnly: true,
     },
     {
       id: 'admin-tasks',
-      label: i18n.t('navigation.adminTasks.label'),
+      label: t('navigation.adminTasks.label'),
       icon: <ClipboardList className="h-5 w-5" />,
       href: '/admintasks',
-      description: i18n.t('navigation.adminTasks.description'),
+      description: t('navigation.adminTasks.description'),
       adminOnly: true,
     },
     {
       id: 'label',
-      label: i18n.t('navigation.label.label'),
+      label: t('navigation.label.label'),
       icon: <PenTool className="h-5 w-5" />,
       href: '/label',
-      description: i18n.t('navigation.label.description'),
+      description: t('navigation.label.description'),
     },
     {
       id: 'datasets',
-      label: i18n.t('navigation.datasets.label'),
+      label: t('navigation.datasets.label'),
       icon: <Database className="h-5 w-5" />,
       href: '/datasets',
-      description: i18n.t('navigation.datasets.description'),
+      description: t('navigation.datasets.description'),
       adminOnly: true,
     },
     {
       id: 'label-sets',
-      label: i18n.t('navigation.labelSets.label'),
+      label: t('navigation.labelSets.label'),
       icon: <Tag className="h-5 w-5" />,
       href: '/label-sets',
-      description: i18n.t('navigation.labelSets.description'),
+      description: t('navigation.labelSets.description'),
       adminOnly: true,
     },
   ]
@@ -245,7 +245,7 @@ export function AppSidebar({
                   >
                     <MoreHorizontal className="h-5 w-5" />
                     <span className="text-[10px] font-medium">
-                      {i18n.t('navigation.more')}
+                      {t('navigation.more')}
                     </span>
                   </button>
                 )}
@@ -270,7 +270,7 @@ export function AppSidebar({
                 >
                   <ArrowLeft className="h-5 w-5" />
                   <span className="text-[10px] font-medium">
-                    {i18n.t('navigation.back')}
+                    {t('navigation.back')}
                   </span>
                 </button>
 
@@ -311,7 +311,7 @@ export function AppSidebar({
                 >
                   <User className="h-5 w-5" />
                   <span className="text-[10px] font-medium">
-                    {i18n.t('navigation.profile')}
+                    {t('navigation.profile')}
                   </span>
                 </button>
               </m.div>
@@ -323,7 +323,7 @@ export function AppSidebar({
         <Dialog open={showProfileModal} onOpenChange={setShowProfileModal}>
           <DialogContent className="max-w-sm" from="bottom">
             <DialogHeader>
-              <DialogTitle>{i18n.t('profile.title')}</DialogTitle>
+              <DialogTitle>{t('profile.title')}</DialogTitle>
             </DialogHeader>
 
             <div className="space-y-4 pt-2">
@@ -339,10 +339,12 @@ export function AppSidebar({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-text truncate">
-                    {user?.fullName ?? user?.username ?? 'User'}
+                    {user?.fullName ??
+                      user?.username ??
+                      t('profile.placeholder.name')}
                   </div>
                   <div className="text-sm text-text-secondary truncate">
-                    {user?.email || 'user@example.com'}
+                    {user?.email || t('profile.placeholder.email')}
                   </div>
                 </div>
               </div>
@@ -364,12 +366,12 @@ export function AppSidebar({
                   </span>
                   <div className="flex-1">
                     <div className="text-sm font-medium text-text">
-                      {i18n.t('profile.theme.title')}
+                      {t('profile.theme.title')}
                     </div>
                     <div className="text-xs text-text-tertiary">
                       {isDark
-                        ? i18n.t('profile.theme.dark')
-                        : i18n.t('profile.theme.light')}
+                        ? t('profile.theme.dark')
+                        : t('profile.theme.light')}
                     </div>
                   </div>
                 </button>
@@ -385,12 +387,12 @@ export function AppSidebar({
                   </span>
                   <div className="flex-1">
                     <div className="text-sm font-medium text-text">
-                      Language
+                      {t('profile.language.title')}
                     </div>
                     <div className="text-xs text-text-tertiary">
                       {i18n.language.startsWith('vi')
-                        ? 'Tiếng Việt'
-                        : 'English'}
+                        ? t('profile.language.vietnamese')
+                        : t('profile.language.english')}
                     </div>
                   </div>
                 </button>
@@ -447,7 +449,7 @@ export function AppSidebar({
                   SmartPick
                 </div>
                 <div className="text-[10px] font-medium uppercase tracking-widest text-text-tertiary">
-                  Labeling
+                  {t('label.hub.title')}
                 </div>
               </m.div>
             )}
@@ -569,7 +571,9 @@ export function AppSidebar({
                 transition={Spring.presets.smooth}
                 className="text-sm font-medium"
               >
-                {i18n.language.startsWith('vi') ? 'Tiếng Việt' : 'English'}
+                {i18n.language.startsWith('vi')
+                  ? t('profile.language.vietnamese')
+                  : t('profile.language.english')}
               </m.span>
             )}
           </AnimatePresence>
@@ -606,7 +610,7 @@ export function AppSidebar({
                 transition={Spring.presets.smooth}
                 className="text-sm font-medium"
               >
-                {isDark ? 'Dark mode' : 'Light mode'}
+                {isDark ? t('profile.theme.dark') : t('profile.theme.light')}
               </m.span>
             )}
           </AnimatePresence>

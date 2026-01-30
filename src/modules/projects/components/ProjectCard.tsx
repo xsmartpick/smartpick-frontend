@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import {
   Archive,
   Calendar,
@@ -48,18 +49,8 @@ function getStatusColor(status: ProjectStatus) {
   }
 }
 
-function getStatusLabel(status: ProjectStatus) {
-  switch (status) {
-    case 'completed': {
-      return 'Completed'
-    }
-    case 'archived': {
-      return 'Archived'
-    }
-    default: {
-      return 'Active'
-    }
-  }
+function getStatusLabel(status: ProjectStatus, t: TFunction) {
+  return t(`projects.status.${status}`)
 }
 
 function getGradientColors(status: ProjectStatus) {
@@ -135,7 +126,7 @@ export function ProjectCard({
               getStatusColor(project.status),
             )}
           >
-            {getStatusLabel(project.status)}
+            {getStatusLabel(project.status, t)}
           </span>
         </div>
 
@@ -182,7 +173,7 @@ export function ProjectCard({
                   }}
                 >
                   <CheckCircle className="mr-2 h-4 w-4" />
-                  Mark as Completed
+                  {t('projects.actions.markCompleted')}
                 </DropdownMenuItem>
               )}
               {onStatusChange && project.status !== 'archived' && (
@@ -193,7 +184,7 @@ export function ProjectCard({
                   }}
                 >
                   <Archive className="mr-2 h-4 w-4" />
-                  Archive Project
+                  {t('projects.actions.archive')}
                 </DropdownMenuItem>
               )}
               {onStatusChange && project.status !== 'active' && (
@@ -204,7 +195,7 @@ export function ProjectCard({
                   }}
                 >
                   <FolderKanban className="mr-2 h-4 w-4" />
-                  Set as Active
+                  {t('projects.actions.setActive')}
                 </DropdownMenuItem>
               )}
               {(onStatusChange || onDelete) && <DropdownMenuSeparator />}
@@ -217,7 +208,7 @@ export function ProjectCard({
                   className="text-red focus:text-red"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Project
+                  {t('projects.actions.delete')}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -228,11 +219,17 @@ export function ProjectCard({
         <div className="mt-4 flex items-center gap-4 text-xs text-text-secondary">
           <div className="flex items-center gap-1.5">
             <Layers className="h-3.5 w-3.5 text-text-tertiary" />
-            <span>{stats.totalBatches} batches</span>
+            <span>
+              {t('projects.card.stats.batches', {
+                count: stats.totalBatches,
+              })}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <ImageIcon className="h-3.5 w-3.5 text-text-tertiary" />
-            <span>{stats.totalImages} images</span>
+            <span>
+              {t('projects.card.stats.images', { count: stats.totalImages })}
+            </span>
           </div>
         </div>
 
@@ -240,7 +237,9 @@ export function ProjectCard({
         {stats.totalImages > 0 && (
           <div className="mt-3">
             <div className="mb-1 flex items-center justify-between text-xs">
-              <span className="text-text-secondary">Labeling Progress</span>
+              <span className="text-text-secondary">
+                {t('projects.card.progress')}
+              </span>
               <span className="font-medium text-text">{progressPercent}%</span>
             </div>
             <div className="relative h-1.5 overflow-hidden rounded-full bg-fill">
@@ -268,7 +267,9 @@ export function ProjectCard({
           </div>
           {stats.pendingTasks > 0 && (
             <span className="text-xs text-amber">
-              {stats.pendingTasks} pending tasks
+              {t('projects.card.pendingTasks', {
+                count: stats.pendingTasks,
+              })}
             </span>
           )}
         </div>

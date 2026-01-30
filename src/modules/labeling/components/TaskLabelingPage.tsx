@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, ImageIcon } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
@@ -31,6 +32,7 @@ interface TaskLabelingPageProps {
  * Only loads segments assigned to the specific task, not all batch segments
  */
 export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data, isLoading, error, refetch } = useTaskLabelingImages(taskId)
@@ -90,19 +92,24 @@ export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
         // Use taskId as batchId for bulk save (the API handles it)
         const result = await saveSegmentLabels(taskId, segmentAssignments)
         if (result.success) {
-          toast.success(`Labels saved successfully!`, {
-            description: `${result.count} label${result.count === 1 ? '' : 's'} saved.`,
+          toast.success(t('label.batchLabeling.save.success'), {
+            description: t('label.batchLabeling.save.successDesc', {
+              count: result.count,
+            }),
           })
           // Invalidate queries to refresh data
           queryClient.invalidateQueries({ queryKey: taskKeys.all })
         }
       } catch (err) {
-        toast.error('Failed to save labels', {
-          description: err instanceof Error ? err.message : 'Unknown error',
+        toast.error(t('label.batchLabeling.save.error'), {
+          description:
+            err instanceof Error
+              ? err.message
+              : t('label.batchLabeling.save.unknownError'),
         })
       }
     },
-    [taskId, queryClient],
+    [taskId, queryClient, t],
   )
 
   // Complete handler - navigates back to labeling hub after saving
@@ -120,7 +127,7 @@ export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
           <Link to="/label">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Tasks
+              {t('label.taskLabeling.backButton')}
             </Button>
           </Link>
           {taskName && (
@@ -128,7 +135,7 @@ export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
           )}
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <LoadingState message="Loading task segments for labeling..." />
+          <LoadingState message={t('label.taskLabeling.loading')} />
         </div>
       </div>
     )
@@ -141,15 +148,17 @@ export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
           <Link to="/label">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Tasks
+              {t('label.taskLabeling.backButton')}
             </Button>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center p-8">
           <ErrorState
-            title="Failed to load task segments"
+            title={t('label.taskLabeling.error.title')}
             message={
-              error instanceof Error ? error.message : 'An error occurred'
+              error instanceof Error
+                ? error.message
+                : t('label.taskLabeling.error.unknown')
             }
             onRetry={() => refetch()}
           />
@@ -165,7 +174,7 @@ export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
           <Link to="/label">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Tasks
+              {t('label.taskLabeling.backButton')}
             </Button>
           </Link>
           {taskName && (
@@ -183,16 +192,15 @@ export function TaskLabelingPage({ taskId }: TaskLabelingPageProps) {
               <ImageIcon className="h-8 w-8 text-text-tertiary" />
             </div>
             <h2 className="mb-2 text-lg font-semibold text-text">
-              No Segments in Task
+              {t('label.taskLabeling.empty.title')}
             </h2>
             <p className="mb-6 max-w-md text-sm text-text-secondary">
-              This task doesn't have any segments assigned. The task may have
-              been created incorrectly or segments were removed.
+              {t('label.taskLabeling.empty.message')}
             </p>
             <Link to="/label">
               <Button variant="primary">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Tasks
+                {t('label.taskLabeling.backButton')}
               </Button>
             </Link>
           </m.div>

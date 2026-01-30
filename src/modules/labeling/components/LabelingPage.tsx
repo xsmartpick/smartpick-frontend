@@ -1,6 +1,7 @@
 import { ImageIcon } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
@@ -46,6 +47,7 @@ export function LabelingPage({
 }: LabelingPageProps) {
   const isMobile = useMobile()
   const [showCompleteOverlay, setShowCompleteOverlay] = useState(false)
+  const { t } = useTranslation()
 
   const {
     currentIndex,
@@ -95,7 +97,9 @@ export function LabelingPage({
       <div className="flex h-screen items-center justify-center">
         <div className="text-center">
           <ImageIcon className="mx-auto h-12 w-12 text-text-tertiary" />
-          <p className="mt-4 text-text-secondary">No images to label</p>
+          <p className="mt-4 text-text-secondary">
+            {t('label.labelingPage.empty')}
+          </p>
         </div>
       </div>
     )

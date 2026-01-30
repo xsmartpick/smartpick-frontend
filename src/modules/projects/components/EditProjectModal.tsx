@@ -1,6 +1,7 @@
 import { Edit3, Loader2 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -33,6 +34,7 @@ export function EditProjectModal({
   onSubmit,
   isLoading = false,
 }: EditProjectModalProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [errors, setErrors] = useState<{ name?: string }>({})
@@ -40,6 +42,7 @@ export function EditProjectModal({
   // Reset form when project changes or modal opens
   useEffect(() => {
     if (open && project) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setName(project.name)
       setDescription(project.description || '')
       setErrors({})
@@ -55,11 +58,11 @@ export function EditProjectModal({
     const newErrors: typeof errors = {}
 
     if (!name.trim()) {
-      newErrors.name = 'Project name is required'
+      newErrors.name = t('projects.edit.validation.nameRequired')
     } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters'
+      newErrors.name = t('projects.edit.validation.nameMin')
     } else if (name.trim().length > 64) {
-      newErrors.name = 'Name must be less than 64 characters'
+      newErrors.name = t('projects.edit.validation.nameMax')
     }
 
     setErrors(newErrors)
@@ -109,9 +112,9 @@ export function EditProjectModal({
               <Edit3 className="h-5 w-5" />
             </m.div>
             <div>
-              <DialogTitle>Edit Project</DialogTitle>
+              <DialogTitle>{t('projects.edit.title')}</DialogTitle>
               <DialogDescription>
-                Update your project details.
+                {t('projects.edit.description')}
               </DialogDescription>
             </div>
           </div>
@@ -126,7 +129,8 @@ export function EditProjectModal({
           {/* Name Field */}
           <div className="space-y-2">
             <Label htmlFor="edit-project-name">
-              Project Name <span className="text-red">*</span>
+              {t('projects.edit.fields.name')}{' '}
+              <span className="text-red">*</span>
             </Label>
             <Input
               id="edit-project-name"
@@ -137,7 +141,7 @@ export function EditProjectModal({
                   setErrors((prev) => ({ ...prev, name: undefined }))
                 }
               }}
-              placeholder="e.g. Product Classification 2024"
+              placeholder={t('projects.edit.placeholders.name')}
               maxLength={64}
               hasError={!!errors.name}
               aria-invalid={!!errors.name}
@@ -153,12 +157,14 @@ export function EditProjectModal({
 
           {/* Description Field */}
           <div className="space-y-2">
-            <Label htmlFor="edit-project-description">Description</Label>
+            <Label htmlFor="edit-project-description">
+              {t('projects.edit.fields.description')}
+            </Label>
             <Textarea
               id="edit-project-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What is this project about?"
+              placeholder={t('projects.edit.placeholders.description')}
               rows={4}
               maxLength={500}
               disabled={isLoading}
@@ -173,7 +179,7 @@ export function EditProjectModal({
 
         <DialogFooter className="gap-2">
           <Button variant="ghost" onClick={handleClose} disabled={isLoading}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -183,10 +189,10 @@ export function EditProjectModal({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
+                {t('projects.edit.actions.saving')}
               </>
             ) : (
-              'Save Changes'
+              t('projects.edit.actions.saveChanges')
             )}
           </Button>
         </DialogFooter>

@@ -1,4 +1,3 @@
-import { formatDistanceToNow } from 'date-fns'
 import {
   ArrowRight,
   CheckCircle2,
@@ -17,6 +16,7 @@ import { useUserValue } from '~/atoms/auth'
 import { LoadingState } from '~/components/common'
 import { Button } from '~/components/ui/button'
 import { cn } from '~/lib/cn'
+import { relativeTime } from '~/lib/date-utils'
 import { Spring } from '~/lib/spring'
 import type { ActivityItem } from '~/modules/dashboard'
 import { useDashboardStats } from '~/modules/dashboard'
@@ -171,21 +171,31 @@ function formatTime(seconds: number): string {
   return `${minutes}m ${remainingSeconds.toFixed(0)}s`
 }
 
-function getActivityIcon(action: string) {
+function getActivityStatus(action: string) {
   if (action.includes('Completed')) {
-    return <CheckCircle2 className="h-5 w-5" />
+    return 'completed'
   }
   if (action.includes('progress') || action.includes('Processing')) {
+    return 'inProgress'
+  }
+  return null
+}
+
+function getActivityIcon(status: string | null) {
+  if (status === 'completed') {
+    return <CheckCircle2 className="h-5 w-5" />
+  }
+  if (status === 'inProgress') {
     return <Clock className="h-5 w-5" />
   }
   return <Layers className="h-5 w-5" />
 }
 
-function getActivityColor(action: string) {
-  if (action.includes('Completed')) {
+function getActivityColor(status: string | null) {
+  if (status === 'completed') {
     return 'bg-green/10 text-green'
   }
-  if (action.includes('progress') || action.includes('Processing')) {
+  if (status === 'inProgress') {
     return 'bg-yellow/10 text-yellow'
   }
   return 'bg-accent/10 text-accent'
@@ -326,7 +336,7 @@ export const Component = () => {
               </Link>
             </div>
             {isLoading ? (
-              <LoadingState message="Loading recent activity..." />
+              <LoadingState message={t('dashboard.recentActivity.loading')} />
             ) : recentActivity.length === 0 ? (
               <div className="py-8 text-center text-text-secondary">
                 <Layers className="mx-auto mb-3 h-12 w-12 text-text-tertiary" />
@@ -334,42 +344,48 @@ export const Component = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {recentActivity.map((activity: ActivityItem, i: number) => (
-                  <m.div
-                    key={activity.id}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      ...Spring.presets.smooth,
-                      delay: 0.65 + i * 0.05,
-                    }}
-                    className="flex items-center justify-between rounded-xl bg-fill/50 p-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={cn(
-                          'flex h-10 w-10 items-center justify-center rounded-full',
-                          getActivityColor(activity.action),
-                        )}
-                      >
-                        {getActivityIcon(activity.action)}
-                      </div>
-                      <div>
-                        <div className="font-medium text-text">
-                          {activity.batchName}
+                {recentActivity.map((activity: ActivityItem, i: number) => {
+                  const status = getActivityStatus(activity.action)
+                  const statusLabel = status
+                    ? t(`dashboard.recentActivity.status.${status}`)
+                    : activity.action
+
+                  return (
+                    <m.div
+                      key={activity.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{
+                        ...Spring.presets.smooth,
+                        delay: 0.65 + i * 0.05,
+                      }}
+                      className="flex items-center justify-between rounded-xl bg-fill/50 p-4"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={cn(
+                            'flex h-10 w-10 items-center justify-center rounded-full',
+                            getActivityColor(status),
+                          )}
+                        >
+                          {getActivityIcon(status)}
                         </div>
-                        <div className="text-sm text-text-secondary">
-                          {activity.action} • {activity.count} images
+                        <div>
+                          <div className="font-medium text-text">
+                            {activity.batchName}
+                          </div>
+                          <div className="text-sm text-text-secondary">
+                            {statusLabel} •{' '}
+                            {t('common.images', { count: activity.count })}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-sm text-text-tertiary">
-                      {formatDistanceToNow(new Date(activity.timestamp), {
-                        addSuffix: true,
-                      })}
-                    </div>
-                  </m.div>
-                ))}
+                      <div className="text-sm text-text-tertiary">
+                        {relativeTime(activity.timestamp, t)}
+                      </div>
+                    </m.div>
+                  )
+                })}
               </div>
             )}
           </div>

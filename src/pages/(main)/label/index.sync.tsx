@@ -85,11 +85,13 @@ export const Component = () => {
               <Tag className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Labeling</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('label.hub.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
                 {effectiveViewMode === 'tasks'
-                  ? 'Select a task to start labeling'
-                  : 'Select a batch to start labeling'}
+                  ? t('label.hub.selectTask')
+                  : t('label.hub.selectBatch')}
               </p>
             </div>
           </div>
@@ -106,7 +108,7 @@ export const Component = () => {
                 }`}
               >
                 <ClipboardList className="h-4 w-4" />
-                Tasks
+                {t('label.hub.viewModes.tasks')}
                 {pendingTasks.length > 0 && (
                   <span className="rounded-full bg-accent/10 px-1.5 py-0.5 text-xs text-accent">
                     {pendingTasks.length}
@@ -122,7 +124,7 @@ export const Component = () => {
                 }`}
               >
                 <Boxes className="h-4 w-4" />
-                Batches
+                {t('label.hub.viewModes.batches')}
               </button>
             </div>
           )}
@@ -138,7 +140,7 @@ export const Component = () => {
           className="mb-8"
         >
           <h2 className="mb-4 text-sm font-semibold text-text">
-            Available Labels
+            {t('label.hub.availableLabels')}
           </h2>
           <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-fill/30 p-4">
             {CASHEW_LABELS.map((label) => (
@@ -166,8 +168,8 @@ export const Component = () => {
         >
           <h2 className="mb-4 text-sm font-semibold text-text">
             {effectiveViewMode === 'tasks'
-              ? 'Tasks Ready for Labeling'
-              : 'Batches Ready for Labeling'}
+              ? t('label.hub.sections.tasksReady')
+              : t('label.hub.sections.batchesReady')}
           </h2>
 
           {isLoading ? (
@@ -175,8 +177,8 @@ export const Component = () => {
               <LoadingState
                 message={
                   effectiveViewMode === 'tasks'
-                    ? 'Loading tasks...'
-                    : 'Loading batches...'
+                    ? t('label.hub.loading.tasks')
+                    : t('label.hub.loading.batches')
                 }
               />
             </div>
@@ -185,8 +187,8 @@ export const Component = () => {
               <ErrorState
                 title={
                   effectiveViewMode === 'tasks'
-                    ? 'Failed to load tasks'
-                    : 'Failed to load batches'
+                    ? t('label.hub.error.tasks')
+                    : t('label.hub.error.batches')
                 }
                 onRetry={() => refetch()}
               />
@@ -195,11 +197,11 @@ export const Component = () => {
             pendingTasks.length === 0 ? (
               <div className="rounded-2xl border border-border bg-background p-8">
                 <EmptyState
-                  title="No tasks available"
+                  title={t('label.hub.empty.tasks.title')}
                   message={
                     isUserAdmin
-                      ? 'Tasks are created by splitting batches. Go to Batches and split a batch into tasks.'
-                      : 'No tasks are assigned to you yet.'
+                      ? t('label.hub.empty.tasks.messageAdmin')
+                      : t('label.hub.empty.tasks.messageUser')
                   }
                 />
               </div>
@@ -213,8 +215,8 @@ export const Component = () => {
           ) : readyBatches.length === 0 ? (
             <div className="rounded-2xl border border-border bg-background p-8">
               <EmptyState
-                title="No batches available"
-                message="Create a batch and run auto-segmentation to start labeling."
+                title={t('label.hub.empty.batches.title')}
+                message={t('label.hub.empty.batches.message')}
               />
             </div>
           ) : (
@@ -249,7 +251,9 @@ function TaskCard({
     ? progress.labeledSegments
     : progress.labeledImages
   const remainingItems = totalItems - labeledItems
-  const itemLabel = isSegmentBased ? 'segments' : 'images'
+  const itemLabel = isSegmentBased
+    ? t('label.hub.card.segments')
+    : t('label.hub.card.images')
 
   return (
     <m.div
@@ -271,10 +275,10 @@ function TaskCard({
           }`}
         >
           {progress.progressPercent === 100
-            ? 'Completed'
+            ? t('label.hub.card.status.completed')
             : progress.progressPercent > 0
-              ? 'In Progress'
-              : 'Todo'}
+              ? t('label.hub.card.status.inProgress')
+              : t('label.hub.card.status.todo')}
         </span>
       </div>
 
@@ -297,7 +301,9 @@ function TaskCard({
       {/* Progress Bar */}
       <div className="mb-3 rounded-lg border border-border bg-fill/30 p-2.5">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-xs font-medium text-text">Progress</span>
+          <span className="text-xs font-medium text-text">
+            {t('label.hub.card.progress')}
+          </span>
           <span className="text-sm font-semibold text-text">
             {Math.round(progress.progressPercent)}%
           </span>
@@ -311,14 +317,18 @@ function TaskCard({
           />
         </div>
         <div className="mt-2 flex items-center gap-2 text-xs text-text-tertiary">
-          <span>{labeledItems} labeled</span>
+          <span>
+            {labeledItems} {t('label.hub.card.labeled')}
+          </span>
           <span>•</span>
-          <span>{remainingItems} remaining</span>
+          <span>
+            {remainingItems} {t('label.hub.card.remaining')}
+          </span>
         </div>
       </div>
 
       <div className="mb-4 text-xs text-text-tertiary">
-        Updated {relativeTime(task.updatedAt, t)}
+        {t('label.hub.card.updated')} {relativeTime(task.updatedAt, t)}
       </div>
 
       <Link to={`/label/task/${task.id}`}>
@@ -328,8 +338,8 @@ function TaskCard({
           disabled={totalItems === 0}
         >
           {progress.progressPercent > 0
-            ? 'Continue Labeling'
-            : 'Start Labeling'}
+            ? t('label.hub.card.actions.continue')
+            : t('label.hub.card.actions.start')}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </Link>
@@ -345,6 +355,8 @@ function BatchCard({
   t: ReturnType<typeof useTranslation>['t']
 }) {
   const { data: segmentSummary } = useBatchSegmentationSummary(batch.id)
+  const statusKey = batch.status ?? 'draft'
+  const statusLabel = t(`batches.card.status.${statusKey}`)
 
   return (
     <m.div
@@ -365,7 +377,7 @@ function BatchCard({
                 : 'bg-fill text-text-secondary'
           }`}
         >
-          {batch.status || 'Draft'}
+          {statusLabel}
         </span>
       </div>
 
@@ -379,7 +391,9 @@ function BatchCard({
       <div className="mb-3 flex items-center gap-4 text-sm text-text-tertiary">
         <div className="flex items-center gap-1">
           <ImageIcon className="h-4 w-4" />
-          <span>{batch.imageCount} images</span>
+          <span>
+            {batch.imageCount} {t('label.hub.card.images')}
+          </span>
         </div>
       </div>
 
@@ -387,7 +401,9 @@ function BatchCard({
       {segmentSummary && segmentSummary.totalSegments > 0 && (
         <div className="mb-3 rounded-lg border border-border bg-fill/30 p-2.5">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-xs font-medium text-text">Segments</span>
+            <span className="text-xs font-medium text-text">
+              {t('label.hub.card.segmentStats.title')}
+            </span>
             <span className="text-sm font-semibold text-text">
               {segmentSummary.totalSegments}
             </span>
@@ -396,19 +412,22 @@ function BatchCard({
             {segmentSummary.approvedSegments > 0 && (
               <span className="flex items-center gap-1 rounded-full bg-green/10 px-2 py-0.5 text-xs text-green">
                 <CheckCircle2 className="h-3 w-3" />
-                {segmentSummary.approvedSegments} approved
+                {segmentSummary.approvedSegments}{' '}
+                {t('label.hub.card.segmentStats.approved')}
               </span>
             )}
             {segmentSummary.pendingSegments > 0 && (
               <span className="flex items-center gap-1 rounded-full bg-amber/10 px-2 py-0.5 text-xs text-amber">
                 <Circle className="h-3 w-3" />
-                {segmentSummary.pendingSegments} pending
+                {segmentSummary.pendingSegments}{' '}
+                {t('label.hub.card.segmentStats.pending')}
               </span>
             )}
             {segmentSummary.rejectedSegments > 0 && (
               <span className="flex items-center gap-1 rounded-full bg-red/10 px-2 py-0.5 text-xs text-red">
                 <XCircle className="h-3 w-3" />
-                {segmentSummary.rejectedSegments} rejected
+                {segmentSummary.rejectedSegments}{' '}
+                {t('label.hub.card.segmentStats.rejected')}
               </span>
             )}
           </div>
@@ -416,7 +435,7 @@ function BatchCard({
       )}
 
       <div className="mb-4 text-xs text-text-tertiary">
-        Updated {relativeTime(batch.updatedAt, t)}
+        {t('label.hub.card.updated')} {relativeTime(batch.updatedAt, t)}
       </div>
 
       <Link to={`/label/${batch.id}`}>
@@ -425,7 +444,7 @@ function BatchCard({
           className="w-full"
           disabled={batch.imageCount === 0}
         >
-          Start Labeling
+          {t('label.hub.card.actions.start')}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </Link>

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { useSetAtom } from 'jotai'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
@@ -13,6 +14,7 @@ export const useLogin = () => {
   const setToken = useSetAtom(tokenAtom)
   const setUser = useSetAtom(userAtom)
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return useMutation({
     mutationFn: async (credentials: LoginRequest) => {
@@ -38,9 +40,12 @@ export const useLogin = () => {
       setUser(normalizedUser)
 
       // Show success message
-      toast.success(`Welcome back, ${normalizedUser.username}!`, {
-        description: 'You have been successfully logged in.',
-      })
+      toast.success(
+        t('auth.toast.loginSuccessTitle', { name: normalizedUser.username }),
+        {
+          description: t('auth.toast.loginSuccessDesc'),
+        },
+      )
 
       // Small delay to ensure state propagation before navigation
       setTimeout(() => {
@@ -52,9 +57,9 @@ export const useLogin = () => {
       const message =
         error.data?.message ||
         error.message ||
-        'Login failed. Please check your credentials.'
+        t('auth.toast.loginErrorDefault')
 
-      toast.error('Login Failed', {
+      toast.error(t('auth.toast.loginErrorTitle'), {
         description: message,
       })
     },

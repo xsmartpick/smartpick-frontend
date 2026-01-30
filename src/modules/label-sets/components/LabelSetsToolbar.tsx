@@ -1,5 +1,6 @@
 import { Check, SortAsc, SortDesc, Tag } from 'lucide-react'
 import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SectionTitle } from '~/components/common'
 import {
@@ -31,12 +32,14 @@ export function LabelSetsToolbar({
   sortDir,
   onSortChange,
 }: LabelSetsToolbarProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="rounded-3xl border border-border bg-background p-4 shadow-sm">
       <SectionTitle
         icon={<Tag className="h-5 w-5 text-text-secondary" />}
-        title="Label Sets"
-        subtitle="Create and manage label sets to use with image batches for labeling tasks."
+        title={t('labelSets.toolbar.title')}
+        subtitle={t('labelSets.toolbar.subtitle')}
         right={
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex">
@@ -51,7 +54,7 @@ export function LabelSetsToolbar({
                   )}
                   type="button"
                 >
-                  Cards
+                  {t('components.toolbar.viewModes.cards')}
                 </button>
                 <button
                   onClick={() => onViewChange('table')}
@@ -63,7 +66,7 @@ export function LabelSetsToolbar({
                   )}
                   type="button"
                 >
-                  Table
+                  {t('components.toolbar.viewModes.table')}
                 </button>
               </div>
             </div>
@@ -76,17 +79,23 @@ export function LabelSetsToolbar({
                   ) : (
                     <SortDesc className="h-4 w-4 text-text-secondary" />
                   )}
-                  <span className="hidden sm:inline">Sort</span>
-                  <span className="sm:hidden">Sort</span>
+                  <span className="hidden sm:inline">
+                    {t('components.toolbar.sort')}
+                  </span>
+                  <span className="sm:hidden">
+                    {t('components.toolbar.sort')}
+                  </span>
                 </span>
               }
             >
-              <ToolbarMenuLabel>Sort by</ToolbarMenuLabel>
+              <ToolbarMenuLabel>
+                {t('components.toolbar.sortBy')}
+              </ToolbarMenuLabel>
               {(
                 [
-                  ['updatedAt', 'Last updated'],
-                  ['name', 'Name'],
-                  ['createdAt', 'Created'],
+                  ['updatedAt', t('components.toolbar.sortOptions.updatedAt')],
+                  ['name', t('components.toolbar.sortOptions.name')],
+                  ['createdAt', t('components.toolbar.sortOptions.createdAt')],
                 ] as const
               ).map(([k, label]) => (
                 <ToolbarMenuItem
@@ -104,7 +113,11 @@ export function LabelSetsToolbar({
               ))}
               <ToolbarMenuDivider />
               <ToolbarMenuItem
-                label={sortDir === 'asc' ? 'Ascending' : 'Descending'}
+                label={
+                  sortDir === 'asc'
+                    ? t('components.toolbar.sortOptions.ascending')
+                    : t('components.toolbar.sortOptions.descending')
+                }
                 icon={
                   sortDir === 'asc' ? (
                     <SortAsc className="h-4 w-4" />

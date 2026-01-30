@@ -224,13 +224,13 @@ export function BatchDetails({ batch }: BatchDetailsProps) {
                 onClick={() => setIsAddImagesModalOpen(true)}
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Images
+                {t('batches.details.actions.addImages')}
               </Button>
 
               <Link to={`/label/${batch.id}`}>
                 <Button variant="primary" size="sm">
                   <Tag className="mr-2 h-4 w-4" />
-                  Start Labeling
+                  {t('batches.details.actions.startLabeling')}
                 </Button>
               </Link>
 

@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
 import { m } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 
 import { useMobile } from '~/hooks/common/useMobile'
 import { cn } from '~/lib/cn'
@@ -19,6 +20,7 @@ export function LabelPanel({
   onLabelSelect,
   className,
 }: LabelPanelProps) {
+  const { t } = useTranslation()
   const isMobile = useMobile()
   const labelsWithSelection = labels.map((label) => ({
     ...label,
@@ -157,10 +159,10 @@ export function LabelPanel({
           <div className="border-t border-border px-4 py-3">
             <div className="text-xs text-text-tertiary">
               <div className="mb-1 font-medium text-text-secondary">
-                Shortcuts:
+                {t('label.labelingPage.shortcuts.title')}
               </div>
-              <div>• Press 1-9 to select labels</div>
-              <div>• Click to toggle selection</div>
+              <div>• {t('label.labelingPage.shortcuts.selectLabels')}</div>
+              <div>• {t('label.labelingPage.shortcuts.toggleSelection')}</div>
             </div>
           </div>
         </>

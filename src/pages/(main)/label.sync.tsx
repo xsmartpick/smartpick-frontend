@@ -41,9 +41,11 @@ export const Component = () => {
               <Tag className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Labeling</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('label.hub.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
-                Select a batch to start labeling
+                {t('label.hub.selectBatch')}
               </p>
             </div>
           </div>
@@ -59,7 +61,7 @@ export const Component = () => {
           className="mb-8"
         >
           <h2 className="mb-4 text-sm font-semibold text-text">
-            Available Labels
+            {t('label.hub.availableLabels')}
           </h2>
           <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-fill/30 p-4">
             {CASHEW_LABELS.map((label) => (
@@ -86,25 +88,25 @@ export const Component = () => {
           transition={{ ...Spring.presets.smooth, delay: 0.1 }}
         >
           <h2 className="mb-4 text-sm font-semibold text-text">
-            Batches Ready for Labeling
+            {t('label.hub.sections.batchesReady')}
           </h2>
 
           {isLoading ? (
             <div className="rounded-2xl border border-border bg-background p-8">
-              <LoadingState message="Loading batches..." />
+              <LoadingState message={t('label.hub.loading.batches')} />
             </div>
           ) : error ? (
             <div className="rounded-2xl border border-border bg-background p-8">
               <ErrorState
-                title="Failed to load batches"
+                title={t('label.hub.error.batches')}
                 onRetry={() => refetch()}
               />
             </div>
           ) : readyBatches.length === 0 ? (
             <div className="rounded-2xl border border-border bg-background p-8">
               <EmptyState
-                title="No batches available"
-                message="Create a batch and run auto-segmentation to start labeling."
+                title={t('label.hub.empty.batches.title')}
+                message={t('label.hub.empty.batches.message')}
               />
             </div>
           ) : (
@@ -146,7 +148,9 @@ function BatchCard({
                 : 'bg-fill text-text-secondary'
           }`}
         >
-          {batch.status || 'Draft'}
+          {t(`batches.card.status.${batch.status ?? 'draft'}`, {
+            defaultValue: batch.status ?? t('batches.card.status.draft'),
+          })}
         </span>
       </div>
 
@@ -160,12 +164,12 @@ function BatchCard({
       <div className="mb-4 flex items-center gap-4 text-sm text-text-tertiary">
         <div className="flex items-center gap-1">
           <ImageIcon className="h-4 w-4" />
-          <span>{batch.imageCount} images</span>
+          <span>{t('common.images', { count: batch.imageCount })}</span>
         </div>
       </div>
 
       <div className="mb-4 text-xs text-text-tertiary">
-        Updated {relativeTime(batch.updatedAt, t)}
+        {t('label.hub.card.updated')} {relativeTime(batch.updatedAt, t)}
       </div>
 
       <Link to={`/label/${batch.id}`}>
@@ -174,7 +178,7 @@ function BatchCard({
           className="w-full"
           disabled={batch.imageCount === 0}
         >
-          Start Labeling
+          {t('label.hub.card.actions.start')}
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </Link>

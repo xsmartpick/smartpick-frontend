@@ -9,7 +9,17 @@
             "morning": "Good morning",
             "afternoon": "Good afternoon",
             "evening": "Good evening"
-        }
+        },
+        "created": "Created",
+        "updated": "Updated",
+        "images": "{{count}} image",
+        "images_other": "{{count}} images",
+        "placeholder": "?",
+        "cancel": "Cancel",
+        "create": "Create",
+        "close": "Close",
+        "apply": "Apply",
+        "unknown": "Unknown"
     },
     "navigation": {
         "home": {
@@ -55,6 +65,15 @@
             "title": "Language",
             "english": "English",
             "vietnamese": "Tiếng Việt"
+        },
+        "placeholder": {
+            "name": "User",
+            "email": "user@example.com"
+        },
+        "menu": {
+            "openUserMenu": "Open user menu",
+            "editProfile": "Edit profile",
+            "signOut": "Sign out"
         }
     },
     "dashboard": {
@@ -89,7 +108,8 @@
             "status": {
                 "inProgress": "In progress",
                 "completed": "Completed labeling"
-            }
+            },
+            "loading": "Loading recent activity..."
         },
         "cta": {
             "title": "Ready to continue labeling?",
@@ -137,7 +157,14 @@
             "updateSuccess": "Project updated successfully",
             "archiveSuccess": "Project archived successfully",
             "updateError": "Failed to update project",
-            "updateErrorDesc": "An error occurred while updating the project."
+            "updateErrorDesc": "An error occurred while updating the project.",
+            "statusSuccess": "Project {{status}} successfully",
+            "status": {
+                "active": "activated",
+                "completed": "completed",
+                "archived": "archived"
+            },
+            "statusError": "Failed to update project status"
         },
         "modal": {
             "title": "Create New Project",
@@ -160,6 +187,82 @@
             "cancel": "Cancel",
             "createButton": "Create Project",
             "creating": "Creating..."
+        },
+        "status": {
+            "active": "Active",
+            "completed": "Completed",
+            "archived": "Archived"
+        },
+        "actions": {
+            "markCompleted": "Mark as Completed",
+            "archive": "Archive Project",
+            "setActive": "Set as Active",
+            "delete": "Delete Project",
+            "edit": "Edit",
+            "editProject": "Edit Project",
+            "viewBatches": "View Batches",
+            "viewTasks": "View Tasks"
+        },
+        "card": {
+            "stats": {
+                "batches": "{{count}} batch",
+                "batches_other": "{{count}} batches",
+                "images": "{{count}} image",
+                "images_other": "{{count}} images"
+            },
+            "progress": "Labeling Progress",
+            "pendingTasks": "{{count}} pending task",
+            "pendingTasks_other": "{{count}} pending tasks"
+        },
+        "details": {
+            "stats": {
+                "batches": "Batches",
+                "images": "Images",
+                "tasks": "Tasks",
+                "labelers": "Labelers"
+            },
+            "sections": {
+                "progress": "Progress",
+                "imageLabeling": "Image Labeling",
+                "taskCompletion": "Task Completion",
+                "avgLabelingTime": "Avg. Labeling Time",
+                "description": "Description",
+                "recentActivity": "Recent Activity",
+                "details": "Details",
+                "technical": "Technical",
+                "actions": "Actions"
+            },
+            "info": {
+                "status": "Status",
+                "created": "Created",
+                "lastUpdated": "Last Updated",
+                "createdBy": "Created By",
+                "updatedBy": "Updated By",
+                "projectId": "Project ID",
+                "organizationId": "Organization ID"
+            }
+        },
+        "confirmDelete": "Are you sure you want to delete this project? This action cannot be undone.",
+        "edit": {
+            "title": "Edit Project",
+            "description": "Update your project details.",
+            "fields": {
+                "name": "Project Name",
+                "description": "Description"
+            },
+            "placeholders": {
+                "name": "e.g. Product Classification 2024",
+                "description": "What is this project about?"
+            },
+            "validation": {
+                "nameRequired": "Project name is required",
+                "nameMin": "Name must be at least 2 characters",
+                "nameMax": "Name must be less than 64 characters"
+            },
+            "actions": {
+                "saving": "Saving...",
+                "saveChanges": "Save Changes"
+            }
         }
     },
     "batches": {
@@ -361,7 +464,9 @@
             "actions": {
                 "split": "Split into Tasks",
                 "export": "Export batch",
-                "delete": "Delete batch"
+                "delete": "Delete batch",
+                "addImages": "Add Images",
+                "startLabeling": "Start Labeling"
             },
             "stats": {
                 "totalImages": "Total Images",
@@ -379,6 +484,34 @@
                 "noImages": "No images in this batch",
                 "imageCount": "{{count}} images",
                 "empty": "This batch doesn't have any images yet."
+            }
+        },
+        "upload": {
+            "toast": {
+                "allSuccess": "All files uploaded successfully!",
+                "allSuccessDesc": "{{count}} file uploaded.",
+                "allSuccessDesc_other": "{{count}} files uploaded.",
+                "someFailed": "Some files failed to upload",
+                "someFailedDesc": "{{successCount}} succeeded, {{failedCount}} failed.",
+                "someFailedDescWithError": "{{successCount}} succeeded, {{failedCount}} failed. {{error}}",
+                "failed": "Upload failed",
+                "failedDesc": "An error occurred during upload."
+            }
+        },
+        "addImages": {
+            "toast": {
+                "uploadSuccess": "{{count}} file uploaded successfully!",
+                "uploadSuccess_other": "{{count}} files uploaded successfully!",
+                "someFailed": "Some files failed to upload",
+                "someFailedDesc": "{{successCount}} succeeded, {{failedCount}} failed.",
+                "uploadFailed": "Upload failed",
+                "uploadFailedDesc": "An error occurred during upload.",
+                "noImages": "Please add at least one image",
+                "noFilesUploaded": "No files were uploaded successfully",
+                "addedSuccess": "Images added to batch!",
+                "addedSuccessDesc": "{{count}} image added to \"{{batchName}}\"",
+                "addedSuccessDesc_other": "{{count}} images added to \"{{batchName}}\"",
+                "addedError": "Failed to add images to batch"
             }
         }
     },
@@ -444,6 +577,501 @@
             "auto": "Auto-approved",
             "manual": "Manually reviewed",
             "thresholdInfo": "Confidence ≥ {{threshold}}% threshold"
+        }
+    },
+    "auth": {
+        "login": {
+            "branding": {
+                "subtitle": "AI-Powered Labeling",
+                "systemName": "Cashew Classification System",
+                "tagline": "AI-powered precision sorting made simple",
+                "copyright": "© 2025 Delta X"
+            },
+            "features": {
+                "gradeClassification": {
+                    "title": "24 Grade Classification",
+                    "description": "Complete sorting for all cashew grades"
+                },
+                "accuracy": {
+                    "title": "99.9% Accuracy",
+                    "description": "Industry-leading precision you can trust"
+                },
+                "processing": {
+                    "title": "Real-time Processing",
+                    "description": "Instant results for maximum efficiency"
+                }
+            },
+            "form": {
+                "welcomeTitle": "Welcome Back",
+                "welcomeSubtitle": "Sign in to continue to your dashboard",
+                "username": "Username or Email",
+                "usernamePlaceholder": "Enter your username",
+                "password": "Password",
+                "passwordPlaceholder": "Enter your password",
+                "rememberMe": "Keep me signed in for 30 days",
+                "signIn": "Sign In",
+                "signingIn": "Signing in...",
+                "needHelp": "Need help? Contact your system administrator",
+                "qrCode": "QR Code",
+                "toggleTheme": "Toggle theme",
+                "validation": {
+                    "usernameRequired": "Username is required",
+                    "usernameMinLength": "Username must be at least 3 characters",
+                    "passwordRequired": "Password is required",
+                    "passwordMinLength": "Password must be at least 6 characters"
+                }
+            },
+            "qr": {
+                "title": "Scan to Start Labeling",
+                "description": "Use your phone camera to scan and start labeling instantly."
+            }
+        },
+        "gateway": {
+            "checking": "Checking authentication...",
+            "onboarding": "Setting up your account...",
+            "redirecting": "Redirecting to labeling...",
+            "error": {
+                "title": "Failed to connect",
+                "retry": "Retry",
+                "unknown": "Unknown error"
+            }
+        },
+        "toast": {
+            "loginSuccessTitle": "Welcome back, {{name}}!",
+            "loginSuccessDesc": "You have been successfully logged in.",
+            "loginErrorTitle": "Login failed",
+            "loginErrorDefault": "Login failed. Please check your credentials.",
+            "logoutSuccess": "Logged out successfully",
+            "qrGenerateError": "Failed to generate QR code",
+            "qrLoginSuccessTitle": "Login successful",
+            "qrLoginSuccessDesc": "Welcome back, {{name}}!"
+        }
+    },
+    "label": {
+        "hub": {
+            "title": "Labeling",
+            "selectTask": "Select a task to start labeling",
+            "selectBatch": "Select a batch to start labeling",
+            "viewModes": {
+                "tasks": "Tasks",
+                "batches": "Batches"
+            },
+            "availableLabels": "Available Labels",
+            "sections": {
+                "tasksReady": "Tasks Ready for Labeling",
+                "batchesReady": "Batches Ready for Labeling"
+            },
+            "loading": {
+                "tasks": "Loading tasks...",
+                "batches": "Loading batches..."
+            },
+            "error": {
+                "tasks": "Failed to load tasks",
+                "batches": "Failed to load batches"
+            },
+            "empty": {
+                "tasks": {
+                    "title": "No tasks available",
+                    "messageAdmin": "Tasks are created by splitting batches. Go to Batches and split a batch into tasks.",
+                    "messageUser": "No tasks are assigned to you yet."
+                },
+                "batches": {
+                    "title": "No batches available",
+                    "message": "Create a batch and run auto-segmentation to start labeling."
+                }
+            },
+            "card": {
+                "status": {
+                    "completed": "Completed",
+                    "inProgress": "In Progress",
+                    "todo": "Todo"
+                },
+                "progress": "Progress",
+                "labeled": "labeled",
+                "remaining": "remaining",
+                "images": "images",
+                "segments": "segments",
+                "updated": "Updated",
+                "actions": {
+                    "continue": "Continue Labeling",
+                    "start": "Start Labeling"
+                },
+                "segmentStats": {
+                    "title": "Segments",
+                    "approved": "approved",
+                    "pending": "pending",
+                    "rejected": "rejected"
+                }
+            }
+        },
+        "batchLabeling": {
+            "backButton": "Back to Batch",
+            "loading": "Loading segments for labeling...",
+            "error": {
+                "title": "Failed to load segments",
+                "unknown": "An error occurred"
+            },
+            "empty": {
+                "title": "No Segments Available",
+                "message": "This batch doesn't have any approved segments for labeling. Run auto-segmentation first and approve segments before labeling."
+            },
+            "save": {
+                "success": "Labels saved successfully!",
+                "successDesc": "{{count}} label saved.",
+                "successDesc_other": "{{count}} labels saved.",
+                "error": "Failed to save labels",
+                "unknownError": "Unknown error"
+            },
+            "invalid": "Invalid batch ID"
+        },
+        "taskLabeling": {
+            "backButton": "Back to Tasks",
+            "loading": "Loading task segments for labeling...",
+            "error": {
+                "title": "Failed to load task segments",
+                "unknown": "An error occurred"
+            },
+            "empty": {
+                "title": "No Segments in Task",
+                "message": "This task doesn't have any segments assigned. The task may have been created incorrectly or segments were removed."
+            },
+            "invalid": "Invalid task ID"
+        },
+        "labelingPage": {
+            "empty": "No images to label",
+            "shortcuts": {
+                "title": "Shortcuts",
+                "selectLabels": "Press 1-9 to select labels",
+                "toggleSelection": "Click to toggle selection"
+            },
+            "toast": {
+                "saveSuccess": "Labels saved successfully!",
+                "saveDesc": "{{count}} label assignment saved.",
+                "saveDesc_other": "{{count}} label assignments saved.",
+                "updateTitle": "Labels updated",
+                "updateDesc": "{{count}} label assignment recorded.",
+                "updateDesc_other": "{{count}} label assignments recorded."
+            }
+        }
+    },
+    "admintasks": {
+        "title": "Tasks",
+        "subtitle": "Cross-batch task overview for admins",
+        "loading": "Loading tasks...",
+        "error": "Failed to load tasks",
+        "empty": {
+            "title": "No tasks found",
+            "message": "Try adjusting your filters or search query."
+        },
+        "table": {
+            "headers": {
+                "title": "Title",
+                "batch": "Batch",
+                "status": "Status",
+                "priority": "Priority",
+                "assignee": "Assignee",
+                "dueDate": "Due Date"
+            },
+            "unassigned": "Unassigned"
+        },
+        "status": {
+            "todo": "To Do",
+            "inProgress": "In Progress",
+            "review": "Review",
+            "done": "Done"
+        },
+        "priority": {
+            "low": "Low",
+            "medium": "Medium",
+            "high": "High"
+        },
+        "toolbar": {
+            "searchPlaceholder": "Search tasks or batches...",
+            "status": "Status",
+            "priority": "Priority",
+            "filterByStatus": "Filter by Status",
+            "filterByPriority": "Filter by Priority",
+            "clear": "Clear",
+            "results": "{{count}} task found",
+            "results_other": "{{count}} tasks found"
+        },
+        "pagination": {
+            "pageOf": "Page {{current}} of {{total}}"
+        }
+    },
+    "pages": {
+        "loading": {
+            "project": "Loading project...",
+            "batch": "Loading batch...",
+            "default": "Loading..."
+        },
+        "error": {
+            "project": "Failed to load project",
+            "batch": "Failed to load batch",
+            "notFound": {
+                "project": "Project not found",
+                "projectMessage": "Project with ID \"{{id}}\" could not be found.",
+                "batch": "Batch not found",
+                "batchMessage": "Batch with ID \"{{id}}\" could not be found."
+            }
+        },
+        "backLinks": {
+            "projects": "Back to projects",
+            "batches": "Back to batches",
+            "tasks": "Back to tasks"
+        }
+    },
+    "components": {
+        "toolbar": {
+            "search": "Search {{resource}}...",
+            "sort": "Sort",
+            "sortBy": "Sort by",
+            "sortOptions": {
+                "updatedAt": "Last updated",
+                "name": "Name",
+                "createdAt": "Created",
+                "ascending": "Ascending",
+                "descending": "Descending"
+            },
+            "viewModes": {
+                "cards": "Cards",
+                "table": "Table"
+            }
+        }
+    },
+    "datasets": {
+        "toolbar": {
+            "title": "Datasets",
+            "subtitle": "Create and manage datasets before you start labeling."
+        },
+        "page": {
+            "title": "Datasets",
+            "subtitle": "Manage your data collections"
+        },
+        "shortcuts": {
+            "label": "Shortcuts",
+            "new": "new"
+        },
+        "newDataset": "New dataset",
+        "loading": "Loading datasets...",
+        "error": {
+            "title": "Failed to load datasets"
+        },
+        "empty": {
+            "title": "No datasets found",
+            "message": "Get started by creating your first dataset."
+        },
+        "table": {
+            "headers": {
+                "name": "Name",
+                "description": "Description",
+                "mediaType": "Media Type",
+                "created": "Created",
+                "updated": "Updated"
+            }
+        },
+        "toast": {
+            "createSuccess": "Dataset created successfully!",
+            "createSuccessDesc": "{{name}} has been added to your datasets.",
+            "createError": "Failed to create dataset",
+            "createErrorUnknown": "An unknown error occurred"
+        },
+        "create": {
+            "title": "Create Dataset",
+            "description": "Create a new dataset to organize your labeling tasks. You can add items to label later.",
+            "fields": {
+                "name": "Name",
+                "description": "Description",
+                "mediaType": "Media Type"
+            },
+            "placeholders": {
+                "name": "e.g. Cashew Images Dataset",
+                "description": "What are you labeling here? Any specific instructions or context?",
+                "mediaType": "Select media type"
+            },
+            "hints": {
+                "name": "Keep it short and descriptive. Max 64 characters.",
+                "description": "Optional. Helpful for future labelers.",
+                "mediaType": "The type of media files this dataset will contain."
+            },
+            "mediaTypes": {
+                "image": "Image",
+                "video": "Video",
+                "audio": "Audio",
+                "text": "Text"
+            },
+            "validation": {
+                "nameRequired": "Name is required",
+                "nameMin": "Name must be at least 2 characters",
+                "nameMax": "Name must be less than 64 characters",
+                "mediaTypeRequired": "Media type is required"
+            }
+        },
+        "details": {
+            "title": "Dataset Details",
+            "confirmDelete": "Are you sure you want to delete this dataset? This action cannot be undone.",
+            "sections": {
+                "basic": "Basic Information",
+                "metadata": "Metadata",
+                "technical": "Technical Details"
+            },
+            "fields": {
+                "name": "Name",
+                "description": "Description",
+                "mediaType": "Media Type",
+                "createdAt": "Created At",
+                "updatedAt": "Updated At",
+                "createdBy": "Created By",
+                "datasetId": "Dataset ID"
+            },
+            "placeholders": {
+                "noDescription": "No description provided"
+            },
+            "actions": {
+                "edit": "Edit Dataset",
+                "delete": "Delete Dataset"
+            },
+            "validation": {
+                "nameMin": "Name must be at least 2 characters."
+            },
+            "toast": {
+                "noChanges": "No changes to apply.",
+                "updateSuccess": "Dataset updated successfully.",
+                "updateError": "Failed to update dataset.",
+                "updateErrorUnknown": "An unknown error occurred."
+            }
+        }
+    },
+    "labelSets": {
+        "toolbar": {
+            "title": "Label Sets",
+            "subtitle": "Create and manage label sets to use with image batches for labeling tasks."
+        },
+        "page": {
+            "title": "Label Sets",
+            "subtitle": "Manage your label collections"
+        },
+        "shortcuts": {
+            "label": "Shortcuts",
+            "new": "new"
+        },
+        "newLabelSet": "New label set",
+        "loading": "Loading label sets...",
+        "error": {
+            "title": "Failed to load label sets"
+        },
+        "empty": {
+            "title": "No label sets found",
+            "message": "Get started by creating your first label set."
+        },
+        "table": {
+            "headers": {
+                "name": "Name",
+                "description": "Description",
+                "labels": "Labels",
+                "created": "Created",
+                "updated": "Updated"
+            }
+        },
+        "labels": {
+            "count": "{{count}} label",
+            "count_other": "{{count}} labels",
+            "empty": "No labels",
+            "unit": "label",
+            "unit_other": "labels"
+        },
+        "toast": {
+            "createSuccess": "Label set created successfully!",
+            "createSuccessDesc": "{{name}} has been added to your label sets.",
+            "createError": "Failed to create label set",
+            "createErrorUnknown": "An unknown error occurred"
+        },
+        "create": {
+            "title": "Create Label Set",
+            "description": "Create a new label set now. You can add labels later when labeling is enabled.",
+            "fields": {
+                "name": "Name",
+                "description": "Description",
+                "labelsOptional": "Labels (optional)",
+                "labelName": "Label Name",
+                "color": "Color",
+                "labelDescription": "Description (optional)"
+            },
+            "placeholders": {
+                "name": "e.g. Object Detection Labels",
+                "description": "What are these labels used for? Any specific instructions?",
+                "labelName": "e.g. Person, Car, Good",
+                "labelDescription": "Optional description for this label"
+            },
+            "hints": {
+                "name": "Keep it short and descriptive. Max 64 characters.",
+                "description": "Optional. Helpful for future reference.",
+                "labels": "Optional for now. You can add labels later."
+            },
+            "actions": {
+                "addLabel": "Add Label",
+                "create": "Create Label Set"
+            },
+            "validation": {
+                "nameRequired": "Name is required",
+                "nameMin": "Name must be at least 2 characters",
+                "nameMax": "Name must be less than 64 characters"
+            }
+        },
+        "details": {
+            "title": "Label Set Details",
+            "sections": {
+                "basic": "Basic Information",
+                "labels": "Labels ({{count}})",
+                "metadata": "Metadata",
+                "technical": "Technical Details"
+            },
+            "fields": {
+                "name": "Name",
+                "description": "Description",
+                "createdAt": "Created At",
+                "updatedAt": "Updated At",
+                "createdBy": "Created By",
+                "labelSetId": "Label Set ID"
+            },
+            "placeholders": {
+                "noDescription": "No description provided",
+                "noLabels": "No labels in this set"
+            },
+            "actions": {
+                "edit": "Edit Label Set",
+                "delete": "Delete"
+            },
+            "validation": {
+                "nameMin": "Name must be at least 2 characters."
+            },
+            "toast": {
+                "noChanges": "No changes to apply.",
+                "updateSuccess": "Label set updated successfully.",
+                "updateError": "Failed to update label set.",
+                "updateErrorUnknown": "An unknown error occurred.",
+                "deleteSuccess": "Label set deleted.",
+                "deleteError": "Failed to delete label set.",
+                "deleteErrorUnknown": "An unknown error occurred."
+            },
+            "delete": {
+                "title": "Delete label set?",
+                "description": "This will permanently remove \"{{name}}\".",
+                "confirm": "Delete"
+            }
+        }
+    },
+    "tasks": {
+        "toolbar": {
+            "title": "My Tasks",
+            "searchPlaceholder": "Search tasks...",
+            "status": {
+                "prefix": "Status: {{status}}",
+                "all": "All",
+                "todo": "Todo",
+                "inProgress": "In progress",
+                "done": "Done"
+            }
         }
     }
 }

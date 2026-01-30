@@ -1,6 +1,7 @@
 import { ArrowLeft } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { useReadonlyRouteSelector } from '~/atoms/route'
@@ -11,6 +12,7 @@ import { useProject } from '~/modules/projects'
 import { ProjectDetails } from '~/modules/projects/components/ProjectDetails'
 
 export const Component = () => {
+  const { t } = useTranslation()
   const projectId = useReadonlyRouteSelector((r) => r.params.id)
   const { data: project, isLoading, error, refetch } = useProject(projectId)
   const [localProject, setLocalProject] = useState<Project | null>(null)
@@ -25,7 +27,7 @@ export const Component = () => {
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
-        <LoadingState message="Loading project..." />
+        <LoadingState message={t('pages.loading.project')} />
       </div>
     )
   }
@@ -36,7 +38,7 @@ export const Component = () => {
         <BackLink />
         <div className="mt-8">
           <ErrorState
-            title="Failed to load project"
+            title={t('pages.error.project')}
             message={error.message}
             onRetry={() => refetch()}
           />
@@ -51,8 +53,10 @@ export const Component = () => {
         <BackLink />
         <div className="mt-8">
           <ErrorState
-            title="Project not found"
-            message={`Project with ID "${projectId}" could not be found.`}
+            title={t('pages.error.notFound.project')}
+            message={t('pages.error.notFound.projectMessage', {
+              id: projectId ?? '',
+            })}
           />
         </div>
       </div>
@@ -72,13 +76,14 @@ export const Component = () => {
 }
 
 function BackLink() {
+  const { t } = useTranslation()
   return (
     <Link
       to="/projects"
       className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary transition-colors hover:text-text"
     >
       <ArrowLeft className="h-4 w-4" />
-      Back to projects
+      {t('pages.backLinks.projects')}
     </Link>
   )
 }

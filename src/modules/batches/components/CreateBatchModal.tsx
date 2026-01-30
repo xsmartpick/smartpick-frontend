@@ -65,22 +65,31 @@ export function CreateBatchModal({
       const errors = results.filter((r) => r.error).map((r) => r.error)
 
       if (failedCount === 0) {
-        toast.success('All files uploaded successfully!', {
-          description: `${successCount} file${successCount === 1 ? '' : 's'} uploaded.`,
+        toast.success(t('batches.upload.toast.allSuccess'), {
+          description: t('batches.upload.toast.allSuccessDesc', {
+            count: successCount,
+          }),
         })
       } else {
         const errorMessage =
           errors.length > 0
-            ? `${successCount} succeeded, ${failedCount} failed. ${errors[0]}`
-            : `${successCount} succeeded, ${failedCount} failed.`
-        toast.warning('Some files failed to upload', {
+            ? t('batches.upload.toast.someFailedDescWithError', {
+                successCount,
+                failedCount,
+                error: errors[0],
+              })
+            : t('batches.upload.toast.someFailedDesc', {
+                successCount,
+                failedCount,
+              })
+        toast.warning(t('batches.upload.toast.someFailed'), {
           description: errorMessage,
         })
       }
     },
     onError: (error) => {
-      toast.error('Upload failed', {
-        description: error.message || 'An error occurred during upload.',
+      toast.error(t('batches.upload.toast.failed'), {
+        description: error.message || t('batches.upload.toast.failedDesc'),
       })
     },
   })
