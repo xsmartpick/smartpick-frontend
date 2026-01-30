@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -40,6 +41,7 @@ export function CreateDatasetModal({
   onClose,
   onSubmit,
 }: CreateDatasetModalProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [mediaType, setMediaType] = useState<MediaType | ''>('')
@@ -64,15 +66,15 @@ export function CreateDatasetModal({
     const newErrors: typeof errors = {}
 
     if (!name.trim()) {
-      newErrors.name = 'Name is required'
+      newErrors.name = t('datasets.create.validation.nameRequired')
     } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters'
+      newErrors.name = t('datasets.create.validation.nameMin')
     } else if (name.trim().length > 64) {
-      newErrors.name = 'Name must be less than 64 characters'
+      newErrors.name = t('datasets.create.validation.nameMax')
     }
 
     if (!mediaType) {
-      newErrors.mediaType = 'Media type is required'
+      newErrors.mediaType = t('datasets.create.validation.mediaTypeRequired')
     }
 
     setErrors(newErrors)
@@ -107,10 +109,9 @@ export function CreateDatasetModal({
     >
       <DialogContent className="max-w-lg" onKeyDown={handleKeyDown}>
         <DialogHeader>
-          <DialogTitle>Create Dataset</DialogTitle>
+          <DialogTitle>{t('datasets.create.title')}</DialogTitle>
           <DialogDescription>
-            Create a new dataset to organize your labeling tasks. You can add
-            items to label later.
+            {t('datasets.create.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -118,7 +119,8 @@ export function CreateDatasetModal({
           {/* Name Field */}
           <div className="space-y-2">
             <Label htmlFor="dataset-name">
-              Name <span className="text-red">*</span>
+              {t('datasets.create.fields.name')}{' '}
+              <span className="text-red">*</span>
             </Label>
             <Input
               id="dataset-name"
@@ -129,7 +131,7 @@ export function CreateDatasetModal({
                   setErrors((prev) => ({ ...prev, name: undefined }))
                 }
               }}
-              placeholder="e.g. Cashew Images Dataset"
+              placeholder={t('datasets.create.placeholders.name')}
               maxLength={64}
               hasError={!!errors.name}
               aria-invalid={!!errors.name}
@@ -141,25 +143,27 @@ export function CreateDatasetModal({
               </p>
             ) : (
               <p className="text-xs text-text-tertiary">
-                Keep it short and descriptive. Max 64 characters.
+                {t('datasets.create.hints.name')}
               </p>
             )}
           </div>
 
           {/* Description Field */}
           <div className="space-y-2">
-            <Label htmlFor="dataset-description">Description</Label>
+            <Label htmlFor="dataset-description">
+              {t('datasets.create.fields.description')}
+            </Label>
             <Textarea
               id="dataset-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="What are you labeling here? Any specific instructions or context?"
+              placeholder={t('datasets.create.placeholders.description')}
               rows={4}
               maxLength={500}
             />
             <div className="flex items-center justify-between">
               <p className="text-xs text-text-tertiary">
-                Optional. Helpful for future labelers.
+                {t('datasets.create.hints.description')}
               </p>
               <p className="text-xs text-text-tertiary">
                 {description.length}/500
@@ -170,7 +174,8 @@ export function CreateDatasetModal({
           {/* Media Type Field */}
           <div className="space-y-2">
             <Label htmlFor="dataset-media-type">
-              Media Type <span className="text-red">*</span>
+              {t('datasets.create.fields.mediaType')}{' '}
+              <span className="text-red">*</span>
             </Label>
             <Select
               value={mediaType}
@@ -189,13 +194,23 @@ export function CreateDatasetModal({
                   errors.mediaType ? 'media-type-error' : undefined
                 }
               >
-                <SelectValue placeholder="Select media type" />
+                <SelectValue
+                  placeholder={t('datasets.create.placeholders.mediaType')}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="image">Image</SelectItem>
-                <SelectItem value="video">Video</SelectItem>
-                <SelectItem value="audio">Audio</SelectItem>
-                <SelectItem value="text">Text</SelectItem>
+                <SelectItem value="image">
+                  {t('datasets.create.mediaTypes.image')}
+                </SelectItem>
+                <SelectItem value="video">
+                  {t('datasets.create.mediaTypes.video')}
+                </SelectItem>
+                <SelectItem value="audio">
+                  {t('datasets.create.mediaTypes.audio')}
+                </SelectItem>
+                <SelectItem value="text">
+                  {t('datasets.create.mediaTypes.text')}
+                </SelectItem>
               </SelectContent>
             </Select>
             {errors.mediaType ? (
@@ -204,7 +219,7 @@ export function CreateDatasetModal({
               </p>
             ) : (
               <p className="text-xs text-text-tertiary">
-                The type of media files this dataset will contain.
+                {t('datasets.create.hints.mediaType')}
               </p>
             )}
           </div>
@@ -212,11 +227,11 @@ export function CreateDatasetModal({
 
         <DialogFooter>
           <Button variant="ghost" onClick={handleClose}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button onClick={handleSubmit} variant="primary">
             <Plus className="mr-2 h-4 w-4" />
-            Create
+            {t('common.create')}
           </Button>
         </DialogFooter>
       </DialogContent>

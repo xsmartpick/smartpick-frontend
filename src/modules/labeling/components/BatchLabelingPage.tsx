@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, ImageIcon } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
@@ -30,6 +31,7 @@ interface BatchLabelingPageProps {
  * Wrapper component that fetches real batch data and renders the labeling page
  */
 export function BatchLabelingPage({ batchId }: BatchLabelingPageProps) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data, isLoading, error, refetch } = useBatchLabelingImages(batchId)
@@ -87,19 +89,24 @@ export function BatchLabelingPage({ batchId }: BatchLabelingPageProps) {
       try {
         const result = await saveSegmentLabels(batchId, segmentAssignments)
         if (result.success) {
-          toast.success(`Labels saved successfully!`, {
-            description: `${result.count} label${result.count === 1 ? '' : 's'} saved.`,
+          toast.success(t('label.batchLabeling.save.success'), {
+            description: t('label.batchLabeling.save.successDesc', {
+              count: result.count,
+            }),
           })
           // Invalidate queries to refresh data
           queryClient.invalidateQueries({ queryKey: labelingKeys.all })
         }
       } catch (err) {
-        toast.error('Failed to save labels', {
-          description: err instanceof Error ? err.message : 'Unknown error',
+        toast.error(t('label.batchLabeling.save.error'), {
+          description:
+            err instanceof Error
+              ? err.message
+              : t('label.batchLabeling.save.unknownError'),
         })
       }
     },
-    [batchId, queryClient],
+    [batchId, queryClient, t],
   )
 
   // Complete handler - navigates back to batch after saving
@@ -121,12 +128,12 @@ export function BatchLabelingPage({ batchId }: BatchLabelingPageProps) {
           <Link to={`/batches/${batchId}`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Batch
+              {t('label.batchLabeling.backButton')}
             </Button>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center">
-          <LoadingState message="Loading segments for labeling..." />
+          <LoadingState message={t('label.batchLabeling.loading')} />
         </div>
       </div>
     )
@@ -139,15 +146,17 @@ export function BatchLabelingPage({ batchId }: BatchLabelingPageProps) {
           <Link to={`/batches/${batchId}`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Batch
+              {t('label.batchLabeling.backButton')}
             </Button>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-center p-8">
           <ErrorState
-            title="Failed to load segments"
+            title={t('label.batchLabeling.error.title')}
             message={
-              error instanceof Error ? error.message : 'An error occurred'
+              error instanceof Error
+                ? error.message
+                : t('label.batchLabeling.error.unknown')
             }
             onRetry={() => refetch()}
           />
@@ -163,7 +172,7 @@ export function BatchLabelingPage({ batchId }: BatchLabelingPageProps) {
           <Link to={`/batches/${batchId}`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Batch
+              {t('label.batchLabeling.backButton')}
             </Button>
           </Link>
         </div>
@@ -178,16 +187,15 @@ export function BatchLabelingPage({ batchId }: BatchLabelingPageProps) {
               <ImageIcon className="h-8 w-8 text-text-tertiary" />
             </div>
             <h2 className="mb-2 text-lg font-semibold text-text">
-              No Segments Available
+              {t('label.batchLabeling.empty.title')}
             </h2>
             <p className="mb-6 max-w-md text-sm text-text-secondary">
-              This batch doesn't have any approved segments for labeling. Run
-              auto-segmentation first and approve segments before labeling.
+              {t('label.batchLabeling.empty.message')}
             </p>
             <Link to={`/batches/${batchId}`}>
               <Button variant="primary">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Batch
+                {t('label.batchLabeling.backButton')}
               </Button>
             </Link>
           </m.div>

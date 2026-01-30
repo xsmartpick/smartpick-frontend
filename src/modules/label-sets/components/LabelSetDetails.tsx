@@ -1,6 +1,7 @@
 import { Calendar, Clock, Tag, Trash2, User, X } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
@@ -41,6 +42,7 @@ export function LabelSetDetails({
   onUpdated,
   onDeleted,
 }: LabelSetDetailsProps) {
+  const { t } = useTranslation()
   const isOpen = labelSet !== null
   const updateLabelSetMutation = useUpdateLabelSet()
   const deleteLabelSetMutation = useDeleteLabelSet()
@@ -90,7 +92,7 @@ export function LabelSetDetails({
   const handleApply = () => {
     if (!labelSet) return
     if (!isNameValid) {
-      toast.error('Name must be at least 2 characters.')
+      toast.error(t('labelSets.details.validation.nameMin'))
       return
     }
 
@@ -104,7 +106,7 @@ export function LabelSetDetails({
     }
 
     if (Object.keys(request).length === 0) {
-      toast.info('No changes to apply.')
+      toast.info(t('labelSets.details.toast.noChanges'))
       return
     }
 
@@ -114,12 +116,14 @@ export function LabelSetDetails({
         onSuccess: (updated) => {
           onUpdated?.(updated)
           setIsEditing(false)
-          toast.success('Label set updated successfully.')
+          toast.success(t('labelSets.details.toast.updateSuccess'))
         },
         onError: (err) => {
-          toast.error('Failed to update label set.', {
+          toast.error(t('labelSets.details.toast.updateError'), {
             description:
-              err instanceof Error ? err.message : 'An unknown error occurred.',
+              err instanceof Error
+                ? err.message
+                : t('labelSets.details.toast.updateErrorUnknown'),
           })
         },
       },
@@ -130,20 +134,24 @@ export function LabelSetDetails({
     if (!labelSet) return
 
     Prompt.prompt({
-      title: 'Delete label set?',
-      description: `This will permanently remove "${labelSet.name}".`,
+      title: t('labelSets.details.delete.title'),
+      description: t('labelSets.details.delete.description', {
+        name: labelSet.name,
+      }),
       variant: 'danger',
-      onConfirmText: 'Delete',
+      onConfirmText: t('labelSets.details.delete.confirm'),
       onConfirm: async () => {
         try {
           await deleteLabelSetMutation.mutateAsync(labelSet.id)
-          toast.success('Label set deleted.')
+          toast.success(t('labelSets.details.toast.deleteSuccess'))
           onDeleted?.(labelSet.id)
           onClose()
         } catch (err) {
-          toast.error('Failed to delete label set.', {
+          toast.error(t('labelSets.details.toast.deleteError'), {
             description:
-              err instanceof Error ? err.message : 'An unknown error occurred.',
+              err instanceof Error
+                ? err.message
+                : t('labelSets.details.toast.deleteErrorUnknown'),
           })
         }
       },
@@ -182,7 +190,7 @@ export function LabelSetDetails({
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-text">
-                      Label Set Details
+                      {t('labelSets.details.title')}
                     </h2>
                     <p className="text-xs text-text-secondary">
                       {labelSet.name}
@@ -205,7 +213,7 @@ export function LabelSetDetails({
                     {/* Basic Information */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Basic Information
+                        {t('labelSets.details.sections.basic')}
                       </h3>
                       <div className="space-y-4 rounded-2xl border border-border bg-fill/30 p-4">
                         <div>
@@ -213,7 +221,7 @@ export function LabelSetDetails({
                             htmlFor="label-set-name"
                             className="mb-1 block text-xs font-medium text-text-tertiary"
                           >
-                            Name
+                            {t('labelSets.details.fields.name')}
                           </Label>
                           {isEditing ? (
                             <Input
@@ -235,7 +243,7 @@ export function LabelSetDetails({
                             htmlFor="label-set-description"
                             className="mb-1 block text-xs font-medium text-text-tertiary"
                           >
-                            Description
+                            {t('labelSets.details.fields.description')}
                           </Label>
                           {isEditing ? (
                             <Textarea
@@ -250,7 +258,9 @@ export function LabelSetDetails({
                             <p className="text-sm text-text">
                               {labelSet.description || (
                                 <span className="text-text-tertiary italic">
-                                  No description provided
+                                  {t(
+                                    'labelSets.details.placeholders.noDescription',
+                                  )}
                                 </span>
                               )}
                             </p>
@@ -262,12 +272,14 @@ export function LabelSetDetails({
                     {/* Labels */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Labels ({labelSet.labels.length})
+                        {t('labelSets.details.sections.labels', {
+                          count: labelSet.labels.length,
+                        })}
                       </h3>
                       <div className="space-y-2 rounded-2xl border border-border bg-fill/30 p-4">
                         {labelSet.labels.length === 0 ? (
                           <p className="text-sm text-text-tertiary italic">
-                            No labels in this set
+                            {t('labelSets.details.placeholders.noLabels')}
                           </p>
                         ) : (
                           labelSet.labels.map((label) => (
@@ -300,7 +312,7 @@ export function LabelSetDetails({
                     {/* Metadata */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Metadata
+                        {t('labelSets.details.sections.metadata')}
                       </h3>
                       <div className="space-y-4 rounded-2xl border border-border bg-fill/30 p-4">
                         <div className="flex items-start gap-3">
@@ -309,7 +321,7 @@ export function LabelSetDetails({
                           </div>
                           <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                              Created At
+                              {t('labelSets.details.fields.createdAt')}
                             </label>
                             <p className="text-sm text-text">
                               {formatDate(labelSet.createdAt)}
@@ -325,7 +337,7 @@ export function LabelSetDetails({
                           </div>
                           <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                              Updated At
+                              {t('labelSets.details.fields.updatedAt')}
                             </label>
                             <p className="text-sm text-text">
                               {formatDate(labelSet.updatedAt)}
@@ -341,12 +353,12 @@ export function LabelSetDetails({
                           </div>
                           <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                              Created By
+                              {t('labelSets.details.fields.createdBy')}
                             </label>
                             <p className="text-sm text-text">
                               {labelSet.createdBy || (
                                 <span className="text-text-tertiary italic">
-                                  Unknown
+                                  {t('common.unknown')}
                                 </span>
                               )}
                             </p>
@@ -358,12 +370,12 @@ export function LabelSetDetails({
                     {/* Label Set ID */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Technical Details
+                        {t('labelSets.details.sections.technical')}
                       </h3>
                       <div className="rounded-2xl border border-border bg-fill/30 p-4">
                         <div>
                           <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                            Label Set ID
+                            {t('labelSets.details.fields.labelSetId')}
                           </label>
                           <p className="font-mono text-xs text-text-secondary">
                             {labelSet.id}
@@ -384,7 +396,7 @@ export function LabelSetDetails({
                     disabled={isMutating}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
+                    {t('labelSets.details.actions.delete')}
                   </Button>
                   <div className="flex items-center gap-2">
                     {isEditing ? (
@@ -394,7 +406,7 @@ export function LabelSetDetails({
                           onClick={handleCancelEdit}
                           disabled={isMutating}
                         >
-                          Cancel
+                          {t('common.cancel')}
                         </Button>
                         <Button
                           variant="primary"
@@ -402,7 +414,7 @@ export function LabelSetDetails({
                           isLoading={updateLabelSetMutation.isPending}
                           disabled={!isDirty || !isNameValid || isMutating}
                         >
-                          Apply
+                          {t('common.apply')}
                         </Button>
                       </>
                     ) : (
@@ -412,14 +424,14 @@ export function LabelSetDetails({
                           onClick={onClose}
                           disabled={isMutating}
                         >
-                          Close
+                          {t('common.close')}
                         </Button>
                         <Button
                           variant="primary"
                           onClick={() => setIsEditing(true)}
                           disabled={isMutating}
                         >
-                          Edit Label Set
+                          {t('labelSets.details.actions.edit')}
                         </Button>
                       </>
                     )}

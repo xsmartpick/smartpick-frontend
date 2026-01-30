@@ -1,5 +1,6 @@
 import { ChevronDown, LogOut, Pencil } from 'lucide-react'
 import { m } from 'motion/react'
+import { useTranslation } from 'react-i18next'
 
 import { useUserValue } from '~/atoms/auth'
 import {
@@ -65,6 +66,7 @@ function MenuItem({
 export function UserInfo() {
   const user = useUserValue()
   const { logout } = useAuth()
+  const { t } = useTranslation()
 
   if (!user) {
     return null
@@ -81,7 +83,7 @@ export function UserInfo() {
           transition={Spring.presets.smooth}
           className="flex items-center gap-2 rounded-full px-2 py-2 transition-colors hover:bg-fill focus:outline-none focus:ring-2 focus:ring-primary/20"
         >
-          <span className="sr-only">Open user menu</span>
+          <span className="sr-only">{t('profile.menu.openUserMenu')}</span>
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-background text-xs font-semibold">
             {user.avatar ? (
               <img
@@ -141,14 +143,14 @@ export function UserInfo() {
         <div className="p-2">
           <MenuItem
             icon={<Pencil className="h-4 w-4" />}
-            label="Edit profile"
+            label={t('profile.menu.editProfile')}
             onClick={() => {
               // TODO: Implement edit profile
             }}
           />
           <MenuItem
             icon={<LogOut className="h-4 w-4" />}
-            label="Sign out"
+            label={t('profile.menu.signOut')}
             onClick={logout}
             danger
           />

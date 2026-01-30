@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { Button } from '~/components/ui/button'
 import {
@@ -41,6 +42,7 @@ export function CreateLabelSetModal({
   onClose,
   onSubmit,
 }: CreateLabelSetModalProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [labels, setLabels] = useState<LabelDraft[]>(() => [createLabelDraft()])
@@ -64,11 +66,11 @@ export function CreateLabelSetModal({
     const newErrors: typeof errors = {}
 
     if (!name.trim()) {
-      newErrors.name = 'Name is required'
+      newErrors.name = t('labelSets.create.validation.nameRequired')
     } else if (name.trim().length < 2) {
-      newErrors.name = 'Name must be at least 2 characters'
+      newErrors.name = t('labelSets.create.validation.nameMin')
     } else if (name.trim().length > 64) {
-      newErrors.name = 'Name must be less than 64 characters'
+      newErrors.name = t('labelSets.create.validation.nameMax')
     }
 
     setErrors(newErrors)
@@ -134,10 +136,9 @@ export function CreateLabelSetModal({
       >
         <div className="shrink-0">
           <DialogHeader>
-            <DialogTitle>Create Label Set</DialogTitle>
+            <DialogTitle>{t('labelSets.create.title')}</DialogTitle>
             <DialogDescription>
-              Create a new label set now. You can add labels later when labeling
-              is enabled.
+              {t('labelSets.create.description')}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -146,7 +147,8 @@ export function CreateLabelSetModal({
             {/* Name Field */}
             <div className="space-y-6">
               <Label htmlFor="label-set-name">
-                Name <span className="text-red">*</span>
+                {t('labelSets.create.fields.name')}{' '}
+                <span className="text-red">*</span>
               </Label>
               <Input
                 id="label-set-name"
@@ -157,7 +159,7 @@ export function CreateLabelSetModal({
                     setErrors((prev) => ({ ...prev, name: undefined }))
                   }
                 }}
-                placeholder="e.g. Object Detection Labels"
+                placeholder={t('labelSets.create.placeholders.name')}
                 maxLength={64}
                 hasError={!!errors.name}
                 aria-invalid={!!errors.name}
@@ -169,25 +171,27 @@ export function CreateLabelSetModal({
                 </p>
               ) : (
                 <p className="text-xs text-text-tertiary">
-                  Keep it short and descriptive. Max 64 characters.
+                  {t('labelSets.create.hints.name')}
                 </p>
               )}
             </div>
 
             {/* Description Field */}
             <div className="space-y-2">
-              <Label htmlFor="label-set-description">Description</Label>
+              <Label htmlFor="label-set-description">
+                {t('labelSets.create.fields.description')}
+              </Label>
               <Textarea
                 id="label-set-description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="What are these labels used for? Any specific instructions?"
+                placeholder={t('labelSets.create.placeholders.description')}
                 rows={3}
                 maxLength={500}
               />
               <div className="flex items-center justify-between">
                 <p className="text-xs text-text-tertiary">
-                  Optional. Helpful for future reference.
+                  {t('labelSets.create.hints.description')}
                 </p>
                 <p className="text-xs text-text-tertiary">
                   {description.length}/500
@@ -198,7 +202,7 @@ export function CreateLabelSetModal({
             {/* Labels Section */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Labels (optional)</Label>
+                <Label>{t('labelSets.create.fields.labelsOptional')}</Label>
                 <Button
                   type="button"
                   variant="ghost"
@@ -207,12 +211,12 @@ export function CreateLabelSetModal({
                   className="h-8"
                 >
                   <Plus className="mr-1.5 h-3.5 w-3.5" />
-                  Add Label
+                  {t('labelSets.create.actions.addLabel')}
                 </Button>
               </div>
 
               <p className="text-xs text-text-tertiary">
-                Optional for now. You can add labels later.
+                {t('labelSets.create.hints.labels')}
               </p>
 
               <div className="space-y-3 rounded-2xl border border-border bg-fill/30 p-4">
@@ -228,7 +232,7 @@ export function CreateLabelSetModal({
                             htmlFor={`label-${label.key}-name`}
                             className="text-xs"
                           >
-                            Label Name
+                            {t('labelSets.create.fields.labelName')}
                           </Label>
                           <Input
                             id={`label-${label.key}-name`}
@@ -236,7 +240,9 @@ export function CreateLabelSetModal({
                             onChange={(e) =>
                               updateLabel(label.key, { name: e.target.value })
                             }
-                            placeholder="e.g. Person, Car, Good"
+                            placeholder={t(
+                              'labelSets.create.placeholders.labelName',
+                            )}
                             className="mt-1"
                           />
                         </div>
@@ -245,7 +251,7 @@ export function CreateLabelSetModal({
                             htmlFor={`label-${label.key}-color`}
                             className="text-xs"
                           >
-                            Color
+                            {t('labelSets.create.fields.color')}
                           </Label>
                           <div className="mt-1 flex items-center gap-2">
                             <input
@@ -278,7 +284,7 @@ export function CreateLabelSetModal({
                           htmlFor={`label-${label.key}-description`}
                           className="text-xs"
                         >
-                          Description (optional)
+                          {t('labelSets.create.fields.labelDescription')}
                         </Label>
                         <Input
                           id={`label-${label.key}-description`}
@@ -288,7 +294,9 @@ export function CreateLabelSetModal({
                               description: e.target.value,
                             })
                           }
-                          placeholder="Optional description for this label"
+                          placeholder={t(
+                            'labelSets.create.placeholders.labelDescription',
+                          )}
                           className="mt-1"
                         />
                       </div>
@@ -303,11 +311,11 @@ export function CreateLabelSetModal({
         <div className="shrink-0 bg-background">
           <DialogFooter>
             <Button variant="ghost" onClick={handleClose}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleSubmit} variant="primary">
               <Plus className="mr-2 h-4 w-4" />
-              Create Label Set
+              {t('labelSets.create.actions.create')}
             </Button>
           </DialogFooter>
         </div>

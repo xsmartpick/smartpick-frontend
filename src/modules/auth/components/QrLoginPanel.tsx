@@ -1,9 +1,11 @@
 import { m } from 'motion/react'
 import { QRCodeSVG } from 'qrcode.react'
+import { useTranslation } from 'react-i18next'
 
 import { Spring } from '~/lib/spring'
 
 export const QrLoginPanel = () => {
+  const { t } = useTranslation()
   // QR contains URL to /start - farmer scans and goes directly to labeling
   const qrUrl = `${window.location.origin}/start`
 
@@ -15,10 +17,7 @@ export const QrLoginPanel = () => {
         transition={Spring.presets.smooth}
         className="space-y-4 text-center"
       >
-        <m.div
-          whileHover={{ scale: 1.02 }}
-          transition={Spring.presets.snappy}
-        >
+        <m.div whileHover={{ scale: 1.02 }} transition={Spring.presets.snappy}>
           <div className="mx-auto w-fit rounded-xl border border-border bg-white p-2">
             <QRCodeSVG
               value={qrUrl}
@@ -30,9 +29,11 @@ export const QrLoginPanel = () => {
           </div>
         </m.div>
         <div className="space-y-1">
-          <h3 className="font-semibold text-text">Scan to Start Labeling</h3>
+          <h3 className="font-semibold text-text">
+            {t('auth.login.qr.title')}
+          </h3>
           <p className="text-sm text-text-secondary">
-            Use your phone camera to scan and start labeling instantly.
+            {t('auth.login.qr.description')}
           </p>
         </div>
       </m.div>

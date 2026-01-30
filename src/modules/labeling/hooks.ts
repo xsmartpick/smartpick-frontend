@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import type { Label } from '~/modules/label-sets/api'
@@ -53,6 +54,7 @@ export function useLabeling({
   onComplete,
   autoAdvance = true, // Default to true for better UX
 }: UseLabelingOptions): UseLabelingReturn {
+  const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [assignments, setAssignments] =
     useState<ImageLabel[]>(initialAssignments)
@@ -254,15 +256,19 @@ export function useLabeling({
   const handleSave = useCallback(() => {
     if (onSave) {
       onSave(assignments)
-      toast.success('Labels saved successfully!', {
-        description: `${assignments.length} label assignment${assignments.length === 1 ? '' : 's'} saved.`,
+      toast.success(t('label.labelingPage.toast.saveSuccess'), {
+        description: t('label.labelingPage.toast.saveDesc', {
+          count: assignments.length,
+        }),
       })
     } else {
-      toast.info('Labels updated', {
-        description: `${assignments.length} label assignment${assignments.length === 1 ? '' : 's'} recorded.`,
+      toast.info(t('label.labelingPage.toast.updateTitle'), {
+        description: t('label.labelingPage.toast.updateDesc', {
+          count: assignments.length,
+        }),
       })
     }
-  }, [assignments, onSave])
+  }, [assignments, onSave, t])
 
   return {
     currentIndex,

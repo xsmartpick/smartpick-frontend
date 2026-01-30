@@ -1,5 +1,6 @@
 import { Check, FolderPlus, SortAsc, SortDesc } from 'lucide-react'
 import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SectionTitle } from '~/components/common'
 import {
@@ -36,17 +37,21 @@ export function DatasetsToolbar({
   search,
   onSearchChange,
 }: DatasetsToolbarProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="rounded-3xl border border-border bg-background p-4 shadow-sm">
       <SectionTitle
         icon={<FolderPlus className="h-5 w-5 text-text-secondary" />}
-        title="Datasets"
-        subtitle="Create and manage datasets before you start labeling."
+        title={t('datasets.toolbar.title')}
+        subtitle={t('datasets.toolbar.subtitle')}
         right={
           <div className="flex items-center gap-2">
             <input
               type="text"
-              placeholder="Search datasets..."
+              placeholder={t('components.toolbar.search', {
+                resource: t('datasets.toolbar.title'),
+              })}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}
               className="
@@ -68,7 +73,7 @@ export function DatasetsToolbar({
                   )}
                   type="button"
                 >
-                  Cards
+                  {t('components.toolbar.viewModes.cards')}
                 </button>
                 <button
                   onClick={() => onViewChange('table')}
@@ -80,7 +85,7 @@ export function DatasetsToolbar({
                   )}
                   type="button"
                 >
-                  Table
+                  {t('components.toolbar.viewModes.table')}
                 </button>
               </div>
             </div>
@@ -93,17 +98,23 @@ export function DatasetsToolbar({
                   ) : (
                     <SortDesc className="h-4 w-4 text-text-secondary" />
                   )}
-                  <span className="hidden sm:inline">Sort</span>
-                  <span className="sm:hidden">Sort</span>
+                  <span className="hidden sm:inline">
+                    {t('components.toolbar.sort')}
+                  </span>
+                  <span className="sm:hidden">
+                    {t('components.toolbar.sort')}
+                  </span>
                 </span>
               }
             >
-              <ToolbarMenuLabel>Sort by</ToolbarMenuLabel>
+              <ToolbarMenuLabel>
+                {t('components.toolbar.sortBy')}
+              </ToolbarMenuLabel>
               {(
                 [
-                  ['updatedAt', 'Last updated'],
-                  ['name', 'Name'],
-                  ['createdAt', 'Created'],
+                  ['updatedAt', t('components.toolbar.sortOptions.updatedAt')],
+                  ['name', t('components.toolbar.sortOptions.name')],
+                  ['createdAt', t('components.toolbar.sortOptions.createdAt')],
                 ] as const
               ).map(([k, label]) => (
                 <ToolbarMenuItem
@@ -121,7 +132,11 @@ export function DatasetsToolbar({
               ))}
               <ToolbarMenuDivider />
               <ToolbarMenuItem
-                label={sortDir === 'asc' ? 'Ascending' : 'Descending'}
+                label={
+                  sortDir === 'asc'
+                    ? t('components.toolbar.sortOptions.ascending')
+                    : t('components.toolbar.sortOptions.descending')
+                }
                 icon={
                   sortDir === 'asc' ? (
                     <SortAsc className="h-4 w-4" />

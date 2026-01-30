@@ -1,5 +1,6 @@
 import { AnimatePresence, m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { SegmentGroup, SegmentItem } from '~/components/ui/segment'
 import { useIsDark, useSetTheme } from '~/hooks/common/useDark'
@@ -62,6 +63,7 @@ const FeatureCard = ({
 )
 
 export const LoginPage = () => {
+  const { t } = useTranslation()
   const isDark = useIsDark()
   const setTheme = useSetTheme()
   const [loginMethod, setLoginMethod] = useState<'password' | 'qr'>('password')
@@ -88,7 +90,7 @@ export const LoginPage = () => {
         type="button"
         onClick={toggleTheme}
         className="fixed top-6 right-6 z-50 flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-background/80 backdrop-blur-sm shadow-lg transition-colors hover:bg-fill"
-        aria-label="Toggle theme"
+        aria-label={t('auth.login.form.toggleTheme')}
       >
         <AnimatePresence mode="wait">
           {isDark ? (
@@ -148,15 +150,15 @@ export const LoginPage = () => {
                     SmartPick
                   </h1>
                   <p className="text-text-secondary text-sm mt-1">
-                    AI-Powered Labeling
+                    {t('auth.login.branding.subtitle')}
                   </p>
                 </div>
               </div>
               <p className="text-2xl lg:text-3xl font-semibold text-text mb-3">
-                Cashew Classification System
+                {t('auth.login.branding.systemName')}
               </p>
               <p className="text-text-secondary text-lg">
-                AI-powered precision sorting made simple
+                {t('auth.login.branding.tagline')}
               </p>
             </div>
           </StaggerItem>
@@ -166,22 +168,24 @@ export const LoginPage = () => {
             <FeatureCard
               icon="i-mingcute-star-line"
               iconClass="bg-accent"
-              title="24 Grade Classification"
-              description="Complete sorting for all cashew grades"
+              title={t('auth.login.features.gradeClassification.title')}
+              description={t(
+                'auth.login.features.gradeClassification.description',
+              )}
               delay={0.1}
             />
             <FeatureCard
               icon="i-mingcute-lightning-line"
               iconClass="bg-green"
-              title="99.9% Accuracy"
-              description="Industry-leading precision you can trust"
+              title={t('auth.login.features.accuracy.title')}
+              description={t('auth.login.features.accuracy.description')}
               delay={0.15}
             />
             <FeatureCard
               icon="i-mingcute-rocket-line"
               iconClass="bg-orange"
-              title="Real-time Processing"
-              description="Instant results for maximum efficiency"
+              title={t('auth.login.features.processing.title')}
+              description={t('auth.login.features.processing.description')}
               delay={0.2}
             />
           </div>
@@ -189,7 +193,9 @@ export const LoginPage = () => {
           {/* Footer */}
           <StaggerItem delay={0.25}>
             <div className="text-center lg:text-left pt-4">
-              <p className="text-text-tertiary text-sm">© 2025 Delta X</p>
+              <p className="text-text-tertiary text-sm">
+                {t('auth.login.branding.copyright')}
+              </p>
             </div>
           </StaggerItem>
         </div>
@@ -215,10 +221,10 @@ export const LoginPage = () => {
                 <i className="i-mingcute-user-4-line h-8 w-8 text-background" />
               </m.div>
               <h2 className="text-3xl font-bold text-text mb-2">
-                Welcome Back
+                {t('auth.login.form.welcomeTitle')}
               </h2>
               <p className="text-text-secondary">
-                Sign in to continue to your dashboard
+                {t('auth.login.form.welcomeSubtitle')}
               </p>
             </div>
 
@@ -236,7 +242,7 @@ export const LoginPage = () => {
                   label={
                     <span className="flex items-center gap-2">
                       <i className="i-mingcute-keyboard-line" />
-                      Password
+                      {t('auth.login.form.password')}
                     </span>
                   }
                   className="flex-1"
@@ -246,7 +252,7 @@ export const LoginPage = () => {
                   label={
                     <span className="flex items-center gap-2">
                       <i className="i-mingcute-qrcode-line" />
-                      QR Code
+                      {t('auth.login.form.qrCode')}
                     </span>
                   }
                   className="flex-1"
@@ -273,7 +279,7 @@ export const LoginPage = () => {
             {/* Additional Info */}
             <div className="mt-8 pt-6 border-t border-border">
               <p className="text-center text-sm text-text-tertiary">
-                Need help? Contact your system administrator
+                {t('auth.login.form.needHelp')}
               </p>
             </div>
           </div>

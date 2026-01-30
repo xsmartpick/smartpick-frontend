@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useSetAtom } from 'jotai'
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 
@@ -14,6 +15,7 @@ export const useQrLogin = () => {
   const setToken = useSetAtom(tokenAtom)
   const setUser = useSetAtom(userAtom)
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   // Generate QR Code
   const {
@@ -44,7 +46,7 @@ export const useQrLogin = () => {
       }
     } catch (error) {
       console.error('Failed to generate QR code', error)
-      toast.error('Failed to generate QR code')
+      toast.error(t('auth.toast.qrGenerateError'))
     }
   }
 
@@ -72,8 +74,10 @@ export const useQrLogin = () => {
       const normalizedUser = normalizeAuthUser(pollData.user)
       setToken(pollData.token)
       setUser(normalizedUser)
-      toast.success('Login Successful', {
-        description: `Welcome back, ${normalizedUser.username}!`,
+      toast.success(t('auth.toast.qrLoginSuccessTitle'), {
+        description: t('auth.toast.qrLoginSuccessDesc', {
+          name: normalizedUser.username,
+        }),
       })
       navigate('/')
     }
@@ -83,7 +87,7 @@ export const useQrLogin = () => {
     }
 
     // Auto-expire check vs client time could be added, but backend status is authoritative
-  }, [pollData, setToken, setUser, navigate, setQrSession])
+  }, [pollData, setToken, setUser, navigate, setQrSession, t])
 
   const reload = () => {
     setQrSession(null)

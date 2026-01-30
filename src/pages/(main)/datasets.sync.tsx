@@ -101,14 +101,18 @@ export const Component = () => {
       {
         onSuccess: (createdDataset) => {
           setIsCreateModalOpen(false)
-          toast.success('Dataset created successfully!', {
-            description: `${createdDataset.name} has been added to your datasets.`,
+          toast.success(t('datasets.toast.createSuccess'), {
+            description: t('datasets.toast.createSuccessDesc', {
+              name: createdDataset.name,
+            }),
           })
         },
         onError: (err) => {
-          toast.error('Failed to create dataset', {
+          toast.error(t('datasets.toast.createError'), {
             description:
-              err instanceof Error ? err.message : 'An unknown error occurred',
+              err instanceof Error
+                ? err.message
+                : t('datasets.toast.createErrorUnknown'),
           })
         },
       },
@@ -130,25 +134,29 @@ export const Component = () => {
               <Database className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Datasets</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('datasets.page.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
-                Manage your data collections
+                {t('datasets.page.subtitle')}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-border bg-fill/50 px-3 py-2 text-xs text-text-tertiary md:flex">
-              <span className="font-medium text-text">Shortcuts</span>
+              <span className="font-medium text-text">
+                {t('datasets.shortcuts.label')}
+              </span>
               <span className="rounded-md bg-fill px-1.5 py-0.5">N</span>
-              <span>new</span>
+              <span>{t('datasets.shortcuts.new')}</span>
             </div>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               variant="primary"
             >
               <Plus className="mr-2 h-4 w-4" />
-              New dataset
+              {t('datasets.newDataset')}
             </Button>
           </div>
         </div>
@@ -177,26 +185,34 @@ export const Component = () => {
 
             <div className="rounded-2xl border border-border bg-background p-6">
               {isLoading ? (
-                <LoadingState message="Loading datasets..." />
+                <LoadingState message={t('datasets.loading')} />
               ) : error ? (
                 <ErrorState
-                  title="Failed to load datasets"
+                  title={t('datasets.error.title')}
                   onRetry={() => refetch()}
                 />
               ) : sortedDatasets.length === 0 ? (
                 <EmptyState
-                  title="No datasets found"
-                  message="Get started by creating your first dataset."
+                  title={t('datasets.empty.title')}
+                  message={t('datasets.empty.message')}
                 />
               ) : view === 'table' ? (
                 <Table variant="hover">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Media Type</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Updated</TableHead>
+                      <TableHead>{t('datasets.table.headers.name')}</TableHead>
+                      <TableHead>
+                        {t('datasets.table.headers.description')}
+                      </TableHead>
+                      <TableHead>
+                        {t('datasets.table.headers.mediaType')}
+                      </TableHead>
+                      <TableHead>
+                        {t('datasets.table.headers.created')}
+                      </TableHead>
+                      <TableHead>
+                        {t('datasets.table.headers.updated')}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -256,10 +272,12 @@ export const Component = () => {
                       </div>
                       <div className="flex items-center justify-between text-xs text-text-tertiary">
                         <span title={formatDate(dataset.createdAt)}>
-                          Created: {relativeTime(dataset.createdAt, t)}
+                          {t('common.created')}:{' '}
+                          {relativeTime(dataset.createdAt, t)}
                         </span>
                         <span title={formatDate(dataset.updatedAt)}>
-                          Updated: {relativeTime(dataset.updatedAt, t)}
+                          {t('common.updated')}:{' '}
+                          {relativeTime(dataset.updatedAt, t)}
                         </span>
                       </div>
                     </div>

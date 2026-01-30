@@ -28,14 +28,25 @@ import { TasksToolbar } from '~/modules/admintasks/components'
 
 const PAGE_SIZE = 10
 
-function getStatusLabel(status: TaskStatus) {
+type TranslateFn = ReturnType<typeof useTranslation>['t']
+
+function getStatusLabel(status: TaskStatus, t: TranslateFn) {
   const labels: Record<TaskStatus, string> = {
-    todo: 'To Do',
-    in_progress: 'In Progress',
-    review: 'Review',
-    done: 'Done',
+    todo: t('admintasks.status.todo'),
+    in_progress: t('admintasks.status.inProgress'),
+    review: t('admintasks.status.review'),
+    done: t('admintasks.status.done'),
   }
   return labels[status]
+}
+
+function getPriorityLabel(priority: TaskPriority, t: TranslateFn) {
+  const labels: Record<TaskPriority, string> = {
+    low: t('admintasks.priority.low'),
+    medium: t('admintasks.priority.medium'),
+    high: t('admintasks.priority.high'),
+  }
+  return labels[priority]
 }
 
 function getStatusDotColor(status: TaskStatus) {
@@ -173,9 +184,11 @@ export const Component = () => {
               <ClipboardList className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Tasks</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('admintasks.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
-                Cross-batch task overview for admins
+                {t('admintasks.subtitle')}
               </p>
             </div>
           </div>
@@ -202,16 +215,16 @@ export const Component = () => {
             {/* Table */}
             <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
               {isLoading ? (
-                <LoadingState message="Loading tasks..." />
+                <LoadingState message={t('admintasks.loading')} />
               ) : error ? (
                 <ErrorState
-                  title="Failed to load tasks"
+                  title={t('admintasks.error')}
                   onRetry={() => refetch()}
                 />
               ) : tasks.length === 0 ? (
                 <EmptyState
-                  title="No tasks found"
-                  message="Try adjusting your filters or search query."
+                  title={t('admintasks.empty.title')}
+                  message={t('admintasks.empty.message')}
                 />
               ) : (
                 <>
@@ -219,32 +232,34 @@ export const Component = () => {
                     <TableHeader>
                       <TableRow className="hover:bg-transparent border-b border-border">
                         <SortableHeader
-                          label="Title"
+                          label={t('admintasks.table.headers.title')}
                           sortKey="title"
                           currentSort={sort}
                           onSort={handleSort}
                         />
                         <SortableHeader
-                          label="Batch"
+                          label={t('admintasks.table.headers.batch')}
                           sortKey="batchName"
                           currentSort={sort}
                           onSort={handleSort}
                         />
                         <SortableHeader
-                          label="Status"
+                          label={t('admintasks.table.headers.status')}
                           sortKey="status"
                           currentSort={sort}
                           onSort={handleSort}
                         />
                         <SortableHeader
-                          label="Priority"
+                          label={t('admintasks.table.headers.priority')}
                           sortKey="priority"
                           currentSort={sort}
                           onSort={handleSort}
                         />
-                        <TableHead>Assignee</TableHead>
+                        <TableHead>
+                          {t('admintasks.table.headers.assignee')}
+                        </TableHead>
                         <SortableHeader
-                          label="Due Date"
+                          label={t('admintasks.table.headers.dueDate')}
                           sortKey="dueDate"
                           currentSort={sort}
                           onSort={handleSort}
@@ -277,7 +292,7 @@ export const Component = () => {
                                 className={`h-2 w-2 rounded-full ${getStatusDotColor(task.status)}`}
                               />
                               <span className="text-sm font-medium text-text">
-                                {getStatusLabel(task.status)}
+                                {getStatusLabel(task.status, t)}
                               </span>
                             </div>
                           </TableCell>
@@ -285,7 +300,7 @@ export const Component = () => {
                             <span
                               className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize ${getPriorityColor(task.priority)}`}
                             >
-                              {task.priority}
+                              {getPriorityLabel(task.priority, t)}
                             </span>
                           </TableCell>
                           <TableCell className="text-muted-foreground">
@@ -300,7 +315,7 @@ export const Component = () => {
                               </div>
                             ) : (
                               <span className="text-muted-foreground/50 italic">
-                                Unassigned
+                                {t('admintasks.table.unassigned')}
                               </span>
                             )}
                           </TableCell>
@@ -315,7 +330,10 @@ export const Component = () => {
                   {/* Pagination */}
                   <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
                     <p className="text-sm text-text-secondary">
-                      Page {page} of {totalPages}
+                      {t('admintasks.pagination.pageOf', {
+                        current: page,
+                        total: totalPages,
+                      })}
                     </p>
                     <Pagination
                       currentPage={page}

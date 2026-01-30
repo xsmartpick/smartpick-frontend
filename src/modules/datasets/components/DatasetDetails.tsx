@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import * as React from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
@@ -83,6 +84,7 @@ export function DatasetDetails({
   onClose,
   onUpdated,
 }: DatasetDetailsProps) {
+  const { t } = useTranslation()
   const isOpen = dataset !== null
   const updateDatasetMutation = useUpdateDataset()
   const deleteDatasetMutation = useDeleteDataset()
@@ -94,9 +96,7 @@ export function DatasetDetails({
   function handleDelete() {
     if (!dataset) return
 
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this dataset? This action cannot be undone.',
-    )
+    const confirmed = window.confirm(t('datasets.details.confirmDelete'))
 
     if (!confirmed) return
 
@@ -150,7 +150,7 @@ export function DatasetDetails({
   const handleApply = () => {
     if (!dataset) return
     if (!isNameValid) {
-      toast.error('Name must be at least 2 characters.')
+      toast.error(t('datasets.details.validation.nameMin'))
       return
     }
 
@@ -167,7 +167,7 @@ export function DatasetDetails({
     }
 
     if (Object.keys(request).length === 0) {
-      toast.info('No changes to apply.')
+      toast.info(t('datasets.details.toast.noChanges'))
       return
     }
 
@@ -177,12 +177,14 @@ export function DatasetDetails({
         onSuccess: (updated) => {
           onUpdated?.(updated)
           setIsEditing(false)
-          toast.success('Dataset updated successfully.')
+          toast.success(t('datasets.details.toast.updateSuccess'))
         },
         onError: (err) => {
-          toast.error('Failed to update dataset.', {
+          toast.error(t('datasets.details.toast.updateError'), {
             description:
-              err instanceof Error ? err.message : 'An unknown error occurred.',
+              err instanceof Error
+                ? err.message
+                : t('datasets.details.toast.updateErrorUnknown'),
           })
         },
       },
@@ -221,7 +223,7 @@ export function DatasetDetails({
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-text">
-                      Dataset Details
+                      {t('datasets.details.title')}
                     </h2>
                     <p className="text-xs text-text-secondary">
                       {dataset.name}
@@ -244,7 +246,7 @@ export function DatasetDetails({
                     {/* Basic Information */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Basic Information
+                        {t('datasets.details.sections.basic')}
                       </h3>
                       <div className="space-y-4 rounded-2xl border border-border bg-fill/30 p-4">
                         <div>
@@ -252,7 +254,7 @@ export function DatasetDetails({
                             htmlFor="dataset-name"
                             className="mb-1 block text-xs font-medium text-text-tertiary"
                           >
-                            Name
+                            {t('datasets.details.fields.name')}
                           </Label>
                           {isEditing ? (
                             <Input
@@ -273,7 +275,7 @@ export function DatasetDetails({
                             htmlFor="dataset-description"
                             className="mb-1 block text-xs font-medium text-text-tertiary"
                           >
-                            Description
+                            {t('datasets.details.fields.description')}
                           </Label>
                           {isEditing ? (
                             <Textarea
@@ -287,7 +289,9 @@ export function DatasetDetails({
                             <p className="text-sm text-text">
                               {dataset.description || (
                                 <span className="text-text-tertiary italic">
-                                  No description provided
+                                  {t(
+                                    'datasets.details.placeholders.noDescription',
+                                  )}
                                 </span>
                               )}
                             </p>
@@ -301,7 +305,7 @@ export function DatasetDetails({
                             htmlFor="dataset-media-type"
                             className="mb-1 block text-xs font-medium text-text-tertiary"
                           >
-                            Media Type
+                            {t('datasets.details.fields.mediaType')}
                           </Label>
                           {isEditing ? (
                             <Select
@@ -314,20 +318,39 @@ export function DatasetDetails({
                                 id="dataset-media-type"
                                 disabled={updateDatasetMutation.isPending}
                               >
-                                <SelectValue placeholder="Select media type" />
+                                <SelectValue
+                                  placeholder={t(
+                                    'datasets.create.placeholders.mediaType',
+                                  )}
+                                />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="image">Image</SelectItem>
-                                <SelectItem value="video">Video</SelectItem>
-                                <SelectItem value="audio">Audio</SelectItem>
-                                <SelectItem value="text">Text</SelectItem>
+                                <SelectItem value="image">
+                                  {t('datasets.create.mediaTypes.image')}
+                                </SelectItem>
+                                <SelectItem value="video">
+                                  {t('datasets.create.mediaTypes.video')}
+                                </SelectItem>
+                                <SelectItem value="audio">
+                                  {t('datasets.create.mediaTypes.audio')}
+                                </SelectItem>
+                                <SelectItem value="text">
+                                  {t('datasets.create.mediaTypes.text')}
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                           ) : (
                             <div className="mt-1 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm font-medium text-text">
                               {getMediaTypeIcon(dataset.mediaType)}
                               <span>
-                                {getMediaTypeLabel(dataset.mediaType)}
+                                {t(
+                                  `datasets.create.mediaTypes.${dataset.mediaType ?? 'image'}`,
+                                  {
+                                    defaultValue: getMediaTypeLabel(
+                                      dataset.mediaType,
+                                    ),
+                                  },
+                                )}
                               </span>
                             </div>
                           )}
@@ -338,7 +361,7 @@ export function DatasetDetails({
                     {/* Metadata */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Metadata
+                        {t('datasets.details.sections.metadata')}
                       </h3>
                       <div className="space-y-4 rounded-2xl border border-border bg-fill/30 p-4">
                         <div className="flex items-start gap-3">
@@ -347,7 +370,7 @@ export function DatasetDetails({
                           </div>
                           <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                              Created At
+                              {t('datasets.details.fields.createdAt')}
                             </label>
                             <p className="text-sm text-text">
                               {formatDate(dataset.createdAt)}
@@ -363,7 +386,7 @@ export function DatasetDetails({
                           </div>
                           <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                              Updated At
+                              {t('datasets.details.fields.updatedAt')}
                             </label>
                             <p className="text-sm text-text">
                               {formatDate(dataset.updatedAt)}
@@ -379,12 +402,12 @@ export function DatasetDetails({
                           </div>
                           <div className="flex-1">
                             <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                              Created By
+                              {t('datasets.details.fields.createdBy')}
                             </label>
                             <p className="text-sm text-text">
                               {dataset.createdBy || (
                                 <span className="text-text-tertiary italic">
-                                  Unknown
+                                  {t('common.unknown')}
                                 </span>
                               )}
                             </p>
@@ -396,12 +419,12 @@ export function DatasetDetails({
                     {/* Dataset ID */}
                     <section>
                       <h3 className="mb-4 text-sm font-semibold text-text">
-                        Technical Details
+                        {t('datasets.details.sections.technical')}
                       </h3>
                       <div className="rounded-2xl border border-border bg-fill/30 p-4">
                         <div>
                           <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                            Dataset ID
+                            {t('datasets.details.fields.datasetId')}
                           </label>
                           <p className="font-mono text-xs text-text-secondary">
                             {dataset.id}
@@ -423,7 +446,7 @@ export function DatasetDetails({
                         onClick={handleCancelEdit}
                         disabled={updateDatasetMutation.isPending}
                       >
-                        Cancel
+                        {t('common.cancel')}
                       </Button>
                       <Button
                         variant="primary"
@@ -431,7 +454,7 @@ export function DatasetDetails({
                         isLoading={updateDatasetMutation.isPending}
                         disabled={!isDirty || !isNameValid}
                       >
-                        Apply
+                        {t('common.apply')}
                       </Button>
                     </>
                   ) : (
@@ -441,13 +464,13 @@ export function DatasetDetails({
                         onClick={onClose}
                         disabled={deleteDatasetMutation.isPending}
                       >
-                        Close
+                        {t('common.close')}
                       </Button>
                       <Button
                         variant="primary"
                         onClick={() => setIsEditing(true)}
                       >
-                        Edit Dataset
+                        {t('datasets.details.actions.edit')}
                       </Button>
                     </>
                   )}
@@ -456,7 +479,7 @@ export function DatasetDetails({
                     onClick={handleDelete}
                     disabled={deleteDatasetMutation.isPending}
                   >
-                    Delete Dataset
+                    {t('datasets.details.actions.delete')}
                   </Button>
                 </div>
               </div>

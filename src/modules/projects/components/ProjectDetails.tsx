@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next'
 import {
   Archive,
   ArrowLeft,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { getStableRouterNavigate } from '~/atoms/route'
@@ -56,18 +58,8 @@ function getStatusColor(status: ProjectStatus) {
   }
 }
 
-function getStatusLabel(status: ProjectStatus) {
-  switch (status) {
-    case 'completed': {
-      return 'Completed'
-    }
-    case 'archived': {
-      return 'Archived'
-    }
-    default: {
-      return 'Active'
-    }
-  }
+function getStatusLabel(status: ProjectStatus, t: TFunction) {
+  return t(`projects.status.${status}`)
 }
 
 function formatDate(dateString: string): string {
@@ -122,6 +114,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
   const deleteProjectMutation = useDeleteProject()
   const updateProjectMutation = useUpdateProject()
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const { t } = useTranslation()
 
   const { stats } = project
   const progressPercent =
@@ -139,25 +132,23 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
   }, [navigate])
 
   const handleDelete = useCallback(async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this project? This action cannot be undone.',
-    )
+    const confirmed = window.confirm(t('projects.confirmDelete'))
     if (!confirmed) return
 
     try {
       await deleteProjectMutation.mutateAsync(project.id)
-      toast.success('Project deleted successfully')
+      toast.success(t('projects.toast.deleteSuccess'))
       if (navigate) navigate('/projects', { replace: true })
     } catch (error) {
       console.error('Failed to delete project:', error)
-      toast.error('Failed to delete project', {
+      toast.error(t('projects.toast.deleteError'), {
         description:
           error instanceof Error
             ? error.message
-            : 'An error occurred while deleting the project.',
+            : t('projects.toast.deleteErrorDesc'),
       })
     }
-  }, [project.id, deleteProjectMutation, navigate])
+  }, [project.id, deleteProjectMutation, navigate, t])
 
   const handleStatusChange = useCallback(
     async (status: ProjectStatus) => {
@@ -167,15 +158,17 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
           data: { status },
         })
         toast.success(
-          `Project ${status === 'archived' ? 'archived' : status === 'completed' ? 'completed' : 'activated'} successfully`,
+          t('projects.toast.statusSuccess', {
+            status: t(`projects.toast.status.${status}`),
+          }),
         )
         onUpdated?.(updated)
       } catch (error) {
         console.error('Failed to update project:', error)
-        toast.error('Failed to update project status')
+        toast.error(t('projects.toast.statusError'))
       }
     },
-    [project.id, updateProjectMutation, onUpdated],
+    [project.id, updateProjectMutation, onUpdated, t],
   )
 
   const handleEditSubmit = useCallback(
@@ -186,19 +179,19 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
           data,
         })
         setIsEditModalOpen(false)
-        toast.success('Project updated successfully')
+        toast.success(t('projects.toast.updateSuccess'))
         onUpdated?.(updated)
       } catch (error) {
         console.error('Failed to update project:', error)
-        toast.error('Failed to update project', {
+        toast.error(t('projects.toast.updateError'), {
           description:
             error instanceof Error
               ? error.message
-              : 'An error occurred while updating the project.',
+              : t('projects.toast.updateErrorDesc'),
         })
       }
     },
-    [project.id, updateProjectMutation, onUpdated],
+    [project.id, updateProjectMutation, onUpdated, t],
   )
 
   return (
@@ -251,7 +244,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                     getStatusColor(project.status),
                   )}
                 >
-                  {getStatusLabel(project.status)}
+                  {getStatusLabel(project.status, t)}
                 </span>
               )}
 
@@ -262,7 +255,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                 className="hidden sm:inline-flex"
               >
                 <Edit3 className="mr-2 h-4 w-4" />
-                Edit
+                {t('projects.actions.edit')}
               </Button>
 
               <DropdownMenu>
@@ -281,14 +274,14 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                     className="sm:hidden"
                   >
                     <Edit3 className="mr-2 h-4 w-4" />
-                    Edit Project
+                    {t('projects.actions.editProject')}
                   </DropdownMenuItem>
                   {project.status !== 'completed' && (
                     <DropdownMenuItem
                       onClick={() => handleStatusChange('completed')}
                     >
                       <CheckCircle className="mr-2 h-4 w-4" />
-                      Mark as Completed
+                      {t('projects.actions.markCompleted')}
                     </DropdownMenuItem>
                   )}
                   {project.status !== 'archived' && (
@@ -296,7 +289,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                       onClick={() => handleStatusChange('archived')}
                     >
                       <Archive className="mr-2 h-4 w-4" />
-                      Archive Project
+                      {t('projects.actions.archive')}
                     </DropdownMenuItem>
                   )}
                   {project.status !== 'active' && (
@@ -304,7 +297,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                       onClick={() => handleStatusChange('active')}
                     >
                       <FolderKanban className="mr-2 h-4 w-4" />
-                      Set as Active
+                      {t('projects.actions.setActive')}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -313,7 +306,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                     className="text-red focus:text-red"
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Project
+                    {t('projects.actions.delete')}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -334,28 +327,28 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
               icon={<Layers className="h-5 w-5" />}
               iconClassName="bg-accent/10 text-accent"
               value={stats.totalBatches}
-              label="Batches"
+              label={t('projects.details.stats.batches')}
               delay={0.05}
             />
             <StatCard
               icon={<ImageIcon className="h-5 w-5" />}
               iconClassName="bg-violet-500/10 text-violet-500"
               value={stats.totalImages}
-              label="Images"
+              label={t('projects.details.stats.images')}
               delay={0.1}
             />
             <StatCard
               icon={<ListTodo className="h-5 w-5" />}
               iconClassName="bg-fuchsia-500/10 text-fuchsia-500"
               value={`${stats.completedTasks}/${stats.totalTasks}`}
-              label="Tasks"
+              label={t('projects.details.stats.tasks')}
               delay={0.15}
             />
             <StatCard
               icon={<Users className="h-5 w-5" />}
               iconClassName="bg-amber/10 text-amber"
               value={stats.labelerCount ?? 0}
-              label="Labelers"
+              label={t('projects.details.stats.labelers')}
               delay={0.2}
             />
           </div>
@@ -366,14 +359,14 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
               {/* Progress Section */}
               <section className="rounded-2xl border border-border bg-background p-6">
                 <h2 className="mb-4 text-base font-semibold text-text">
-                  Progress
+                  {t('projects.details.sections.progress')}
                 </h2>
                 <div className="space-y-5">
                   {/* Image labeling progress */}
                   <div>
                     <div className="mb-2 flex items-center justify-between text-sm">
                       <span className="text-text-secondary">
-                        Image Labeling
+                        {t('projects.details.sections.imageLabeling')}
                       </span>
                       <span className="font-medium text-text">
                         {stats.labeledImages}/{stats.totalImages} (
@@ -397,7 +390,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                   <div>
                     <div className="mb-2 flex items-center justify-between text-sm">
                       <span className="text-text-secondary">
-                        Task Completion
+                        {t('projects.details.sections.taskCompletion')}
                       </span>
                       <span className="font-medium text-text">
                         {stats.completedTasks}/{stats.totalTasks} (
@@ -423,7 +416,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                   {stats.averageLabelingTime && (
                     <div className="flex items-center justify-between rounded-xl bg-fill/50 px-4 py-3">
                       <span className="text-sm text-text-secondary">
-                        Avg. Labeling Time
+                        {t('projects.details.sections.avgLabelingTime')}
                       </span>
                       <span className="font-mono text-sm font-medium text-text">
                         {formatDuration(stats.averageLabelingTime)}
@@ -437,7 +430,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
               {project.description && (
                 <section className="rounded-2xl border border-border bg-background p-6">
                   <h2 className="mb-3 text-base font-semibold text-text">
-                    Description
+                    {t('projects.details.sections.description')}
                   </h2>
                   <p className="whitespace-pre-wrap text-sm leading-relaxed text-text-secondary">
                     {project.description}
@@ -450,7 +443,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                 <section className="rounded-2xl border border-border bg-background">
                   <div className="border-b border-border p-6">
                     <h2 className="text-base font-semibold text-text">
-                      Recent Activity
+                      {t('projects.details.sections.recentActivity')}
                     </h2>
                   </div>
                   <ScrollArea rootClassName="max-h-80">
@@ -500,12 +493,12 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
               {/* Project Info */}
               <section className="rounded-2xl border border-border bg-background p-6">
                 <h2 className="mb-4 text-base font-semibold text-text">
-                  Details
+                  {t('projects.details.sections.details')}
                 </h2>
                 <div className="space-y-4">
                   <InfoRow
                     icon={<FolderKanban className="h-4 w-4" />}
-                    label="Status"
+                    label={t('projects.details.info.status')}
                     value={
                       <span
                         className={cn(
@@ -513,7 +506,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                           getStatusColor(project.status),
                         )}
                       >
-                        {getStatusLabel(project.status)}
+                        {getStatusLabel(project.status, t)}
                       </span>
                     }
                   />
@@ -522,7 +515,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
 
                   <InfoRow
                     icon={<Calendar className="h-4 w-4" />}
-                    label="Created"
+                    label={t('projects.details.info.created')}
                     value={formatDate(project.createdAt)}
                   />
 
@@ -530,7 +523,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
 
                   <InfoRow
                     icon={<Clock className="h-4 w-4" />}
-                    label="Last Updated"
+                    label={t('projects.details.info.lastUpdated')}
                     value={formatDate(project.updatedAt)}
                   />
 
@@ -538,8 +531,12 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
 
                   <InfoRow
                     icon={<User className="h-4 w-4" />}
-                    label="Created By"
-                    value={project.createdByName || project.createdBy || '—'}
+                    label={t('projects.details.info.createdBy')}
+                    value={
+                      project.createdByName ||
+                      project.createdBy ||
+                      t('common.placeholder')
+                    }
                   />
 
                   {project.updatedBy && (
@@ -547,7 +544,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                       <Divider />
                       <InfoRow
                         icon={<User className="h-4 w-4" />}
-                        label="Updated By"
+                        label={t('projects.details.info.updatedBy')}
                         value={project.updatedByName || project.updatedBy}
                       />
                     </>
@@ -558,12 +555,12 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
               {/* Technical Info */}
               <section className="rounded-2xl border border-border bg-background p-6">
                 <h2 className="mb-4 text-base font-semibold text-text">
-                  Technical
+                  {t('projects.details.sections.technical')}
                 </h2>
                 <div className="space-y-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                      Project ID
+                      {t('projects.details.info.projectId')}
                     </label>
                     <p className="break-all font-mono text-xs text-text-secondary">
                       {project.id}
@@ -572,7 +569,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                   <Divider />
                   <div>
                     <label className="mb-1 block text-xs font-medium text-text-tertiary">
-                      Organization ID
+                      {t('projects.details.info.organizationId')}
                     </label>
                     <p className="break-all font-mono text-xs text-text-secondary">
                       {project.orgId}
@@ -584,7 +581,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
               {/* Quick Actions */}
               <section className="rounded-2xl border border-border bg-background p-6">
                 <h2 className="mb-4 text-base font-semibold text-text">
-                  Actions
+                  {t('projects.details.sections.actions')}
                 </h2>
                 <div className="space-y-2">
                   <Button
@@ -595,7 +592,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                     }
                   >
                     <Layers className="mr-2 h-4 w-4" />
-                    View Batches
+                    {t('projects.actions.viewBatches')}
                   </Button>
                   <Button
                     variant="secondary"
@@ -605,7 +602,7 @@ export function ProjectDetails({ project, onUpdated }: ProjectDetailsProps) {
                     }
                   >
                     <ListTodo className="mr-2 h-4 w-4" />
-                    View Tasks
+                    {t('projects.actions.viewTasks')}
                   </Button>
                 </div>
               </section>

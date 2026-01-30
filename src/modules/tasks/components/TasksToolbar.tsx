@@ -1,6 +1,7 @@
 import { Check, ChevronDown, LayoutGrid, List, ListTodo } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { clsxm } from '~/lib/cn'
 import { Spring } from '~/lib/spring'
@@ -96,13 +97,23 @@ export function TasksToolbar({
   viewMode,
   onViewModeChange,
 }: TasksToolbarProps) {
+  const { t } = useTranslation()
+  const statusLabels = {
+    all: t('tasks.toolbar.status.all'),
+    todo: t('tasks.toolbar.status.todo'),
+    in_progress: t('tasks.toolbar.status.inProgress'),
+    done: t('tasks.toolbar.status.done'),
+  }
+
   return (
     <div className="mb-6 rounded-3xl border border-border bg-background p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Title */}
         <div className="flex items-center gap-2">
           <ListTodo className="h-5 w-5 text-text-secondary" />
-          <span className="text-base font-semibold">My Tasks</span>
+          <span className="text-base font-semibold">
+            {t('tasks.toolbar.title')}
+          </span>
         </div>
 
         {/* Controls */}
@@ -110,7 +121,7 @@ export function TasksToolbar({
           {/* Search */}
           <input
             type="text"
-            placeholder="Search tasks..."
+            placeholder={t('tasks.toolbar.searchPlaceholder')}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className={clsxm(
@@ -133,7 +144,7 @@ export function TasksToolbar({
               )}
             >
               <LayoutGrid className="h-4 w-4" />
-              Cards
+              {t('components.toolbar.viewModes.cards')}
             </button>
 
             <button
@@ -147,7 +158,7 @@ export function TasksToolbar({
               )}
             >
               <List className="h-4 w-4" />
-              Table
+              {t('components.toolbar.viewModes.table')}
             </button>
           </div>
 
@@ -155,17 +166,16 @@ export function TasksToolbar({
           <Dropdown
             label={
               <span className="text-sm">
-                Status:{' '}
-                <strong>
-                  {status === 'all' ? 'All' : status.replace('_', ' ')}
-                </strong>
+                {t('tasks.toolbar.status.prefix', {
+                  status: statusLabels[status],
+                })}
               </span>
             }
           >
             {(close) => (
               <>
                 <MenuItem
-                  label="All"
+                  label={t('tasks.toolbar.status.all')}
                   active={status === 'all'}
                   onClick={() => {
                     onStatusChange('all')
@@ -173,7 +183,7 @@ export function TasksToolbar({
                   }}
                 />
                 <MenuItem
-                  label="Todo"
+                  label={t('tasks.toolbar.status.todo')}
                   active={status === 'todo'}
                   onClick={() => {
                     onStatusChange('todo')
@@ -181,7 +191,7 @@ export function TasksToolbar({
                   }}
                 />
                 <MenuItem
-                  label="In progress"
+                  label={t('tasks.toolbar.status.inProgress')}
                   active={status === 'in_progress'}
                   onClick={() => {
                     onStatusChange('in_progress')
@@ -189,7 +199,7 @@ export function TasksToolbar({
                   }}
                 />
                 <MenuItem
-                  label="Done"
+                  label={t('tasks.toolbar.status.done')}
                   active={status === 'done'}
                   onClick={() => {
                     onStatusChange('done')

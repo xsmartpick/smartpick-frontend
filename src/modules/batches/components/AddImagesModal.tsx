@@ -1,6 +1,7 @@
 import { Loader2, Plus } from 'lucide-react'
 import { m } from 'motion/react'
 import { useCallback, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 import { Button } from '~/components/ui/button'
@@ -35,6 +36,7 @@ export function AddImagesModal({
   onClose,
   onSuccess,
 }: AddImagesModalProps) {
+  const { t } = useTranslation()
   const [images, setImages] = useState<UploadedImage[]>([])
   const addImagesMutation = useAddImagesToBatch()
 
@@ -61,17 +63,23 @@ export function AddImagesModal({
 
       if (failedCount === 0) {
         toast.success(
-          `${successCount} file${successCount === 1 ? '' : 's'} uploaded successfully!`,
+          t('batches.addImages.toast.uploadSuccess', {
+            count: successCount,
+          }),
         )
       } else {
-        toast.warning('Some files failed to upload', {
-          description: `${successCount} succeeded, ${failedCount} failed.`,
+        toast.warning(t('batches.addImages.toast.someFailed'), {
+          description: t('batches.addImages.toast.someFailedDesc', {
+            successCount,
+            failedCount,
+          }),
         })
       }
     },
     onError: (error) => {
-      toast.error('Upload failed', {
-        description: error.message || 'An error occurred during upload.',
+      toast.error(t('batches.addImages.toast.uploadFailed'), {
+        description:
+          error.message || t('batches.addImages.toast.uploadFailedDesc'),
       })
     },
   })
@@ -92,7 +100,7 @@ export function AddImagesModal({
 
   const handleSubmit = async () => {
     if (images.length === 0) {
-      toast.error('Please add at least one image')
+      toast.error(t('batches.addImages.toast.noImages'))
       return
     }
 
@@ -110,7 +118,7 @@ export function AddImagesModal({
         .map((r) => r.fileId)
 
       if (fileIds.length === 0) {
-        toast.error('No files were uploaded successfully')
+        toast.error(t('batches.addImages.toast.noFilesUploaded'))
         return
       }
 
@@ -120,15 +128,18 @@ export function AddImagesModal({
         request: { fileIds },
       })
 
-      toast.success('Images added to batch!', {
-        description: `${fileIds.length} image${fileIds.length === 1 ? '' : 's'} added to "${batchName}"`,
+      toast.success(t('batches.addImages.toast.addedSuccess'), {
+        description: t('batches.addImages.toast.addedSuccessDesc', {
+          count: fileIds.length,
+          batchName,
+        }),
       })
 
       handleClose()
       onSuccess?.()
     } catch (error) {
       console.error('Add images error:', error)
-      toast.error('Failed to add images to batch')
+      toast.error(t('batches.addImages.toast.addedError'))
     }
   }
 

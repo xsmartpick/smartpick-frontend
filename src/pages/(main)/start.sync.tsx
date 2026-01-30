@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
 import { setToken, setUser } from '~/atoms/auth'
@@ -34,6 +35,7 @@ type MeResponse = {
  * 3. If no → call /labeler/onboard → save token → redirect to /label
  */
 export const Component = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [status, setStatus] = useState<
     'checking' | 'onboarding' | 'redirecting' | 'error'
@@ -93,7 +95,7 @@ export const Component = () => {
       } catch (error) {
         console.error('Failed to authenticate:', error)
         setStatus('error')
-        setErrorMsg(error instanceof Error ? error.message : 'Unknown error')
+        setErrorMsg(error instanceof Error ? error.message : '')
       }
     }
 
@@ -104,14 +106,18 @@ export const Component = () => {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4 p-6 text-center">
-          <p className="font-medium text-red-500">Failed to connect</p>
-          <p className="text-sm text-text-secondary">{errorMsg}</p>
+          <p className="font-medium text-red-500">
+            {t('auth.gateway.error.title')}
+          </p>
+          <p className="text-sm text-text-secondary">
+            {errorMsg || t('auth.gateway.error.unknown')}
+          </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="rounded-lg bg-accent px-4 py-2 text-white"
           >
-            Retry
+            {t('auth.gateway.error.retry')}
           </button>
         </div>
       </div>
@@ -124,11 +130,11 @@ export const Component = () => {
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
         <p className="text-text-secondary">
           {status === 'checking' ? (
-            <span>Checking authentication...</span>
+            <span>{t('auth.gateway.checking')}</span>
           ) : status === 'onboarding' ? (
-            <span>Setting up your account...</span>
+            <span>{t('auth.gateway.onboarding')}</span>
           ) : (
-            <span>Redirecting to labeling...</span>
+            <span>{t('auth.gateway.redirecting')}</span>
           )}
         </p>
       </div>

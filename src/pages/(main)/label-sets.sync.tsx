@@ -81,14 +81,18 @@ export const Component = () => {
       {
         onSuccess: (createdLabelSet) => {
           setIsCreateModalOpen(false)
-          toast.success('Label set created successfully!', {
-            description: `${createdLabelSet.name} has been added to your label sets.`,
+          toast.success(t('labelSets.toast.createSuccess'), {
+            description: t('labelSets.toast.createSuccessDesc', {
+              name: createdLabelSet.name,
+            }),
           })
         },
         onError: (err) => {
-          toast.error('Failed to create label set', {
+          toast.error(t('labelSets.toast.createError'), {
             description:
-              err instanceof Error ? err.message : 'An unknown error occurred',
+              err instanceof Error
+                ? err.message
+                : t('labelSets.toast.createErrorUnknown'),
           })
         },
       },
@@ -118,25 +122,29 @@ export const Component = () => {
               <Tag className="h-6 w-6" />
             </m.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Label Sets</h1>
+              <h1 className="text-xl font-bold tracking-tight">
+                {t('labelSets.page.title')}
+              </h1>
               <p className="text-sm text-text-secondary">
-                Manage your label collections
+                {t('labelSets.page.subtitle')}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-border bg-fill/50 px-3 py-2 text-xs text-text-tertiary md:flex">
-              <span className="font-medium text-text">Shortcuts</span>
+              <span className="font-medium text-text">
+                {t('labelSets.shortcuts.label')}
+              </span>
               <span className="rounded-md bg-fill px-1.5 py-0.5">N</span>
-              <span>new</span>
+              <span>{t('labelSets.shortcuts.new')}</span>
             </div>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               variant="primary"
             >
               <Plus className="mr-2 h-4 w-4" />
-              New label set
+              {t('labelSets.newLabelSet')}
             </Button>
           </div>
         </div>
@@ -163,26 +171,34 @@ export const Component = () => {
 
             <div className="rounded-2xl border border-border bg-background p-6">
               {isLoading ? (
-                <LoadingState message="Loading label sets..." />
+                <LoadingState message={t('labelSets.loading')} />
               ) : error ? (
                 <ErrorState
-                  title="Failed to load label sets"
+                  title={t('labelSets.error.title')}
                   onRetry={() => refetch()}
                 />
               ) : sortedLabelSets.length === 0 ? (
                 <EmptyState
-                  title="No label sets found"
-                  message="Get started by creating your first label set."
+                  title={t('labelSets.empty.title')}
+                  message={t('labelSets.empty.message')}
                 />
               ) : view === 'table' ? (
                 <Table variant="hover">
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Description</TableHead>
-                      <TableHead>Labels</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Updated</TableHead>
+                      <TableHead>{t('labelSets.table.headers.name')}</TableHead>
+                      <TableHead>
+                        {t('labelSets.table.headers.description')}
+                      </TableHead>
+                      <TableHead>
+                        {t('labelSets.table.headers.labels')}
+                      </TableHead>
+                      <TableHead>
+                        {t('labelSets.table.headers.created')}
+                      </TableHead>
+                      <TableHead>
+                        {t('labelSets.table.headers.updated')}
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -204,9 +220,9 @@ export const Component = () => {
                               {labelSet.labels.length}
                             </span>
                             <span className="text-xs text-text-tertiary">
-                              {labelSet.labels.length === 1
-                                ? 'label'
-                                : 'labels'}
+                              {t('labelSets.labels.unit', {
+                                count: labelSet.labels.length,
+                              })}
                             </span>
                             {labelSet.labels.length > 0 && (
                               <div className="ml-2 flex items-center gap-1">
@@ -264,9 +280,9 @@ export const Component = () => {
                         </div>
                         <div className="flex shrink-0 flex-col items-end gap-1">
                           <span className="inline-flex items-center rounded-full border border-border bg-fill px-2 py-0.5 text-xs font-medium text-text">
-                            {`${labelSet.labels.length} ${
-                              labelSet.labels.length === 1 ? 'label' : 'labels'
-                            }`}
+                            {t('labelSets.labels.count', {
+                              count: labelSet.labels.length,
+                            })}
                           </span>
                         </div>
                       </div>
@@ -292,16 +308,18 @@ export const Component = () => {
                           </>
                         ) : (
                           <span className="text-xs text-text-tertiary">
-                            No labels
+                            {t('labelSets.labels.empty')}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center justify-between text-xs text-text-tertiary">
                         <span title={formatDate(labelSet.createdAt)}>
-                          Created: {relativeTime(labelSet.createdAt, t)}
+                          {t('common.created')}:{' '}
+                          {relativeTime(labelSet.createdAt, t)}
                         </span>
                         <span title={formatDate(labelSet.updatedAt)}>
-                          Updated: {relativeTime(labelSet.updatedAt, t)}
+                          {t('common.updated')}:{' '}
+                          {relativeTime(labelSet.updatedAt, t)}
                         </span>
                       </div>
                     </div>

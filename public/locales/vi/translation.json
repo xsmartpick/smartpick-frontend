@@ -9,7 +9,17 @@
             "morning": "Chào buổi sáng",
             "afternoon": "Chào buổi chiều",
             "evening": "Chào buổi tối"
-        }
+        },
+        "created": "Khởi tạo",
+        "updated": "Đã cập nhật",
+        "images": "{{count}} hình ảnh",
+        "images_other": "{{count}} hình ảnh",
+        "placeholder": "nhập vào",
+        "cancel": "Hủy",
+        "create": "Tạo",
+        "close": "Đóng",
+        "apply": "Áp dụng",
+        "unknown": "Không rõ"
     },
     "navigation": {
         "home": {
@@ -55,6 +65,15 @@
             "title": "Ngôn ngữ",
             "english": "English",
             "vietnamese": "Tiếng Việt"
+        },
+        "placeholder": {
+            "name": "Người dùng",
+            "email": "user@example.com"
+        },
+        "menu": {
+            "openUserMenu": "Mở menu người dùng",
+            "editProfile": "Chỉnh sửa hồ sơ",
+            "signOut": "Đăng xuất"
         }
     },
     "dashboard": {
@@ -89,7 +108,8 @@
             "status": {
                 "inProgress": "Đang thực hiện",
                 "completed": "Hoàn thành dán nhãn"
-            }
+            },
+            "loading": "Đang tải hoạt động gần đây..."
         },
         "cta": {
             "title": "Sẵn sàng tiếp tục dán nhãn?",
@@ -137,7 +157,14 @@
             "updateSuccess": "Cập nhật dự án thành công",
             "archiveSuccess": "Lưu trữ dự án thành công",
             "updateError": "Không thể cập nhật dự án",
-            "updateErrorDesc": "Đã xảy ra lỗi khi cập nhật dự án."
+            "updateErrorDesc": "Đã xảy ra lỗi khi cập nhật dự án.",
+            "statusSuccess": "Dự án {{status}} thành công",
+            "status": {
+                "active": "kích hoạt",
+                "completed": "hoàn thành",
+                "archived": "lưu trữ"
+            },
+            "statusError": "Không thể cập nhật trạng thái dự án"
         },
         "modal": {
             "title": "Tạo Dự Án Mới",
@@ -160,6 +187,82 @@
             "cancel": "Hủy",
             "createButton": "Tạo Dự Án",
             "creating": "Đang tạo..."
+        },
+        "status": {
+            "active": "Đang hoạt động",
+            "completed": "Hoàn thành",
+            "archived": "Đã lưu trữ"
+        },
+        "actions": {
+            "markCompleted": "Đánh dấu hoàn thành",
+            "archive": "Lưu trữ dự án",
+            "setActive": "Đặt là hoạt động",
+            "delete": "Xóa dự án",
+            "edit": "Chỉnh sửa",
+            "editProject": "Chỉnh sửa dự án",
+            "viewBatches": "Xem lô hàng",
+            "viewTasks": "Xem tác vụ"
+        },
+        "card": {
+            "stats": {
+                "batches": "{{count}} lô hàng",
+                "batches_other": "{{count}} lô hàng",
+                "images": "{{count}} hình ảnh",
+                "images_other": "{{count}} hình ảnh"
+            },
+            "progress": "Tiến độ gán nhãn",
+            "pendingTasks": "{{count}} tác vụ đang chờ",
+            "pendingTasks_other": "{{count}} tác vụ đang chờ"
+        },
+        "details": {
+            "stats": {
+                "batches": "Lô hàng",
+                "images": "Hình ảnh",
+                "tasks": "Tác vụ",
+                "labelers": "Người gán nhãn"
+            },
+            "sections": {
+                "progress": "Tiến độ",
+                "imageLabeling": "Gán nhãn hình ảnh",
+                "taskCompletion": "Hoàn thành tác vụ",
+                "avgLabelingTime": "Thời gian gán nhãn TB",
+                "description": "Mô tả",
+                "recentActivity": "Hoạt động gần đây",
+                "details": "Chi tiết",
+                "technical": "Kỹ thuật",
+                "actions": "Hành động"
+            },
+            "info": {
+                "status": "Trạng thái",
+                "created": "Khởi tạo",
+                "lastUpdated": "Cập nhật lần cuối",
+                "createdBy": "Tạo bởi",
+                "updatedBy": "Cập nhật bởi",
+                "projectId": "ID dự án",
+                "organizationId": "ID tổ chức"
+            }
+        },
+        "confirmDelete": "Bạn có chắc muốn xóa dự án này? Thao tác này không thể hoàn tác.",
+        "edit": {
+            "title": "Chỉnh sửa dự án",
+            "description": "Cập nhật thông tin dự án.",
+            "fields": {
+                "name": "Tên dự án",
+                "description": "Mô tả"
+            },
+            "placeholders": {
+                "name": "Ví dụ: Phân loại sản phẩm 2024",
+                "description": "Dự án này về gì?"
+            },
+            "validation": {
+                "nameRequired": "Tên dự án là bắt buộc",
+                "nameMin": "Tên phải có ít nhất 2 ký tự",
+                "nameMax": "Tên phải ít hơn 64 ký tự"
+            },
+            "actions": {
+                "saving": "Đang lưu...",
+                "saveChanges": "Lưu thay đổi"
+            }
         }
     },
     "batches": {
@@ -173,35 +276,35 @@
             "new": "mới"
         },
         "stats": {
-            "totalBatches": "Tổng số batch",
+            "totalBatches": "Tổng số lô hàng",
             "totalImages": "Tổng số hình ảnh",
             "completed": "Đã hoàn thành"
         },
         "empty": {
-            "title": "Chưa có batch nào",
-            "message": "Tạo batch đầu tiên của bạn để bắt đầu tải lên và tổ chức hình ảnh.",
-            "button": "Tạo batch đầu tiên"
+            "title": "Chưa có lô hàng nào",
+            "message": "Tạo lô hàng đầu tiên của bạn để bắt đầu tải lên và tổ chức hình ảnh.",
+            "button": "Tạo lô hàng đầu tiên"
         },
         "noResults": {
-            "title": "Không tìm thấy batch",
+            "title": "Không tìm thấy lô hàng",
             "message": "Không tìm thấy batch nào khớp với \"{{query}}\"",
             "button": "Xóa tìm kiếm"
         },
         "error": {
-            "title": "Không thể tải batch"
+            "title": "Không thể tải lô hàng"
         },
         "toast": {
-            "createSuccess": "Tạo batch thành công!",
+            "createSuccess": "Tạo lô hàng thành công!",
             "createSuccessDesc": "{{name}} với {{count}} hình ảnh đã được tạo.",
-            "createError": "Không thể tạo batch",
-            "createErrorDesc": "Đã xảy ra lỗi khi tạo batch.",
-            "deleteSuccess": "Xóa batch thành công",
-            "deleteError": "Không thể xóa batch",
-            "deleteErrorDesc": "Đã xảy ra lỗi khi xóa batch."
+            "createError": "Không thể tạo lô hàng",
+            "createErrorDesc": "Đã xảy ra lỗi khi tạo lô hàng.",
+            "deleteSuccess": "Xóa lô hàng thành công",
+            "deleteError": "Không thể xóa lô hàng",
+            "deleteErrorDesc": "Đã xảy ra lỗi khi xóa lô hàng."
         },
         "modal": {
             "title": {
-                "details": "Tạo Batch Mới",
+                "details": "Tạo Lô Hàng Mới",
                 "uploading": "Đang Tải Lên...",
                 "upload": "Tải Lên Hình Ảnh"
             },
@@ -361,7 +464,9 @@
             "actions": {
                 "split": "Tách thành Tác Vụ",
                 "export": "Xuất batch",
-                "delete": "Xóa batch"
+                "delete": "Xóa batch",
+                "addImages": "Thêm hình ảnh",
+                "startLabeling": "Bắt đầu gán nhãn"
             },
             "stats": {
                 "totalImages": "Tổng Số Hình Ảnh",
@@ -379,6 +484,34 @@
                 "noImages": "Không có hình ảnh trong batch này",
                 "imageCount": "{{count}} hình ảnh",
                 "empty": "Batch này chưa có hình ảnh nào."
+            }
+        },
+        "upload": {
+            "toast": {
+                "allSuccess": "Tải lên tất cả tệp thành công!",
+                "allSuccessDesc": "Đã tải lên {{count}} tệp.",
+                "allSuccessDesc_other": "Đã tải lên {{count}} tệp.",
+                "someFailed": "Một số tệp tải lên thất bại",
+                "someFailedDesc": "{{successCount}} thành công, {{failedCount}} thất bại.",
+                "someFailedDescWithError": "{{successCount}} thành công, {{failedCount}} thất bại. {{error}}",
+                "failed": "Tải lên thất bại",
+                "failedDesc": "Đã xảy ra lỗi trong quá trình tải lên."
+            }
+        },
+        "addImages": {
+            "toast": {
+                "uploadSuccess": "Tải lên {{count}} tệp thành công!",
+                "uploadSuccess_other": "Tải lên {{count}} tệp thành công!",
+                "someFailed": "Một số tệp tải lên thất bại",
+                "someFailedDesc": "{{successCount}} thành công, {{failedCount}} thất bại.",
+                "uploadFailed": "Tải lên thất bại",
+                "uploadFailedDesc": "Đã xảy ra lỗi trong quá trình tải lên.",
+                "noImages": "Vui lòng thêm ít nhất một hình ảnh",
+                "noFilesUploaded": "Không có tệp nào được tải lên thành công",
+                "addedSuccess": "Đã thêm hình ảnh vào batch!",
+                "addedSuccessDesc": "Đã thêm {{count}} hình ảnh vào \"{{batchName}}\"",
+                "addedSuccessDesc_other": "Đã thêm {{count}} hình ảnh vào \"{{batchName}}\"",
+                "addedError": "Không thể thêm hình ảnh vào batch"
             }
         }
     },
@@ -444,6 +577,501 @@
             "auto": "Tự động duyệt",
             "manual": "Đã xem xét thủ công",
             "thresholdInfo": "Độ tin cậy ≥ {{threshold}}% ngưỡng"
+        }
+    },
+    "auth": {
+        "login": {
+            "branding": {
+                "subtitle": "Gán nhãn bằng AI",
+                "systemName": "Hệ thống phân loại hạt điều",
+                "tagline": "Phân loại chính xác nhờ AI, đơn giản hơn",
+                "copyright": "© 2025 Delta X"
+            },
+            "features": {
+                "gradeClassification": {
+                    "title": "Phân loại 24 cấp",
+                    "description": "Phân loại đầy đủ cho mọi cấp hạt điều"
+                },
+                "accuracy": {
+                    "title": "Độ chính xác 99,9%",
+                    "description": "Độ chính xác hàng đầu mà bạn có thể tin tưởng"
+                },
+                "processing": {
+                    "title": "Xử lý thời gian thực",
+                    "description": "Kết quả tức thì để tối ưu hiệu suất"
+                }
+            },
+            "form": {
+                "welcomeTitle": "Chào mừng trở lại",
+                "welcomeSubtitle": "Đăng nhập để tiếp tục vào bảng điều khiển",
+                "username": "Tên đăng nhập hoặc Email",
+                "usernamePlaceholder": "Nhập tên đăng nhập",
+                "password": "Mật khẩu",
+                "passwordPlaceholder": "Nhập mật khẩu",
+                "rememberMe": "Giữ đăng nhập trong 30 ngày",
+                "signIn": "Đăng nhập",
+                "signingIn": "Đang đăng nhập...",
+                "needHelp": "Cần hỗ trợ? Liên hệ quản trị hệ thống",
+                "qrCode": "Mã QR",
+                "toggleTheme": "Chuyển giao diện",
+                "validation": {
+                    "usernameRequired": "Tên đăng nhập là bắt buộc",
+                    "usernameMinLength": "Tên đăng nhập phải có ít nhất 3 ký tự",
+                    "passwordRequired": "Mật khẩu là bắt buộc",
+                    "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự"
+                }
+            },
+            "qr": {
+                "title": "Quét để bắt đầu gán nhãn",
+                "description": "Dùng camera điện thoại để quét và bắt đầu gán nhãn ngay."
+            }
+        },
+        "gateway": {
+            "checking": "Đang kiểm tra xác thực...",
+            "onboarding": "Đang thiết lập tài khoản...",
+            "redirecting": "Đang chuyển đến trang gán nhãn...",
+            "error": {
+                "title": "Không thể kết nối",
+                "retry": "Thử lại",
+                "unknown": "Lỗi không xác định"
+            }
+        },
+        "toast": {
+            "loginSuccessTitle": "Chào mừng trở lại, {{name}}!",
+            "loginSuccessDesc": "Bạn đã đăng nhập thành công.",
+            "loginErrorTitle": "Đăng nhập thất bại",
+            "loginErrorDefault": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.",
+            "logoutSuccess": "Đã đăng xuất thành công",
+            "qrGenerateError": "Không thể tạo mã QR",
+            "qrLoginSuccessTitle": "Đăng nhập thành công",
+            "qrLoginSuccessDesc": "Chào mừng trở lại, {{name}}!"
+        }
+    },
+    "label": {
+        "hub": {
+            "title": "Gán nhãn",
+            "selectTask": "Chọn một tác vụ để bắt đầu gán nhãn",
+            "selectBatch": "Chọn một batch để bắt đầu gán nhãn",
+            "viewModes": {
+                "tasks": "Tác vụ",
+                "batches": "Batch"
+            },
+            "availableLabels": "Nhãn có sẵn",
+            "sections": {
+                "tasksReady": "Tác vụ sẵn sàng gán nhãn",
+                "batchesReady": "Batch sẵn sàng gán nhãn"
+            },
+            "loading": {
+                "tasks": "Đang tải tác vụ...",
+                "batches": "Đang tải batch..."
+            },
+            "error": {
+                "tasks": "Không thể tải tác vụ",
+                "batches": "Không thể tải batch"
+            },
+            "empty": {
+                "tasks": {
+                    "title": "Không có tác vụ nào",
+                    "messageAdmin": "Tác vụ được tạo bằng cách tách batch. Hãy vào mục Batch và tách một batch thành các tác vụ.",
+                    "messageUser": "Chưa có tác vụ nào được giao cho bạn."
+                },
+                "batches": {
+                    "title": "Không có batch nào",
+                    "message": "Tạo một batch và chạy phân đoạn tự động để bắt đầu gán nhãn."
+                }
+            },
+            "card": {
+                "status": {
+                    "completed": "Hoàn thành",
+                    "inProgress": "Đang thực hiện",
+                    "todo": "Cần làm"
+                },
+                "progress": "Tiến độ",
+                "labeled": "đã gán nhãn",
+                "remaining": "còn lại",
+                "images": "hình ảnh",
+                "segments": "segment",
+                "updated": "Cập nhật",
+                "actions": {
+                    "continue": "Tiếp tục gán nhãn",
+                    "start": "Bắt đầu gán nhãn"
+                },
+                "segmentStats": {
+                    "title": "Segment",
+                    "approved": "đã duyệt",
+                    "pending": "chờ duyệt",
+                    "rejected": "đã từ chối"
+                }
+            }
+        },
+        "batchLabeling": {
+            "backButton": "Quay lại Batch",
+            "loading": "Đang tải segment để gán nhãn...",
+            "error": {
+                "title": "Không thể tải segment",
+                "unknown": "Đã xảy ra lỗi"
+            },
+            "empty": {
+                "title": "Không có segment nào",
+                "message": "Batch này không có segment đã được duyệt để gán nhãn. Hãy chạy phân đoạn tự động trước và duyệt segment trước khi gán nhãn."
+            },
+            "save": {
+                "success": "Đã lưu nhãn thành công!",
+                "successDesc": "{{count}} nhãn đã được lưu.",
+                "successDesc_other": "{{count}} nhãn đã được lưu.",
+                "error": "Không thể lưu nhãn",
+                "unknownError": "Lỗi không xác định"
+            },
+            "invalid": "ID batch không hợp lệ"
+        },
+        "taskLabeling": {
+            "backButton": "Quay lại tác vụ",
+            "loading": "Đang tải segment của tác vụ để gán nhãn...",
+            "error": {
+                "title": "Không thể tải segment của tác vụ",
+                "unknown": "Đã xảy ra lỗi"
+            },
+            "empty": {
+                "title": "Tác vụ không có segment",
+                "message": "Tác vụ này không có segment được gán. Tác vụ có thể đã được tạo sai hoặc segment đã bị xóa."
+            },
+            "invalid": "ID tác vụ không hợp lệ"
+        },
+        "labelingPage": {
+            "empty": "Không có hình ảnh để gán nhãn",
+            "shortcuts": {
+                "title": "Phím tắt",
+                "selectLabels": "Nhãn 1-9 để chọn nhãn",
+                "toggleSelection": "Nhập để bật/tắt lựa chọn"
+            },
+            "toast": {
+                "saveSuccess": "Đã lưu nhãn thành công!",
+                "saveDesc": "Đã lưu {{count}} nhãn.",
+                "saveDesc_other": "Đã lưu {{count}} nhãn.",
+                "updateTitle": "Cập nhật nhãn",
+                "updateDesc": "Đã ghi nhận {{count}} nhãn.",
+                "updateDesc_other": "Đã ghi nhận {{count}} nhãn."
+            }
+        }
+    },
+    "admintasks": {
+        "title": "Tác vụ",
+        "subtitle": "Tổng quan tác vụ liên batch cho quản trị viên",
+        "loading": "Đang tải tác vụ...",
+        "error": "Không thể tải tác vụ",
+        "empty": {
+            "title": "Không tìm thấy tác vụ",
+            "message": "Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm."
+        },
+        "table": {
+            "headers": {
+                "title": "Tiêu đề",
+                "batch": "Batch",
+                "status": "Trạng thái",
+                "priority": "Ưu tiên",
+                "assignee": "Người được giao",
+                "dueDate": "Hạn chót"
+            },
+            "unassigned": "Chưa giao"
+        },
+        "status": {
+            "todo": "Cần làm",
+            "inProgress": "Đang thực hiện",
+            "review": "Xem xét",
+            "done": "Hoàn thành"
+        },
+        "priority": {
+            "low": "Thấp",
+            "medium": "Trung bình",
+            "high": "Cao"
+        },
+        "toolbar": {
+            "searchPlaceholder": "Tìm kiếm tác vụ hoặc batch...",
+            "status": "Trạng thái",
+            "priority": "Ưu tiên",
+            "filterByStatus": "Lọc theo trạng thái",
+            "filterByPriority": "Lọc theo ưu tiên",
+            "clear": "Xóa",
+            "results": "{{count}} tác vụ được tìm thấy",
+            "results_other": "{{count}} tác vụ được tìm thấy"
+        },
+        "pagination": {
+            "pageOf": "Trang {{current}} / {{total}}"
+        }
+    },
+    "pages": {
+        "loading": {
+            "project": "Đang tải dự án...",
+            "batch": "Đang tải batch...",
+            "default": "Đang tải..."
+        },
+        "error": {
+            "project": "Không thể tải dự án",
+            "batch": "Không thể tải batch",
+            "notFound": {
+                "project": "Không tìm thấy dự án",
+                "projectMessage": "Không tìm thấy dự án với ID \"{{id}}\".",
+                "batch": "Không tìm thấy batch",
+                "batchMessage": "Không tìm thấy batch với ID \"{{id}}\"."
+            }
+        },
+        "backLinks": {
+            "projects": "Quay lại dự án",
+            "batches": "Quay lại batch",
+            "tasks": "Quay lại tác vụ"
+        }
+    },
+    "components": {
+        "toolbar": {
+            "search": "Tìm kiếm {{resource}}...",
+            "sort": "Sắp xếp",
+            "sortBy": "Sắp xếp theo",
+            "sortOptions": {
+                "updatedAt": "Cập nhật gần đây",
+                "name": "Tên",
+                "createdAt": "Đã tạo",
+                "ascending": "Tăng dần",
+                "descending": "Giảm dần"
+            },
+            "viewModes": {
+                "cards": "Thẻ",
+                "table": "Bảng"
+            }
+        }
+    },
+    "datasets": {
+        "toolbar": {
+            "title": "Bộ dữ liệu",
+            "subtitle": "Tạo và quản lý bộ dữ liệu trước khi bắt đầu gán nhãn."
+        },
+        "page": {
+            "title": "Bộ dữ liệu",
+            "subtitle": "Quản lý bộ sưu tập dữ liệu"
+        },
+        "shortcuts": {
+            "label": "Phím tắt",
+            "new": "mới"
+        },
+        "newDataset": "Bộ dữ liệu mới",
+        "loading": "Đang tải bộ dữ liệu...",
+        "error": {
+            "title": "Không thể tải bộ dữ liệu"
+        },
+        "empty": {
+            "title": "Không tìm thấy bộ dữ liệu",
+            "message": "Bắt đầu bằng cách tạo bộ dữ liệu đầu tiên của bạn."
+        },
+        "table": {
+            "headers": {
+                "name": "Tên",
+                "description": "Mô tả",
+                "mediaType": "Loại phương tiện",
+                "created": "Khởi tạo",
+                "updated": "Cập nhật"
+            }
+        },
+        "toast": {
+            "createSuccess": "Tạo bộ dữ liệu thành công!",
+            "createSuccessDesc": "{{name}} đã được thêm vào bộ dữ liệu của bạn.",
+            "createError": "Không thể tạo bộ dữ liệu",
+            "createErrorUnknown": "Đã xảy ra lỗi không xác định"
+        },
+        "create": {
+            "title": "Tạo bộ dữ liệu",
+            "description": "Tạo bộ dữ liệu mới để tổ chức tác vụ gán nhãn. Bạn có thể thêm mục đích gán nhãn sau.",
+            "fields": {
+                "name": "Tên",
+                "description": "Mô tả",
+                "mediaType": "Loại phương tiện"
+            },
+            "placeholders": {
+                "name": "Ví dụ: Bộ dữ liệu ảnh hướng điều",
+                "description": "Bạn đang gán nhãn gì? Có hướng dẫn hoặc ngữ cảnh cụ thể không?",
+                "mediaType": "Chọn loại phương tiện"
+            },
+            "hints": {
+                "name": "Giữ nó ngắn gọn và mô tả. Tối đa 64 ký tự.",
+                "description": "Tùy chọn. Hữu ích cho người gán nhãn sau này.",
+                "mediaType": "Loại tập phương tiện mà bộ dữ liệu này sẽ chứa."
+            },
+            "mediaTypes": {
+                "image": "Hình ảnh",
+                "video": "Video",
+                "audio": "Âm thanh",
+                "text": "Văn bản"
+            },
+            "validation": {
+                "nameRequired": "Tên là bắt buộc",
+                "nameMin": "Tên phải có ít nhất 2 ký tự",
+                "nameMax": "Tên phải ít hơn 64 ký tự",
+                "mediaTypeRequired": "Loại phương tiện là bắt buộc"
+            }
+        },
+        "details": {
+            "title": "Chi tiết bộ dữ liệu",
+            "confirmDelete": "Bạn có chắc muốn xóa bộ dữ liệu này? Thao tác này không thể hoàn tác.",
+            "sections": {
+                "basic": "Thông tin cơ bản",
+                "metadata": "Siêu dữ liệu",
+                "technical": "Chi tiết kỹ thuật"
+            },
+            "fields": {
+                "name": "Tên",
+                "description": "Mô tả",
+                "mediaType": "Loại phương tiện",
+                "createdAt": "Đã tạo vào",
+                "updatedAt": "Cập nhật vào",
+                "createdBy": "Tạo bởi",
+                "datasetId": "ID bộ dữ liệu"
+            },
+            "placeholders": {
+                "noDescription": "Chưa có mô tả"
+            },
+            "actions": {
+                "edit": "Chỉnh sửa bộ dữ liệu",
+                "delete": "Xóa bộ dữ liệu"
+            },
+            "validation": {
+                "nameMin": "Tên phải có ít nhất 2 ký tự."
+            },
+            "toast": {
+                "noChanges": "Không có thay đổi để áp dụng.",
+                "updateSuccess": "Cập nhật bộ dữ liệu thành công.",
+                "updateError": "Không thể cập nhật bộ dữ liệu.",
+                "updateErrorUnknown": "Đã xảy ra lỗi không xác định."
+            }
+        }
+    },
+    "labelSets": {
+        "toolbar": {
+            "title": "Bộ nhãn",
+            "subtitle": "Tạo và quản lý bộ nhãn để sử dụng với batch hình ảnh cho các tác vụ gán nhãn."
+        },
+        "page": {
+            "title": "Bộ nhãn",
+            "subtitle": "Quản lý bộ sưu tập nhãn"
+        },
+        "shortcuts": {
+            "label": "Phím tắt",
+            "new": "mới"
+        },
+        "newLabelSet": "Bộ nhãn mới",
+        "loading": "Đang tải bộ nhãn...",
+        "error": {
+            "title": "Không thể tải bộ nhãn"
+        },
+        "empty": {
+            "title": "Không tìm thấy bộ nhãn",
+            "message": "Bắt đầu bằng cách tạo bộ nhãn đầu tiên của bạn."
+        },
+        "table": {
+            "headers": {
+                "name": "Tên",
+                "description": "Mô tả",
+                "labels": "Nhãn",
+                "created": "Khởi tạo",
+                "updated": "Cập nhật"
+            }
+        },
+        "labels": {
+            "count": "{{count}} nhãn",
+            "count_other": "{{count}} nhãn",
+            "empty": "Không có nhãn",
+            "unit": "nhãn",
+            "unit_other": "nhãn"
+        },
+        "toast": {
+            "createSuccess": "Tạo bộ nhãn thành công!",
+            "createSuccessDesc": "{{name}} đã được thêm vào bộ nhãn của bạn.",
+            "createError": "Không thể tạo bộ nhãn",
+            "createErrorUnknown": "Đã xảy ra lỗi không xác định"
+        },
+        "create": {
+            "title": "Tạo bộ nhãn",
+            "description": "Tạo bộ nhãn mới ngay bây giờ. Bạn có thể thêm nhãn sau khi gán nhãn được bắt đầu.",
+            "fields": {
+                "name": "Tên",
+                "description": "Mô tả",
+                "labelsOptional": "Nhãn (tùy chọn)",
+                "labelName": "Tên nhãn",
+                "color": "Màu",
+                "labelDescription": "Mô tả (tùy chọn)"
+            },
+            "placeholders": {
+                "name": "Ví dụ: Nhãn phát hiện đối tượng",
+                "description": "Các nhãn này dùng cho mục đích gán nhãn hướng dẫn cụ thể không?",
+                "labelName": "Ví dụ: Người, Xe, Tốt",
+                "labelDescription": "Mô tả tùy chọn cho nhãn này"
+            },
+            "hints": {
+                "name": "Giữ nó ngắn gọn và mô tả. Tối đa 64 ký tự.",
+                "description": "Tùy chọn. Hữu ích cho việc tham khảo sau này.",
+                "labels": "Tùy chọn lựa chọn này. Bạn có thể thêm nhãn sau."
+            },
+            "actions": {
+                "addLabel": "Thêm nhãn",
+                "create": "Tạo bộ nhãn"
+            },
+            "validation": {
+                "nameRequired": "Tên là bắt buộc",
+                "nameMin": "Tên phải có ít nhất 2 ký tự",
+                "nameMax": "Tên phải ít hơn 64 ký tự"
+            }
+        },
+        "details": {
+            "title": "Chi tiết bộ nhãn",
+            "sections": {
+                "basic": "Thông tin cơ bản",
+                "labels": "Nhãn ({{count}})",
+                "metadata": "Siêu dữ liệu",
+                "technical": "Chi tiết kỹ thuật"
+            },
+            "fields": {
+                "name": "Tên",
+                "description": "Mô tả",
+                "createdAt": "Đã tạo vào",
+                "updatedAt": "Cập nhật vào",
+                "createdBy": "Tạo bởi",
+                "labelSetId": "ID bộ nhãn"
+            },
+            "placeholders": {
+                "noDescription": "Chưa có mô tả",
+                "noLabels": "Không có nhãn trong bộ này"
+            },
+            "actions": {
+                "edit": "Chỉnh sửa bộ nhãn",
+                "delete": "Xóa"
+            },
+            "validation": {
+                "nameMin": "Tên phải có ít nhất 2 ký tự."
+            },
+            "toast": {
+                "noChanges": "Không có thay đổi để áp dụng.",
+                "updateSuccess": "Cập nhật bộ nhãn thành công.",
+                "updateError": "Không thể cập nhật bộ nhãn.",
+                "updateErrorUnknown": "Đã xảy ra lỗi không xác định.",
+                "deleteSuccess": "Đã xóa bộ nhãn.",
+                "deleteError": "Không thể xóa bộ nhãn.",
+                "deleteErrorUnknown": "Đã xảy ra lỗi không xác định."
+            },
+            "delete": {
+                "title": "Xóa bộ nhãn?",
+                "description": "Thao tác này sẽ xóa vĩnh viễn \"{{name}}\".",
+                "confirm": "Xóa"
+            }
+        }
+    },
+    "tasks": {
+        "toolbar": {
+            "title": "Tác vụ của tôi",
+            "searchPlaceholder": "Tìm kiếm tác vụ...",
+            "status": {
+                "prefix": "Trạng thái: {{status}}",
+                "all": "Tất cả",
+                "todo": "Cần làm",
+                "inProgress": "Đang thực hiện",
+                "done": "Hoàn thành"
+            }
         }
     }
 }
