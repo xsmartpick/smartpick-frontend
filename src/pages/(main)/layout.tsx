@@ -72,13 +72,12 @@ export const Component = () => {
     const actuallyAuthenticated = isAuthenticated || hasAuth
 
     if (actuallyAuthenticated && isLoginPage) {
-      // Redirect authenticated users away from login page
       navigate('/', { replace: true })
     } else if (!actuallyAuthenticated && !isPublicPage) {
-      // Redirect unauthenticated users to login (except public pages)
       navigate('/login', { replace: true })
     }
-  }, [isAuthenticated, isLoginPage, isPublicPage, navigate, isHydrated])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isHydrated, isLoginPage, isPublicPage])
 
   // Handle role-based access redirects (only after hydration + auth)
   useEffect(() => {
@@ -87,10 +86,12 @@ export const Component = () => {
     const actuallyAuthenticated = isAuthenticated || hasAuth
     if (!actuallyAuthenticated) return
 
-    if (isAdminRoute(location.pathname) && role !== 'admin') {
+    const path = location.pathname
+    if (isAdminRoute(path) && role !== 'admin' && path !== '/label') {
       navigate('/label', { replace: true })
     }
-  }, [isAuthenticated, isHydrated, location.pathname, navigate, role])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isHydrated, location.pathname, role])
 
   // Public pages (login, start) have their own full layout, no sidebar needed
   if (isPublicPage) {
@@ -137,3 +138,5 @@ export const Component = () => {
     </div>
   )
 }
+
+export const HydrateFallback = () => null
