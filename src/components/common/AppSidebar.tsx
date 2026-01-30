@@ -11,6 +11,7 @@ import {
   Moon,
   MoreHorizontal,
   PenTool,
+  Shield,
   Sun,
   Tag,
   User,
@@ -49,6 +50,7 @@ interface NavItem {
   description?: string
   badge?: string | number
   adminOnly?: boolean
+  labelerOnly?: boolean
 }
 
 interface AppSidebarProps {
@@ -72,7 +74,9 @@ export function AppSidebar({
   const manualToggleRef = useRef(false)
   const isUserAdmin = isAdmin(user)
 
-  // Navigation items - labeler focused
+  // Navigation items - role-based separation
+  // Admin: Security monitoring only (Home + Audit)
+  // Labeler: Full working features (Home + all except Audit)
   const navItems: NavItem[] = [
     {
       id: 'home',
@@ -82,27 +86,11 @@ export function AppSidebar({
       description: t('navigation.home.description'),
     },
     {
-      id: 'projects',
-      label: t('navigation.projects.label'),
-      icon: <FolderKanban className="h-5 w-5" />,
-      href: '/projects',
-      description: t('navigation.projects.description'),
-      adminOnly: true,
-    },
-    {
-      id: 'batches',
-      label: t('navigation.batches.label'),
-      icon: <FolderOpen className="h-5 w-5" />,
-      href: '/batches',
-      description: t('navigation.batches.description'),
-      adminOnly: true,
-    },
-    {
-      id: 'admin-tasks',
-      label: t('navigation.adminTasks.label'),
-      icon: <ClipboardList className="h-5 w-5" />,
-      href: '/admintasks',
-      description: t('navigation.adminTasks.description'),
+      id: 'audit',
+      label: 'Audit Logs',
+      icon: <Shield className="h-5 w-5" />,
+      href: '/audit',
+      description: 'View system audit logs',
       adminOnly: true,
     },
     {
@@ -111,6 +99,15 @@ export function AppSidebar({
       icon: <PenTool className="h-5 w-5" />,
       href: '/label',
       description: t('navigation.label.description'),
+      labelerOnly: true,
+    },
+    {
+      id: 'projects',
+      label: t('navigation.projects.label'),
+      icon: <FolderKanban className="h-5 w-5" />,
+      href: '/projects',
+      description: t('navigation.projects.description'),
+      labelerOnly: true,
     },
     {
       id: 'datasets',
@@ -118,7 +115,15 @@ export function AppSidebar({
       icon: <Database className="h-5 w-5" />,
       href: '/datasets',
       description: t('navigation.datasets.description'),
-      adminOnly: true,
+      labelerOnly: true,
+    },
+    {
+      id: 'batches',
+      label: t('navigation.batches.label'),
+      icon: <FolderOpen className="h-5 w-5" />,
+      href: '/batches',
+      description: t('navigation.batches.description'),
+      labelerOnly: true,
     },
     {
       id: 'label-sets',
@@ -126,12 +131,26 @@ export function AppSidebar({
       icon: <Tag className="h-5 w-5" />,
       href: '/label-sets',
       description: t('navigation.labelSets.description'),
-      adminOnly: true,
+      labelerOnly: true,
+    },
+    {
+      id: 'admin-tasks',
+      label: t('navigation.adminTasks.label'),
+      icon: <ClipboardList className="h-5 w-5" />,
+      href: '/admintasks',
+      description: t('navigation.adminTasks.description'),
+      labelerOnly: true,
     },
   ]
-  const visibleNavItems = navItems.filter(
-    (item) => !item.adminOnly || isUserAdmin,
-  )
+
+  const visibleNavItems = navItems.filter((item) => {
+    // Admin only sees: Home + Audit
+    if (isUserAdmin) {
+      return !item.labelerOnly
+    }
+    // Labeler sees: Home + all except Audit
+    return !item.adminOnly
+  })
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'

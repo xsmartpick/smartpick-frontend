@@ -1,7 +1,7 @@
 import { apiClient } from '~/lib/api-client'
 import { API_ENDPOINTS } from '~/lib/endpoints'
 
-export type MediaType = 'image' | 'video' | 'audio' | 'text'
+export type MediaType = 'image' | 'video' | 'text'
 export type ExportFormat = 'yolo' | 'coco' | 'pascal_voc' | 'csv' | 'json'
 
 export interface DatasetBatch {
