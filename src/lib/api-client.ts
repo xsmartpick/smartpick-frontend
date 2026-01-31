@@ -1,10 +1,8 @@
 import { ofetch } from 'ofetch'
 
 // In development, use relative path to leverage Vite proxy
-// In production, use VITE_API_BASE_URL env var
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? '/v1' : 'http://localhost:8080/v1')
+// In production, use VITE_API_BASE_URL env var (set during CI build)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/v1'
 
 /**
  * Get the auth token from localStorage

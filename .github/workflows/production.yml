@@ -1,0 +1,81 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "*.md"
+      - "docs/**"
+      - ".vscode/**"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build for production
+        run: pnpm build
+        env:
+          VITE_API_BASE_URL: https://api.${{ secrets.DOMAIN }}/v1
+          VITE_APP_NAME: SmartPick
+          VITE_APP_VERSION: ${{ github.sha }}
+
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 host key
+        run: |
+          set -euo pipefail
+          SSH_PORT="${EC2_SSH_PORT:-22}"
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$SSH_PORT" "$EC2_HOST" >> ~/.ssh/known_hosts
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_SSH_PORT: ${{ secrets.EC2_SSH_PORT }}
+
+      - name: Deploy to EC2
+        run: |
+          set -euo pipefail
+          SSH_PORT="${EC2_SSH_PORT:-22}"
+          DEPLOY_DIR="${DEPLOY_DIR:-/opt/smartpick/caddy}"
+
+          echo "Deploying frontend to ${EC2_HOST}:${DEPLOY_DIR}/frontend..."
+
+          # Create frontend directory if needed
+          ssh -p "$SSH_PORT" "${EC2_USER}@${EC2_HOST}" "mkdir -p '${DEPLOY_DIR}/frontend'"
+
+          # Clear old files and deploy new ones
+          ssh -p "$SSH_PORT" "${EC2_USER}@${EC2_HOST}" "rm -rf '${DEPLOY_DIR}/frontend/'*"
+
+          # Copy built files
+          scp -P "$SSH_PORT" -r dist/* "${EC2_USER}@${EC2_HOST}:${DEPLOY_DIR}/frontend/"
+
+          echo "Frontend deployed successfully!"
+
+          # Show deployed files
+          ssh -p "$SSH_PORT" "${EC2_USER}@${EC2_HOST}" "ls -la '${DEPLOY_DIR}/frontend/'"
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_PORT: ${{ secrets.EC2_SSH_PORT }}
+          DEPLOY_DIR: ${{ secrets.CADDY_DEPLOY_DIR }}
