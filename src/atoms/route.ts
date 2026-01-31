@@ -27,7 +27,9 @@ export const [routeAtom, , , , getReadonlyRoute, setRoute] = createAtomHooks(
 
 export const useReadonlyRouteSelector = <T>(
   selector: (route: RouteAtom) => T,
-): T => useAtomValue(useMemo(() => selectAtom(routeAtom, selector), [selector]))
+): T =>
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useAtomValue(useMemo(() => selectAtom(routeAtom, selector), []))
 
 // Vite HMR will create new router instance, but RouterProvider always stable
 
