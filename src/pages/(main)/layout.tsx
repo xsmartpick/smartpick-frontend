@@ -108,6 +108,7 @@ export const Component = () => {
     return null
   }
 
+  // Block non-admin users from admin routes completely
   if (isAdminRoute(location.pathname) && role !== 'admin') {
     return null
   }

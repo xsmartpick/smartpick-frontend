@@ -3,7 +3,6 @@ import {
   Clock,
   FileText,
   Image,
-  Music,
   Type,
   User,
   Video,
@@ -54,9 +53,6 @@ function getMediaTypeIcon(mediaType?: MediaType) {
     }
     case 'video': {
       return <Video className="h-4 w-4" />
-    }
-    case 'audio': {
-      return <Music className="h-4 w-4" />
     }
     case 'text': {
       return <Type className="h-4 w-4" />
@@ -330,9 +326,6 @@ export function DatasetDetails({
                                 </SelectItem>
                                 <SelectItem value="video">
                                   {t('datasets.create.mediaTypes.video')}
-                                </SelectItem>
-                                <SelectItem value="audio">
-                                  {t('datasets.create.mediaTypes.audio')}
                                 </SelectItem>
                                 <SelectItem value="text">
                                   {t('datasets.create.mediaTypes.text')}

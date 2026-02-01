@@ -87,4 +87,9 @@ export const API_ENDPOINTS = {
     EXPORT: (id: string) => `/datasets/${id}/export`,
     ADD_BATCHES: (id: string) => `/datasets/${id}/batches`,
   },
+  AUDIT: {
+    LOGS: '/audit/logs',
+    STATS: '/audit/stats',
+    TIMELINE: '/audit/timeline',
+  },
 } as const

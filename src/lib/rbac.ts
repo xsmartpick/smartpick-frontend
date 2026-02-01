@@ -1,12 +1,8 @@
 import type { AuthRole, User } from '~/modules/auth/types'
 
-const ADMIN_ONLY_PREFIXES = [
-  '/projects',
-  '/datasets',
-  '/label-sets',
-  '/batches',
-  '/admintasks',
-]
+// Admin only sees: Audit logs
+// Labeler sees: Everything else (projects, datasets, batches, etc.)
+const ADMIN_ONLY_PREFIXES = ['/audit']
 
 export const getUserRole = (user: User | null | undefined): AuthRole | null => {
   const role = user?.orgRole ?? user?.role

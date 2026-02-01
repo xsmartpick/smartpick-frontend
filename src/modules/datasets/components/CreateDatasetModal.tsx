@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-export type MediaType = 'image' | 'video' | 'audio' | 'text'
+export type MediaType = 'image' | 'video' | 'text'
 
 export interface CreateDatasetFormData {
   name: string
@@ -204,9 +204,6 @@ export function CreateDatasetModal({
                 </SelectItem>
                 <SelectItem value="video">
                   {t('datasets.create.mediaTypes.video')}
-                </SelectItem>
-                <SelectItem value="audio">
-                  {t('datasets.create.mediaTypes.audio')}
                 </SelectItem>
                 <SelectItem value="text">
                   {t('datasets.create.mediaTypes.text')}
